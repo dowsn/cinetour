@@ -29,7 +29,8 @@
     "**/*.js",
     "**/*.jsx",
     "**/*.cjs",
-    "**/*.mjs"
+    "**/*.mjs",
+    "utils/database_programmests"
   ],
   "exclude": ["node_modules", "build"]
 }
