@@ -826,6 +826,7 @@ export async function getCinetouristById(id: number | undefined) {
 
 export type Subscriber = {
   subscriberId: number;
+  expiryTimestamp: string;
 };
 export async function createSubscriber(userId: number) {
   const [subscriber] = await sql<[Subscriber]>`
@@ -848,7 +849,7 @@ export async function getSubscriberByValidSubscription(userId: number) {
   const [subscriber] = await sql<[Subscriber | undefined]>`
 
   SELECT
-    subscriber_id
+   *
   FROM
     subscribers
   WHERE

@@ -12,6 +12,7 @@ import {
   getUserByValidSessionToken,
   Subscriber,
 } from '../utils/database';
+import { getReducedSubscriber } from '../utils/datastructures';
 
 const indexStyles = css`
   img {
@@ -40,7 +41,7 @@ const opts: YouTubeProps['opts'] = {
 };
 
 type Props = {
-  subscriber: Subscriber | undefined;
+  reducedSubscriber?: Subscriber | undefined;
   refreshUserProfile: () => Promise<void>;
 };
 
@@ -122,11 +123,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   if (user) {
     const subscriber = await getSubscriberByValidSubscription(user.id);
+    const reducedSubscriber = getReducedSubscriber(subscriber);
 
-    if (subscriber) {
+    if (reducedSubscriber) {
       return {
         props: {
-          subscriber: subscriber,
+          reducedSubscriber: reducedSubscriber,
         },
       };
     }

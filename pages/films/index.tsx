@@ -25,9 +25,6 @@ export default function Tours(props: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main css={filmsStyles}>
-        <Link href="/../cinemas">
-          <button>Programme</button>
-        </Link>
         <label>
           {' '}
           🔍

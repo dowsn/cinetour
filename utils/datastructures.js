@@ -48,3 +48,14 @@ export function getReducedProgramme(programme) {
   };
   return reducedprogramme;
 }
+
+export function getReducedSubscriber(s) {
+  if (!s) {
+    return undefined;
+  }
+  const reducedsubscriber = {
+    subcriberId: s.subcriberId,
+    expiryTimestamp: s.expiryTimestamp.toString(),
+  };
+  return reducedsubscriber;
+}

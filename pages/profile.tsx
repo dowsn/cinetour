@@ -37,8 +37,8 @@ export default function UserDetail(props: Props) {
       },
       body: JSON.stringify({
         quantity: '1',
-        mode: 'subscription',
-        priceId: 'price_1LGfUHES7FeuI2GqfP3ICJrR',
+        mode: 'payment',
+        priceId: 'price_1LH5k0ES7FeuI2GqdUFUUipn',
       }),
     });
 
@@ -69,6 +69,11 @@ export default function UserDetail(props: Props) {
           <p>{props.profile.firstName}</p>
           <h2>Last name:</h2>
           <p>{props.profile.lastName}</p>
+          {props.subscriber ? (
+            <p>{`${props.subscriber.expiryTimestamp}`}</p>
+          ) : (
+            ''
+          )}
           <h2>E-Mail:</h2>
           <p>{props.profile.email}</p>
           <h2>Self-description:</h2>

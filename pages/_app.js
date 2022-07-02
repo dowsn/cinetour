@@ -101,13 +101,12 @@ function MyApp({ Component, pageProps }) {
           input {
             font-family: 'Capriola', sans-serif;
             margin-right: 10px;
-            padding: 10px;
+            padding: 8px;
             margin-left: 10px;
+            height: 30px;
             border-radius: 10px;
             outline: solid ${colors.dark} 2px;
             border: solid white 2px;
-
-            padding: 10px;
 
             :focus {
               border: solid ${colors.blue} 2px;
@@ -120,11 +119,9 @@ function MyApp({ Component, pageProps }) {
 
           button {
             font-family: 'Capriola', sans-serif;
-            padding-right: 30px;
-            padding-left: 30px;
-            padding-top: 10px;
-            padding-bottom: 10px;
+            padding: 12px;
             border-radius: 10px;
+            height: 34px;
             background-color: ${colors.violet};
             color: white;
             border: solid white 4px;

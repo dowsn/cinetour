@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -27,6 +28,11 @@ const footerStyles = css`
     }
   }
 
+  p {
+    color: ${colors.dark};
+    text-align: center;
+  }
+
   img {
     cursor: pointer;
   }
@@ -47,15 +53,15 @@ const footerStyles = css`
   input {
     width: 10rem;
     margin: 0;
+    margin-top: 2px;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
 
   .button {
-    padding: 18px;
-    outline: solid ${colors.dark} 2px;
+    border: solid ${colors.dark} 2px;
     margin: 0;
-    border: none;
+    margin-bottom: 2px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
@@ -70,6 +76,10 @@ const footerStyles = css`
 `;
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [state, setState] = useState('');
+
   const [mail, setMail] = useState(false);
   const [facebook, setFacebook] = useState(false);
   const [instagram, setInstagram] = useState(false);
@@ -83,18 +93,36 @@ export default function Footer() {
   const onMouseEnter3 = () => setMail(true);
   const onMouseLeave3 = () => setMail(false);
 
+  const subscribe = async () => {
+    setError('');
+    try {
+      const response = await axios.post('/api/newsletter', { email });
+      setState('success');
+    } catch (e) {
+      setError(e.response.data.error);
+      setState('error');
+    }
+  };
+
   return (
     <footer css={footerStyles}>
       <div>
         <div className="newsletter">
-          <input id="newsletter" placeholder="john@gmail.com" />
-          <button type="submit" className="button">
+          <input
+            id="newsletter"
+            placeholder="lukas@gmail.com"
+            value={email}
+            onChange={(event) => setEmail(event.currentTarget.value)}
+          />
+          <button type="button" className="button" onClick={subscribe}>
             Join newsletter
           </button>
         </div>
+        {state === 'error' && <p>{error}</p>}
+        {state === 'success' && <p>Success!</p>}
         <nav>
           <div onMouseEnter={onMouseEnter1} onMouseLeave={onMouseLeave1}>
-            <Link href="https://www.facebook.com/">
+            <Link href="https://www.facebook.com/CineTour_Vienna">
               {facebook ? (
                 <Image
                   src="/contact/facebook2.png"
@@ -115,7 +143,7 @@ export default function Footer() {
             </Link>
           </div>
           <div onMouseEnter={onMouseEnter2} onMouseLeave={onMouseLeave2}>
-            <Link href="https://www.instagram.com/">
+            <Link href="https://www.instagram.com/cinetour_vienna/">
               {instagram ? (
                 <Image
                   src="/contact/instagram2.png"

@@ -27,10 +27,7 @@ export default function Cinetourists(props: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main css={filmsStyles}>
-        <Link href="/../tours">
-          <button>All Tours</button>
-        </Link>
-
+        <div>search</div>
         {/* cinetourists search for */}
         <ul>
           {cinetouristList

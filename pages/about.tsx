@@ -44,8 +44,8 @@ export default function About(props: Props) {
       },
       body: JSON.stringify({
         quantity: '1',
-        mode: 'subscription',
-        priceId: 'price_1LGfUHES7FeuI2GqfP3ICJrR',
+        mode: 'payment',
+        priceId: 'price_1LH5k0ES7FeuI2GqdUFUUipn',
       }),
     });
 
