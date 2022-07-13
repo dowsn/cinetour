@@ -31,9 +31,6 @@ export default async function handler(
       typeof req.body.firstName !== 'string' ||
       typeof req.body.lastName !== 'string' ||
       typeof req.body.email !== 'string' ||
-      typeof req.body.street !== 'string' ||
-      typeof req.body.streetNumber !== 'string' ||
-      typeof req.body.city !== 'string' ||
       typeof req.body.email !== 'string' ||
       typeof req.body.selfDescription !== 'string' ||
       !req.body.username ||
@@ -41,9 +38,6 @@ export default async function handler(
       !req.body.firstName ||
       !req.body.lastName ||
       !req.body.email ||
-      !req.body.street ||
-      !req.body.streetNumber ||
-      !req.body.city ||
       !req.body.email ||
       !req.body.selfDescription
     ) {
@@ -65,9 +59,6 @@ export default async function handler(
     const username = user.username;
     const firstName = user.firstName;
     const lastName = user.lastName;
-    const street = user.street;
-    const streetNumber = user.streetNumber;
-    const city = user.city;
     const email = user.email;
     const selfDescription = user.selfDescription;
 
@@ -84,9 +75,6 @@ export default async function handler(
       firstName,
       lastName,
       email,
-      street,
-      streetNumber,
-      city,
       selfDescription,
     );
 

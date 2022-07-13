@@ -1,0 +1,179 @@
+/** @jsxImportSource @emotion/react */
+
+import { css } from '@emotion/react';
+import { GetServerSidePropsContext } from 'next';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { getUserByValidSessionToken, User } from '../../../utils/database';
+import { getReducedProgramme } from '../../../utils/datastructures';
+
+type Props = {
+  programme: any;
+  user: User;
+  tour: any;
+};
+
+export const errorStyles = css`
+  background-color: #c24b4b;
+  color: white;
+  padding: 5px;
+  margin-top: 5px;
+`;
+
+export default function EditTour(props: Props) {
+  const [description, setDescription] = useState(props.tour.body);
+  const [errors, setErrors] = useState<{ message: string }[]>([]);
+  const router = useRouter();
+
+  async function deleteTourHandler(e: any) {
+    e.preventDefault();
+
+    const response = await fetch(`/api/tours/${props.tour.tourId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const deletedTour = await response.json();
+
+    console.log(deletedTour);
+
+    await router.push('/tours');
+  }
+
+  async function editTourHandler(e: any) {
+    e.preventDefault();
+
+    const response = await fetch(`/api/tours/${props.tour.tourId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        body: description,
+      }),
+    });
+
+    const editedProgramme = await response.json();
+
+    if ('error' in editedProgramme) {
+      setErrors(editedProgramme.error);
+      return;
+    }
+
+    await router.push(`/tours#${props.tour.tourId}}`);
+  }
+
+  return (
+    <div>
+      <Head>
+        <title>Create Tour</title>
+        <meta name="description" content="Create a tour" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <main>
+        <Link href="/tours">
+          <button>All Tours</button>
+        </Link>
+        <form>
+          <div>
+            <h2>
+              {props.programme.filmTitle} <br /> at <br />{' '}
+              {props.programme.date},
+              <br />
+              {props.programme.time} <br />
+              {props.programme.cinemaName}
+            </h2>
+          </div>
+          <label htmlFor="body">Description:</label>
+          <br />
+          <br />
+          <textarea
+            id="body"
+            rows={4}
+            cols={25}
+            value={description}
+            maxLength={100}
+            onChange={(event) => setDescription(event.currentTarget.value)}
+            placeholder="Please, describe clearly in 100 characters the most basic details
+  about your tour. "
+          ></textarea>
+          <br />
+          <br />
+
+          <button
+            onClick={(e) => {
+              editTourHandler(e).catch(() => {
+                console.log('Request fails');
+              });
+            }}
+          >
+            Edit Tour
+          </button>
+          <br />
+          <button
+            onClick={(e) => {
+              deleteTourHandler(e).catch(() => {
+                console.log('Request fails');
+              });
+            }}
+          >
+            Delete Tour
+          </button>
+          {errors.map((error) => (
+            <div css={errorStyles} key={`error-${error.message}`}>
+              {error.message}
+            </div>
+          ))}
+        </form>
+      </main>
+    </div>
+  );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const user = await getUserByValidSessionToken(
+    context.req.cookies.sessionToken,
+  );
+
+  const baseUrl = await process.env.BASE_URL;
+
+  const programmeId = context.query.programmeId;
+
+  const programmeResponse = await fetch(
+    `${baseUrl}/api/programmes/${Number(programmeId)}`,
+  );
+
+  const programme = await programmeResponse.json();
+
+  const reducedProgramme = getReducedProgramme(programme);
+
+  const tourResponse = await fetch(
+    `${baseUrl}/api/tours/${Number(programmeId)}`,
+  );
+
+  const tour = await tourResponse.json();
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: `/login?returnTO=/tours/create`,
+        permanent: false,
+      },
+    };
+  }
+
+  if (!tour) {
+    return {
+      redirect: {
+        destination: `/tours`,
+      },
+    };
+  }
+
+  return {
+    props: { user: user, programme: reducedProgramme, tour: tour },
+  };
+}

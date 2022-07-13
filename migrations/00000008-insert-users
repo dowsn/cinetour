@@ -1,14 +1,10 @@
 const users = [
   {
-    username: 'admin',
+    username: 'spielberg',
     password_hash: 'getPassword',
   },
   {
-    username: 'rado',
-    password_hash: 'getPassword',
-  },
-  {
-    username: 'baba',
+    username: 'paul.atreides',
     password_hash: 'getPassword',
   },
 ];

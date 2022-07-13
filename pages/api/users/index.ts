@@ -1,13 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  createProgramme,
-  getCinetourists,
-  getProgrammeByDate,
-  getProgrammeByFilm,
-  getProgrammes,
-  Programme,
-} from '../../../utils/database';
-import { getReducedProgramme } from '../../../utils/datastructures';
+import { getCinetourists } from '../../../utils/database';
 
 export default async function handler(
   req: NextApiRequest,
@@ -16,6 +8,10 @@ export default async function handler(
   // if method Get
   if (req.method === 'GET') {
     const users = await getCinetourists();
+
+    if (!users) {
+      return res.status(400).json({ error: 'Items are missing' });
+    }
 
     return res.status(200).json(users);
   }

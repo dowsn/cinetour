@@ -7,7 +7,6 @@ import {
   createSession,
   getUserWithPasswordHashByUsername,
 } from '../../utils/database';
-import UserDetail from '../cinetourists/[username]';
 
 export type LoginResponseBody =
   | {

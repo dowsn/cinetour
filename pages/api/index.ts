@@ -15,5 +15,9 @@ export default async function handler(
     profile: `${baseUrl}/api/profile`,
     register: `${baseUrl}/api/register`,
     subscribe: `${baseUrl}/api/subscribe`,
+    newsletter: `${baseUrl}/api/newsletter`,
+    tour_attendees: `${baseUrl}/api/tour_attendees`,
+    cinemas: `${baseUrl}/api/cinemas`,
+    friends: `${baseUrl}/api/friends`,
   });
 }

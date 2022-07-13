@@ -1,18 +1,27 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
+import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { colors } from '../styles/constants';
+import { getUserByValidSessionToken } from '../utils/database';
 import { LoginResponseBody } from './api/login';
 import { errorStyles } from './register';
 
-type Props = {
-  refreshUserProfile: () => Promise<void>;
-};
+const loginStyles = css`
+  a {
+    color: ${colors.blue};
 
-export default function Login(props: Props) {
+    :hover {
+      color: white;
+    }
+  }
+`;
+
+export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<
@@ -51,11 +60,9 @@ export default function Login(props: Props) {
       // (because this is untrusted user input)
       /^\/[a-zA-Z0-9-?=/]*$/.test(returnTo)
     ) {
-      await props.refreshUserProfile();
       await router.push(returnTo);
     } else {
       // redirect to user profile
-      await props.refreshUserProfile();
       await router.push(`/`);
     }
   }
@@ -67,16 +74,16 @@ export default function Login(props: Props) {
         <meta name="login" content="Login a new user" />
       </Head>
 
-      <main>
+      <main css={loginStyles}>
+        <h1>Login</h1>
         <div className="container">
           <div className="row">
-            <div className="col-auto">
-              <h1>Login</h1>
-            </div>
+            <div className="col-auto"></div>
           </div>
           <label>
             username:{' '}
             <input
+              placeholder="cinetourist1"
               value={username}
               onChange={(event) => {
                 setUsername(event.currentTarget.value);
@@ -88,12 +95,14 @@ export default function Login(props: Props) {
             password:{' '}
             <input
               type="password"
+              placeholder="XXXXXX"
               value={password}
               onChange={(event) => {
                 setPassword(event.currentTarget.value);
               }}
             />
           </label>
+          <br />
           <button onClick={() => loginHandler()}>Login</button>
           {errors.map((error) => (
             <div css={errorStyles} key={`error-${error.message}`}>
@@ -107,4 +116,21 @@ export default function Login(props: Props) {
       </main>
     </div>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const loggedUser = await getUserByValidSessionToken(
+    context.req.cookies.sessionToken,
+  );
+
+  if (loggedUser) {
+    return {
+      redirect: {
+        destination: `/profile`,
+        permanent: false,
+      },
+    };
+  }
+
+  return { props: {} };
 }

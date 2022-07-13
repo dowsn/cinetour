@@ -1,24 +1,56 @@
-/** @jsxImportSource @emotion/react */
-
-import { css } from '@emotion/react';
-import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import { getCinetourists, Username } from '../../utils/database';
 
-const filmsStyles = css`
-  div {
-  }
-`;
-
-type Props = { users: Username[] };
+type Props = { users: any[] };
 
 export default function Cinetourists(props: Props) {
-  const [cinetouristList, setCinetouristList] = useState<
-    Username[] | undefined
-  >(props.users);
-  console.log(cinetouristList);
+  const [cinetouristList, setCinetouristList] = useState<any | undefined>(
+    props.users,
+  );
+  const [cinetourist, setCinetourist] = useState('');
+
+  // getting alphabet
+  const alpha = Array.from(Array(26)).map((e, i) => i + 65);
+  const alphabet = alpha.map((x) => String.fromCharCode(x));
+
+  const handleFilter = (data: any, key: any, value: any) => {
+    return data.filter((item: any) => item[key] === value);
+  };
+
+  const renderData = (data: any) => (
+    <ul className="longList">
+      {alphabet.map((letter) => (
+        <li>
+          <div>
+            <h2>{letter}</h2>
+          </div>
+          {data
+            .filter(
+              (item: any) =>
+                item.username.charAt(0) === letter ||
+                item.username.charAt(0) === letter.toLowerCase(),
+            )
+            .sort((a: any, b: any) => a.username.localeCompare(b.username))
+            .map((item: any) => (
+              <div key={`cinetourist_id-${item.username}`}>
+                <Link href={`/cinetourists/${item.username}`}>
+                  {item.username}
+                </Link>
+              </div>
+            ))}
+        </li>
+      ))}
+    </ul>
+  );
+
+  const data = cinetouristList;
+  let filteredData = [...data];
+
+  if (cinetourist) {
+    filteredData = handleFilter(filteredData, 'username', cinetourist);
+  }
+
   return (
     <div>
       <Head>
@@ -26,20 +58,29 @@ export default function Cinetourists(props: Props) {
         <meta name="description" content="All Cinetourists" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main css={filmsStyles}>
-        <div>search</div>
-        {/* cinetourists search for */}
-        <ul>
-          {cinetouristList
-            ? cinetouristList.map((cinetourist) => (
-                <li key={`tour_id-${cinetourist.id}`}>
-                  <Link href={`/${cinetourist.username}`}>
-                    {cinetourist.username}
-                  </Link>
-                </li>
-              ))
-            : ''}
-        </ul>
+      <main>
+        <div>
+          <label htmlFor="film">Cinetourist:</label>
+          <input
+            type="text"
+            list="cinetourists"
+            value={cinetourist}
+            onChange={(event) => setCinetourist(event.currentTarget.value)}
+          />
+          <datalist id="cinetourists">
+            <option></option>
+            {props.users.map((user) => (
+              <option>{user.username}</option>
+            ))}
+          </datalist>
+        </div>
+        <div>
+          {!!filteredData.length ? (
+            renderData(filteredData)
+          ) : (
+            <p>Nothing found</p>
+          )}
+        </div>
       </main>
     </div>
   );

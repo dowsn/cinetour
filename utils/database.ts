@@ -37,91 +37,9 @@ function connectOneTimeToDatabase() {
 // Connect to PostgreSQL
 const sql = connectOneTimeToDatabase();
 
-// getting the programme table
-
-// export async function getProgrammeTable () {
-//   const films = await sql<Film[]>`
-//      SELECT
-//        *
-//      FROM
-//        films
-// };
-
-// getting data for films, cinemas, programme, tours, profiles
-
-// export type Film = {
-
-// }
-
-// export async function getFilms() {
-//   const films = await sql<Film[]>`
-//     SELECT * FROM films
-//   `;
-//   return films.map((film) => camelcaseKeys(film));
-// }
-
-// export async function getFilmByTitle(title: string | undefined) {
-//   if(!title) return undefined;
-//   const [film] = await sql<[Film | undefined]>`
-//     SELECT
-//       *
-//     FROM
-//       films
-//     WHERE
-//       title = ${title}
-//   `;
-
-//   return film && camelcaseKeys(film)
-// }
-
-// export async function insertTour(
-//   title: string,
-//   body: string,
-//   accessory: string,
-// ) {
-//   const [animal] = await sql`
-//     INSERT INTO animals
-//       (first_name, type, accessory)
-//     VALUES
-//       (${firstName}, ${type}, ${accessory})
-//     RETURNING *
-//   `;
-//   return camelcaseKeys(animal);
-// }
-
-// export async function updateAnimalById(
-//   id: number,
-//   firstName: string,
-//   accessory: string,
-// ) {
-//   const [animal] = await sql`
-//     UPDATE
-//       animals
-//     SET
-//       first_name = ${firstName},
-//       accessory = ${accessory}
-//     WHERE
-//       id = ${id}
-//     RETURNING *
-//   `;
-//   return camelcaseKeys(animal);
-// }
-
-// export async function deleteAnimalById(id: number) {
-//   const [animal] = await sql`
-//     DELETE FROM
-//       animals
-//     WHERE
-//       id = ${id}
-//     RETURNING *
-//   `;
-//   return camelcaseKeys(animal);
-// }
-
-// register api - creates a new user - meaning putting it into the database while not making passwordHash available
-
-// users and profiles:
-
+//
+// User
+//
 export type User = {
   id: number;
   username: string;
@@ -141,56 +59,56 @@ export async function createUser(username: string, passwordHash: string) {
   return camelcaseKeys(user);
 }
 
-export type Profile = {
-  userId: number;
-  firstName: string;
-  lastName: string;
-  street: string;
-  streetNumber: string;
-  city: string;
-  email: string;
-  selfDescription: string;
-};
+export async function deleteUserById(userId: number) {
+  if (!userId) return undefined;
 
-export async function createProfile(
-  userId: number,
-  firstName: string,
-  lastName: string,
-  email: string,
-  street: string,
-  streetNumber: string,
-  city: string,
-  selfDescription: string,
-) {
-  const [profile] = await sql<[Profile]>`
-  INSERT INTO profiles
-    ( user_id,
-      first_name,
-  last_name,
-  email,
-  street,
-  street_number,
-  city,
-  self_description)
-  VALUES
-    (${userId}, ${firstName}, ${lastName}, ${email}, ${street}, ${streetNumber}, ${city}, ${selfDescription})
+  const [user] = await sql<[User]>`
+  DELETE FROM users WHERE
+     users.id = ${userId}
   RETURNING
     *
   `;
 
-  return camelcaseKeys(profile);
+  return camelcaseKeys(user);
 }
 
-export async function getProfile(ProfileId: number) {
-  const [profile] = await sql<[Profile]>`
-  SELECT
-    *
-  FROM
+export async function updateUser(
+  userId: number,
+  username: string,
+  firstName: string,
+  lastName: string,
+  email: string,
+  selfDescription: string,
+) {
+  const [user] = await sql<[User]>`
+UPDATE
+  users
+SET
+  username = ${username}
+WHERE
+id = ${userId}
+RETURNING *
+`;
+
+  const [profile] = await sql<[Profile | undefined]>`
+  UPDATE
     profiles
+  SET
+  first_name = ${firstName},
+    last_name = ${lastName},
+    email = ${email},
+    self_description = ${selfDescription}
   WHERE
-    user_id = ${ProfileId}
+    user_id = ${userId}
+  RETURNING *
   `;
-  return profile && camelcaseKeys(profile);
+
+  const superUser = {
+    ...user,
+    ...profile,
+  };
+
+  return camelcaseKeys(superUser);
 }
 
 // register api, user page - gets user by its username in order to use the data on the website, or to check if the user already exist
@@ -331,6 +249,58 @@ SELECT
   return sessionId && camelcaseKeys(sessionId);
 }
 
+//
+// Profile
+//
+
+export type Profile = {
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  selfDescription: string;
+};
+
+export async function createProfile(
+  userId: number,
+  firstName: string,
+  lastName: string,
+  email: string,
+  selfDescription: string,
+) {
+  const [profile] = await sql<[Profile]>`
+  INSERT INTO profiles
+    ( user_id,
+      first_name,
+  last_name,
+  email,
+  self_description)
+  VALUES
+    (${userId}, ${firstName}, ${lastName}, ${email}, ${selfDescription})
+  RETURNING
+    *
+  `;
+
+  return camelcaseKeys(profile);
+}
+
+export async function getProfile(ProfileId: number) {
+  if (!ProfileId) return undefined;
+  const [profile] = await sql<[Profile | undefined]>`
+  SELECT
+    *
+  FROM
+    profiles
+  WHERE
+    user_id = ${ProfileId}
+  `;
+  return profile && camelcaseKeys(profile);
+}
+
+//
+// Admin
+//
+
 export type Admin = {
   admin_id: number;
 };
@@ -349,7 +319,7 @@ export async function getAdmin(userId: number) {
   return admin && camelcaseKeys(admin);
 }
 
-//  profile:
+//  csrf:
 
 // type SessionWithCSRF = Session & { csrfSecret: string };
 
@@ -374,36 +344,75 @@ export async function getAdmin(userId: number) {
 
 // for checking the admin
 
-//programmes:
+//
+// Programmes
+//
 
 export type Programme = {
-  programmesId: number;
+  programmeId: number;
+  tourId?: number | null;
   filmTitle: string;
   filmId: number;
   cinemaName: string;
-  time: string;
+  time: any;
+  genre: string;
   date: string;
+  username?: string | undefined;
+  hostId?: number | null;
   englishfriendly: boolean;
 };
 
 export async function getProgrammes() {
-  const programmes = await sql<Programme[]>`
+  const programmesWithTours = await sql<Programme[]>`
+      SELECT
+      programme_id,
+      film_title,
+      film_id,
+      cinema_name,
+      genre,
+      date,
+      username,
+      tours.id AS tour_id,
+      host_id,
+      time,
+      englishfriendly
+       FROM
+      films,
+      tours,
+      cinemas,
+      programmes,
+      users
+        WHERE
+      cinema_id = cinemas.id AND
+      programmes.id = programme_id AND
+      film_id = films.id AND
+      users.id = host_id
+    `;
+
+  const programmesWithoutTours = await sql<Programme[]>`
     SELECT
-    programmes.id AS programme_id,
-    film_title,
+    distinct programmes.id AS programme_id,
+     film_title,
     film_id,
     cinema_name,
+    genre,
     date,
     time,
     englishfriendly
      FROM
     films,
     cinemas,
-    programmes
+    programmes,
+    tours
       WHERE
     cinema_id = cinemas.id AND
-    film_id = films.id
+    film_id = films.id AND
+     programmes.id NOT IN (SELECT DISTINCT tours.programme_id FROM tours);
   `;
+
+  await deleteExpiredProgrammes();
+
+  const programmes = [...programmesWithTours, ...programmesWithoutTours];
   return camelcaseKeys(programmes);
 }
 
@@ -412,141 +421,21 @@ export type TourOrganizers = {
   username: string;
 };
 
-export async function getToursForProgrammes() {
-  const tours = await sql<TourOrganizers[]>`
-    SELECT
-    programme_id,
-    username
-     FROM
-    tours,
-    users
-      WHERE
-    users.id = host_id
-  `;
-  return tours && camelcaseKeys(tours);
-}
-
-// programmes
-// host_id = users.id AND
-
-export async function getProgrammeByFilm(filmTitle: string) {
-  if (!filmTitle) return undefined;
-
-  const films = await sql<Programme[]>`
-    SELECT
-    programme_id,
-    film_title,
-    cinema_name,
-    date,
-    time,
-    englishfriendly,
-    username
-     FROM
-    films,
-    cinemas,
-    programmes,
-    tours,
-    users
-      WHERE
-    cinema_id = cinemas.id AND
-    film_id = films.id AND
-    film_title = ${filmTitle} AND
-    host_id = users.id AND
-    programme_id = programmes.id
-  `;
-  return films && camelcaseKeys(films);
-}
-
-export async function getProgrammeByDate(date: Date) {
-  if (!date) return undefined;
-
-  const films = await sql<Programme[]>`
-    SELECT
-    programme_id,
-    film_title,
-    cinema_name,
-    date,
-    time,
-    englishfriendly,
-    username
-     FROM
-    films,
-    cinemas,
-    programmes,
-    tours,
-    users
-      WHERE
-    cinema_id = cinemas.id AND
-    film_id = films.id AND
-    date = ${date} AND
-    host_id = users.id AND
-    programme_id = programmes.id
-  `;
-  return films && camelcaseKeys(films);
-}
-
-export async function getProgrammeByEnglish(englishfriendly: boolean) {
-  const films = await sql<Programme[]>`
-    SELECT
-    programme_id,
-    film_title,
-    cinema_name,
-    date,
-    time,
-    englishfriendly,
-    username
-     FROM
-    films,
-    cinemas,
-    programmes,
-    tours,
-    users
-      WHERE
-    cinema_id = cinemas.id AND
-    film_id = films.id AND
-    englishfriendly = ${englishfriendly} AND
-    host_id = users.id AND
-    programme_id = programmes.id
-  `;
-  return films && camelcaseKeys(films);
-}
-
-export async function getProgrammeByCinema(cinemaName: string) {
-  const films = await sql<Programme[]>`
-SELECT
-programme_id,
-film_title,
-cinema_name,
-date,
-time,
-englishfriendly,
-username
- FROM
-films,
-cinemas,
-programmes,
-tours,
-users
-  WHERE
-cinema_id = cinemas.id AND
-film_id = films.id AND
-cinema_name = ${cinemaName} AND
-host_id = users.id AND
-programme_id = programmes.id
-`;
-  return films && camelcaseKeys(films);
-}
-
-//those are for api
 export async function getProgrammeById(id: number | undefined) {
   if (!id) return undefined;
-  const [programme] = await sql<[Programme | undefined]>`
+  const [programme] = await sql<[any]>`
     SELECT
-      *
+      programmes.id AS programme_id,
+      film_title,
+      cinema_name,
+      date,
+      time
     FROM
-      programmes
+      programmes,
+      films,
+      cinemas
     WHERE
-      id = ${id}
+      programmes.id = ${id}
   `;
   return programme && camelcaseKeys(programme);
 }
@@ -554,8 +443,8 @@ export async function getProgrammeById(id: number | undefined) {
 export async function createProgramme(
   filmId: number,
   cinemaId: number,
-  date: Date,
-  time: Date,
+  date: Date | string,
+  time: Date | string,
   englishfriendly: boolean,
 ) {
   const [programme] = await sql<[Programme]>`
@@ -566,6 +455,8 @@ export async function createProgramme(
     RETURNING
       film_id, cinema_id, date, time, englishfriendly
     `;
+
+  await deleteExpiredProgrammes();
 
   return camelcaseKeys(programme);
 }
@@ -606,7 +497,30 @@ export async function deleteProgrammeById(programmeId: number) {
   return camelcaseKeys(programme);
 }
 
-// cinemas:
+//
+// Tour attendees
+//
+
+export async function getAttendees() {
+  const tours = await sql<TourOrganizers[]>`
+    SELECT
+    programme_id,
+    username,
+    tour_id
+     FROM
+    tours,
+    users,
+    tours_attendees
+      WHERE
+    users.id = attendee_id AND
+    tours.id = tour_id
+  `;
+  return tours && camelcaseKeys(tours);
+}
+
+//
+// Cinemas
+//
 
 export type Cinemas = {
   id: number;
@@ -614,7 +528,7 @@ export type Cinemas = {
   address: string;
   longitude: number;
   lattitude: number;
-  cinema_description: string;
+  cinemaDescription: string;
   contact: string;
 };
 
@@ -629,7 +543,26 @@ export async function getCinemas() {
   return cinemas && camelcaseKeys(cinemas);
 }
 
-// films
+// getting cinema id in api for creating the programme
+
+export async function getCinemaIdByName(cinemaName: string) {
+  if (!cinemaName) {
+    return undefined;
+  }
+  const [cinema] = await sql<[Cinemas | undefined]>`
+  SELECT
+    *
+  FROM
+    cinemas
+  WHERE
+    cinema_name = ${cinemaName}
+  `;
+
+  return cinema && camelcaseKeys(cinema);
+}
+//
+// Films
+//
 
 export type Film = {
   id: number;
@@ -651,6 +584,18 @@ export async function getFilms() {
       films
   `;
   return films && camelcaseKeys(films);
+}
+
+export async function getFilmOfTheWeek() {
+  const [film] = await sql<[Film | undefined]>`
+    SELECT
+      *
+    FROM
+      films
+    WHERE
+    top_film IS TRUE
+  `;
+  return film && camelcaseKeys(film);
 }
 
 export async function createFilm(
@@ -730,15 +675,37 @@ export async function deleteFilmById(id: number) {
   return camelcaseKeys(film);
 }
 
+// getting film id in api for creating the programme
+export async function getFilmIdByName(filmTitle: string) {
+  if (!filmTitle) {
+    return undefined;
+  }
+  const [film] = await sql<[Film | undefined]>`
+  SELECT
+    id
+  FROM
+    films
+  WHERE
+    film_title = ${filmTitle}
+  `;
+
+  return film && camelcaseKeys(film);
+}
+
+//
 // Tours
+//
 
 export type Tour = {
-  tour_id: number;
+  tourId: number;
+  filmId: number;
   username: string;
   date: string;
   time: string;
   body: string;
+  hostId: number;
   cinemaName: string;
+  programmeId: number;
   filmTitle: string;
   trailer: string;
   genre: string;
@@ -748,7 +715,11 @@ export async function getTours() {
   const tours = await sql<Tour[]>`
     SELECT
     username,
-    tour_id,
+    tours.id AS tour_id,
+    host_id,
+    film_id,
+    body,
+    programme_id,
   date,
   time,
   cinema_name,
@@ -758,7 +729,6 @@ export async function getTours() {
   cinema_name
     FROM
       users,
-      tours_attendees,
       programmes,
       films,
       tours,
@@ -766,10 +736,11 @@ export async function getTours() {
   WHERE
     users.id = host_id AND
     programme_id = programmes.id AND
-    tour_id = tours.id AND
     film_id = films.id AND
     cinemas.id = cinema_id
     `;
+
+  await deleteExpiredProgrammes();
 
   return tours && camelcaseKeys(tours);
 }
@@ -791,15 +762,88 @@ export async function createTour(
   return camelcaseKeys(tour);
 }
 
-// Cinetourists
+export async function getTourByProgrammeId(programmeId: number) {
+  const [tour] = await sql<[any]>`
+  SELECT
+    tours.id AS tour_id,
+    body,
+    programme_id
+  FROM
+    tours
+  WHERE
+    programme_id = ${programmeId}
+  `;
 
-export type Username = {
-  id: number;
-  username: string;
-};
+  return camelcaseKeys(tour);
+}
+
+export async function updateTourById(tourId: number, body: string) {
+  const [tour] = await sql`
+    UPDATE
+      tours
+    SET
+      body = ${body}
+    WHERE
+      id = ${tourId}
+    RETURNING *
+  `;
+  return camelcaseKeys(tour);
+}
+
+export async function deleteTourById(tourId: number) {
+  const [tour] = await sql`
+  DELETE FROM
+    tours
+  WHERE
+    id = ${tourId}
+  RETURNING *
+`;
+
+  return camelcaseKeys(tour);
+}
+
+export async function joinTourbyUserId(tourId: number, userId: number) {
+  const [tour_attendee] = await sql<any>`
+  INSERT INTO tours_attendees
+    (tour_id, attendee_id)
+  VALUES
+    (${tourId}, ${userId})
+  RETURNING
+    *
+  `;
+
+  return camelcaseKeys(tour_attendee);
+}
+
+export async function unjoinTourbyUserId(attendeeId: number) {
+  const [tour_attendee] = await sql`
+  DELETE FROM
+  tours_attendees
+  WHERE
+    attendee_id = ${attendeeId}
+  RETURNING *
+  `;
+
+  return camelcaseKeys(tour_attendee);
+}
+
+export async function deleteExpiredProgrammes() {
+  const tours = await sql<[Programme[]]>`
+    DELETE FROM programmes
+  WHERE
+    date < now()::date
+  RETURNING *
+  `;
+
+  return tours.map((tour) => camelcaseKeys(tour));
+}
+
+//
+// Cinetourists
+//
 
 export async function getCinetourists() {
-  const users = await sql<Username[]>`
+  const users = await sql<User[]>`
     SELECT
      id, username
     FROM
@@ -811,7 +855,7 @@ export async function getCinetourists() {
 
 export async function getCinetouristById(id: number | undefined) {
   if (!id) return undefined;
-  const [film] = await sql<[Username | undefined]>`
+  const [film] = await sql<[User | undefined]>`
       SELECT
         *
       FROM
@@ -822,18 +866,24 @@ export async function getCinetouristById(id: number | undefined) {
   return film && camelcaseKeys(film);
 }
 
-// subscribers
+//
+// Subscribers
+//
 
 export type Subscriber = {
   subscriberId: number;
   expiryTimestamp: string;
+  checkoutSession: string;
 };
-export async function createSubscriber(userId: number) {
+export async function createSubscriber(
+  userId: number,
+  checkoutSession: string,
+) {
   const [subscriber] = await sql<[Subscriber]>`
   INSERT INTO subscribers
-    (subscriber_id)
+    (subscriber_id, checkout_session)
   VALUES
-    (${userId})
+    (${userId}, ${checkoutSession})
   RETURNING
     *
   `;
@@ -862,6 +912,28 @@ export async function getSubscriberByValidSubscription(userId: number) {
   return subscriber && camelcaseKeys(subscriber);
 }
 
+export async function getSubscriberByExistingCheckoutSession(
+  sessionId: string,
+) {
+  if (!sessionId) {
+    return undefined;
+  }
+
+  const [subscriber] = await sql<[Subscriber | undefined]>`
+
+SELECT
+ *
+FROM
+  subscribers
+WHERE
+checkout_session= ${sessionId}
+`;
+
+  await deleteExpiredSubscribers();
+
+  return subscriber && camelcaseKeys(subscriber);
+}
+
 export async function deleteExpiredSubscribers() {
   const subscribers = await sql<[Subscriber[]]>`
     DELETE FROM subscribers
@@ -871,4 +943,86 @@ export async function deleteExpiredSubscribers() {
   `;
 
   return subscribers.map((subscriber) => camelcaseKeys(subscriber));
+}
+
+//
+// Friends
+//
+
+export type Friend = {
+  username: string;
+  friendId: number;
+};
+
+export async function getFriends(userId: number) {
+  if (!userId) return undefined;
+  const friends = await sql<Friend[]>`
+    SELECT
+    friend1_id AS friend_id,
+    username
+    FROM
+    friends,
+    users
+  WHERE
+    friend2_id = ${userId} AND
+    users.id = friend1_id
+  `;
+
+  const friends2 = await sql<Friend[]>`
+SELECT
+friend2_id AS friend_id,
+username
+FROM
+friends,
+users
+WHERE
+friend1_id = ${userId} AND
+users.id = friend2_id
+`;
+
+  const SuperFriends = [...friends, ...friends2];
+
+  return SuperFriends && camelcaseKeys(SuperFriends);
+}
+
+export async function getFriendByOwnId(userId: number) {
+  if (!userId) return undefined;
+  const [friend] = await sql<[Friend | undefined]>`
+    SELECT
+    *
+    FROM
+    friends
+  WHERE
+    friend1_id = ${userId} or
+    friend2_id = ${userId}
+  `;
+  return friend && camelcaseKeys(friend);
+}
+
+export async function createFriend(userId: number, friendId: number) {
+  const [friend] = await sql<[Friend]>`
+  INSERT INTO friends
+    (friend1_id, friend2_id)
+  VALUES
+    (${userId}, ${friendId})
+  RETURNING
+    *
+  `;
+
+  return camelcaseKeys(friend);
+}
+
+export async function deleteFriendById(userId: number, friendId: number) {
+  if (!friendId) return undefined;
+  const [friend] = await sql<[Friend | undefined]>`
+    DELETE FROM friends
+  WHERE
+    (friend1_id = ${userId} and
+    friend2_id = ${friendId}) or
+    (friend1_id = ${friendId} and
+    friend2_id = ${userId})
+  RETURNING *
+  `;
+
+  return friend && camelcaseKeys(friend);
 }

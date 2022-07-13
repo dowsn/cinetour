@@ -24,7 +24,6 @@ export default async function handler(request, response) {
     success_url: successUrl + '?session_id={CHECKOUT_SESSION_ID}',
     cancel_url: cancelUrl,
   });
-  console.log(session);
   // response the client with the new session or an error if no session
 
   if (!session) {

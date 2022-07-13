@@ -1,53 +1,48 @@
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
 import {
+  Cinemas,
   Film,
   getAdmin,
-  getFilms,
   getUserByValidSessionToken,
   Programme,
-  User,
 } from '../utils/database';
+import { errorStyles } from './register';
 
-type Props = { user: User, programmes: Programme[] };
+type Props = { films: Film[]; cinemas: Cinemas[]; programmes: Programme[] };
 
 export default function EditProgrammes(props: Props) {
   // list of units
-  const [programmeList, setProgrammeList] = useState<Programme[]>(props.programmes);
+  const [programmeList, setProgrammeList] = useState<Programme[]>(
+    props.programmes,
+  );
+
+  //possible errors
+  const [errors, setErrors] = useState<
+    {
+      message: string;
+    }[]
+  >([]);
 
   // enable or disable
   const [activeProgrammeId, setActiveProgrammeId] = useState<
-    Film['id'] | undefined
+    Programme['programmeId'] | undefined
   >(undefined);
 
   // states for new unit
   const [newFilm, setNewFilm] = useState('');
   const [newCinema, setNewCinema] = useState('');
-  const [newDate, setNewDate] = useState('');
+  const [newDate, setNewDate] = useState<any>(null);
   const [newTime, setNewTime] = useState('');
   const [newEnglish, setNewEnglish] = useState(false);
 
   // states for updated unit
   const [editFilm, setEditFilm] = useState('');
   const [editCinema, setEditCinema] = useState('');
-  const [editDate, setEditDate] = useState('');
-  const [editTime, setEditTime] = useState('');
+  const [editDate, setEditDate] = useState<any>(null);
+  const [editTime, setEditTime] = useState<any>('');
   const [editEnglish, setEditEnglish] = useState(false);
-
-
-  // getting animals via api
-
-  useEffect(() => {
-    async function getProgrammelist() {
-      const request = await fetch('/api/programmes');
-      const programmes = await request.json();
-      setProgrammeList(programmes;
-    }
-    getProgrammelist().catch(() => {
-      console.log('programme request fails');
-    });
-  }, []);
 
   async function createProgrammeHandler() {
     const response = await fetch('/api/programmes', {
@@ -56,74 +51,84 @@ export default function EditProgrammes(props: Props) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        filmId: newFilm,
-        cinemaId: newCinema,
+        filmTitle: newFilm,
+        cinemaName: newCinema,
         date: newDate,
         time: newTime,
-        englishfriendly: newEnglish
+        englishfriendly: newEnglish,
       }),
     });
-    const createdFilm = await response.json();
-    console.log(createdFilm);
+    const createdProgramme = await response.json();
+
+    if ('errors' in createdProgramme) {
+      setErrors(createdProgramme.errors);
+      return;
+    }
     // copy state
     // update copy of the state
-    const newState = [...filmList, createdFilm];
+    const newState = [...programmeList, createdProgramme];
     // use setState func
 
     setProgrammeList(newState);
-    setActiveFilmId(1);
+    setActiveProgrammeId(1);
     setNewFilm('');
-    setNewGenre('');
-    setNewDirector('');
-    setNewSynopsis('');
-    setNewTrailer('');
-    setNewYear(undefined);
-    setNewCountry('');
-    setNewTopFilm(false);
+    setNewCinema('');
+    setNewDate(null);
+    setNewTime('');
+    setNewEnglish(false);
   }
 
-  async function deleteFilmHandler(id: number) {
-    const response = await fetch(`api/films/${id}`, {
+  async function deleteProgrammeHandler(id: number) {
+    const response = await fetch(`api/programmes/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    const deletedFilm = await response.json();
+    const deletedProgramme = await response.json();
+
+    if ('errors' in deletedProgramme) {
+      setErrors(deletedProgramme.errors);
+      return;
+    }
 
     // copy state
     // update copy of the state
-    const newState = filmList.filter((film) => film.id !== deletedFilm.id);
+    const newState = programmeList.filter(
+      (programme) => programme.programmeId !== deletedProgramme.id,
+    );
     // use setState func
     setProgrammeList(newState);
   }
 
-  async function updateFilmHandler(id: number) {
-    const response = await fetch(`api/films/${id}`, {
+  async function updateProgrammeHandler(id: number) {
+    const response = await fetch(`api/programmes/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         filmTitle: editFilm,
-        genre: editGenre,
-        director: editDirector,
-        synopsis: editSynopsis,
-        trailer: editTrailer,
-        year: editYear,
-        country: editCountry,
-        topFilm: editTopFilm,
+        cinemaName: editCinema,
+        date: editDate,
+        time: editTime,
+        englishfriendly: editEnglish,
       }),
     });
-    const updatedFilm = await response.json();
+    const updatedProgramme = await response.json();
+
+    if ('errors' in updatedProgramme) {
+      setErrors(updatedProgramme.errors);
+      return;
+    }
 
     // copy state
     // update copy of the state
-    const newState = filmList.map((film) => {
-      if (film.id === updatedFilm.id) {
-        return updatedFilm;
+    const newState = programmeList.map((programme) => {
+      if (programme.programmeId === updatedProgramme.id) {
+        return updatedProgramme;
       } else {
-        return film;
+        return programme;
       }
     });
     // use setState func
@@ -136,262 +141,253 @@ export default function EditProgrammes(props: Props) {
         <Link href="/../profile">
           <button>Back</button>
         </Link>
-        <label>
-          {' '}
-          Film title:
+        <br />
+        <br />
+
+        <div>
+          <label htmlFor="film">Film:</label>
           <input
+            type="text"
+            list="films"
             value={newFilm}
             onChange={(event) => setNewFilm(event.currentTarget.value)}
           />
-        </label>
+          <datalist id="films">
+            <option></option>
+            {props.films.map((film) => (
+              <option>{film.filmTitle}</option>
+            ))}
+          </datalist>
+        </div>
+        <div>
+          <label htmlFor="film">Cinema:</label>
+          <input
+            type="text"
+            list="cinemas"
+            value={newCinema}
+            onChange={(event) => setNewCinema(event.currentTarget.value)}
+          />
+          <datalist id="cinemas">
+            <option></option>
+            {props.cinemas.map((cinema) => (
+              <option>{cinema.cinemaName}</option>
+            ))}
+          </datalist>
+        </div>
+
         <label>
           {' '}
-          Genre:
+          Date:
           <input
-            value={newGenre}
-            onChange={(event) => setNewGenre(event.currentTarget.value)}
+            type="date"
+            value={newDate}
+            onChange={(event) => setNewDate(event.currentTarget.value)}
           />
         </label>
         <label>
           {' '}
-          Director:
+          Time:
           <input
-            value={newDirector}
-            onChange={(event) => setNewDirector(event.currentTarget.value)}
+            type="time"
+            value={newTime}
+            onChange={(event) => setNewTime(event.currentTarget.value)}
           />
         </label>
+
         <label>
           {' '}
-          Synopsis:
-          <textarea
-            rows={4}
-            cols={50}
-            value={newSynopsis}
-            onChange={(event) => setNewSynopsis(event.currentTarget.value)}
-          ></textarea>
-        </label>
-        <label>
-          {' '}
-          Trailer:
-          <input
-            value={newTrailer}
-            onChange={(event) => setNewTrailer(event.currentTarget.value)}
-          />
-        </label>
-        <label>
-          {' '}
-          Year:
-          <input
-            value={newYear}
-            onChange={(event) => setNewYear(Number(event.currentTarget.value))}
-          />
-        </label>
-        <label>
-          {' '}
-          Country:
-          <input
-            value={newCountry}
-            onChange={(event) => setNewCountry(event.currentTarget.value)}
-          />
-        </label>
-        <label>
-          {' '}
-          Top Film:
+          English Friendly:
           <input
             type="checkbox"
-            checked={newTopFilm}
-            onChange={(event) => setNewTopFilm(event.currentTarget.checked)}
+            checked={newEnglish}
+            onChange={(event) => setNewEnglish(event.currentTarget.checked)}
           />
         </label>
+        <br />
         <button
           onClick={() => {
-            createFilmHandler().catch(() => {
-              console.log('film request fails');
+            createProgrammeHandler().catch(() => {
+              console.log('programme request fails');
             });
           }}
         >
           Add
         </button>
-        <hr />
-        {filmList
-          .sort((a, b) => a.filmTitle.localeCompare(b.filmTitle))
-          .map((film) => {
-            return film.id === activeFilmId ? (
-              <Fragment key={film.id}>
-                <label>
-                  {' '}
-                  Film title:
+        {errors.map((error) => (
+          <div css={errorStyles} key={`error-${error.message}`}>
+            {error.message}
+          </div>
+        ))}
+        <br />
+        <div className="whiteLine"></div>
+        <br />
+        {programmeList
+          .sort(function (a: Programme, b: Programme) {
+            let c: any = new Date(a.date);
+            let d: any = new Date(b.date);
+            return c - d;
+          })
+          .sort((a, b) => a.time.localeCompare(b.time))
+          .map((programme) => {
+            return programme.programmeId === activeProgrammeId ? (
+              <Fragment key={programme.programmeId}>
+                <div>
+                  <label htmlFor="film">Film:</label>
                   <input
+                    type="text"
+                    list="films"
                     value={editFilm}
                     onChange={(event) => setEditFilm(event.currentTarget.value)}
                   />
-                </label>
+                  <datalist id="films">
+                    <option></option>
+                    {props.films.map((film) => (
+                      <option>{film.filmTitle}</option>
+                    ))}
+                  </datalist>
+                </div>
+                <div>
+                  <label htmlFor="film">Cinema:</label>
+                  <input
+                    type="text"
+                    list="cinemas"
+                    value={editCinema}
+                    onChange={(event) =>
+                      setEditCinema(event.currentTarget.value)
+                    }
+                  />
+                  <datalist id="cinemas">
+                    <option></option>
+                    {props.cinemas.map((cinema) => (
+                      <option>{cinema.cinemaName}</option>
+                    ))}
+                  </datalist>
+                </div>
+
                 <label>
                   {' '}
-                  Genre:
+                  Date:
                   <input
-                    value={editGenre}
-                    onChange={(event) =>
-                      setEditGenre(event.currentTarget.value)
-                    }
+                    type="date"
+                    value={editDate}
+                    onChange={(event) => setEditDate(event.currentTarget.value)}
                   />
                 </label>
                 <label>
                   {' '}
-                  Director:
+                  Time:
                   <input
-                    value={editDirector}
-                    onChange={(event) =>
-                      setEditDirector(event.currentTarget.value)
-                    }
+                    type="time"
+                    value={editTime}
+                    onChange={(event) => setEditTime(event.currentTarget.value)}
                   />
                 </label>
                 <label>
                   {' '}
-                  Synopsis:
-                  <textarea
-                    rows={4}
-                    cols={50}
-                    value={editSynopsis}
-                    onChange={(event) =>
-                      setEditSynopsis(event.currentTarget.value)
-                    }
-                  ></textarea>
-                </label>
-                <label>
-                  {' '}
-                  Trailer:
-                  <input
-                    value={editTrailer}
-                    onChange={(event) =>
-                      setEditTrailer(event.currentTarget.value)
-                    }
-                  />
-                </label>
-                <label>
-                  {' '}
-                  Year:
-                  <input
-                    value={editYear}
-                    onChange={(event) =>
-                      setEditYear(Number(event.currentTarget.value))
-                    }
-                  />
-                </label>
-                <label>
-                  {' '}
-                  Country:
-                  <input
-                    value={editCountry}
-                    onChange={(event) =>
-                      setEditCountry(event.currentTarget.value)
-                    }
-                  />
-                </label>
-                <label>
-                  {' '}
-                  Top Film:
+                  English Friendly:
                   <input
                     type="checkbox"
-                    checked={editTopFilm}
+                    checked={newEnglish}
                     onChange={(event) =>
-                      setEditTopFilm(event.currentTarget.checked)
+                      setNewEnglish(event.currentTarget.checked)
                     }
                   />
                 </label>
+                <br />
                 <button
                   onClick={() => {
-                    setActiveFilmId(undefined);
-                    updateFilmHandler(film.id).catch(() => {
-                      console.log('film request fails');
+                    setActiveProgrammeId(undefined);
+                    updateProgrammeHandler(programme.programmeId).catch(() => {
+                      console.log('programme request fails');
                     });
                   }}
                 >
                   Save
                 </button>
+                {errors.map((error) => (
+                  <div css={errorStyles} key={`error-${error.message}`}>
+                    {error.message}
+                  </div>
+                ))}
                 <button
                   onClick={() =>
-                    deleteFilmHandler(film.id).catch(() => {
-                      console.log('film request fails');
+                    deleteProgrammeHandler(programme.programmeId).catch(() => {
+                      console.log('programme request fails');
                     })
                   }
                 >
                   X
                 </button>
-                <hr />
+                {errors.map((error) => (
+                  <div css={errorStyles} key={`error-${error.message}`}>
+                    {error.message}
+                  </div>
+                ))}
+                <br />
+                <div className="whiteLine"></div>
+                <br />
               </Fragment>
             ) : (
-              <Fragment key={film.id}>
+              <Fragment key={programme.programmeId}>
                 <label>
                   {' '}
                   Film title:
-                  <input value={film.filmTitle} disabled />
+                  <input value={programme.filmTitle} disabled />
                 </label>
                 <label>
                   {' '}
-                  Genre:
-                  <input value={film.genre} disabled />
+                  Cinema:
+                  <input value={programme.cinemaName} disabled />
                 </label>
                 <label>
                   {' '}
-                  Director:
-                  <input value={film.director} disabled />
+                  Date:
+                  <input type="text" value={programme.date} disabled />
                 </label>
                 <label>
                   {' '}
-                  Synopsis:
-                  <textarea
-                    rows={4}
-                    cols={50}
-                    value={film.synopsis}
+                  Date:
+                  <input value={programme.time} disabled />
+                </label>
+                <label>
+                  {' '}
+                  English Friendly:
+                  <input
+                    type="checkbox"
+                    checked={programme.englishfriendly}
                     disabled
-                  ></textarea>
+                  />
                 </label>
-                <label>
-                  {' '}
-                  Trailer:
-                  <input value={film.trailer} disabled />
-                </label>
-                <label>
-                  {' '}
-                  Year:
-                  <input value={film.year} disabled />
-                </label>
-                <label>
-                  {' '}
-                  Country:
-                  <input value={film.country} disabled />
-                </label>
-                <label>
-                  {' '}
-                  Top Film:
-                  <input type="checkbox" checked={film.topFilm} disabled />
-                </label>
+                <br />
                 <button
                   onClick={() => {
-                    setActiveFilmId(film.id);
-                    setEditFilm(film.filmTitle);
-                    setEditDirector(film.director);
-                    setEditSynopsis(film.synopsis);
-                    setEditGenre(film.genre);
-                    setEditTrailer(film.trailer);
-                    setEditYear(film.year);
-                    setEditCountry(film.country);
-                    setEditTopFilm(film.topFilm);
+                    setActiveProgrammeId(programme.programmeId);
+                    setEditFilm(programme.filmTitle);
+                    setEditCinema(programme.cinemaName);
+                    setEditDate(programme.date);
+                    setEditTime(programme.time);
+                    setEditEnglish(programme.englishfriendly);
                   }}
                 >
                   Edit
                 </button>
                 <button
                   onClick={() =>
-                    deleteFilmHandler(film.id).catch(() => {
-                      console.log('film request fails');
+                    deleteProgrammeHandler(programme.programmeId).catch(() => {
+                      console.log('programme request fails');
                     })
                   }
                 >
                   X
                 </button>
-                <hr />
+                {errors.map((error) => (
+                  <div css={errorStyles} key={`error-${error.message}`}>
+                    {error.message}
+                  </div>
+                ))}
+                <br />
+                <div className="whiteLine"></div>
+                <br />
               </Fragment>
             );
           })}
@@ -401,6 +397,7 @@ export default function EditProgrammes(props: Props) {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const baseUrl = await process.env.BASE_URL;
 
   // validation
   const user = await getUserByValidSessionToken(
@@ -409,12 +406,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   if (user) {
     const admin = await getAdmin(user.id);
-
-    const baseUrl = await process.env.BASE_URL;
-    const request = await fetch(`${baseUrl}/api/programmes`);
-
-    const programmes = await request.json();
-
 
     if (!admin) {
       return {
@@ -425,10 +416,27 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       };
     }
 
+    const cinemasRequest = await fetch(`${baseUrl}/api/cinemas`);
+    const filmsRequest = await fetch(`${baseUrl}/api/films`);
+    const programmesRequest = await fetch(`${baseUrl}/api/programmes`);
+
+    const films = await filmsRequest.json();
+    const cinemas = await cinemasRequest.json();
+    const programmes = await programmesRequest.json();
+
+    return {
+      props: {
+        films: films,
+        cinemas: cinemas,
+        programmes: programmes,
+      },
+    };
+  }
 
   return {
-    // making data about the user available at the page in props
-    props: { user: user, programmes: programmes},
+    redirect: {
+      destination: `/login?returnTO=/profile`,
+      permanent: false,
+    },
   };
-}
 }

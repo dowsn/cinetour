@@ -1,15 +1,65 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
+import { GoogleMap, MarkerF, useLoadScript } from '@react-google-maps/api';
 import Head from 'next/head';
 import Link from 'next/link';
+import { colors } from '../styles/constants';
+import mapStyles from '../utils/mapStyles';
 
 const termsStyles = css`
-  color: white;
+  section {
+    border-bottom: 3px solid white;
+  }
+
+  .contact {
+    border-bottom: none;
+  }
+
+  a {
+    color: ${colors.blue};
+
+    :hover {
+      color: white;
+    }
+  }
+
+  iframe {
+    border-radius: 0px;
+    width: 100vw;
+  }
+
+  strong {
+    margin-right: 10px;
+  }
+
+  .map-container {
+    margin: auto;
+    width: 60%;
+    height: 40vw;
+    border-radius: 20px;
+  }
 `;
 
-export default function Terms() {
-  // background: linear-gradient(90deg, rgba(38,38,38,1) 0%, rgba(98,9,165,1) 44%, rgba(38,38,38,1) 100%);
+const options = {
+  styles: mapStyles,
+  disableDefaultUI: true,
+  zoomControl: true,
+};
+
+type Props = {
+  apiKey: string;
+};
+
+export default function Terms(props: Props) {
+  // Google Maps
+  //checking google maps api key
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: props.apiKey,
+  });
+
+  const center = { lat: 48.246239221589306, lng: 16.3749789405296 };
+
   return (
     <div>
       <Head>
@@ -18,10 +68,10 @@ export default function Terms() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main css={termsStyles}>
-        <section>
-          <Link href="/about">
-            <button>About</button>
-          </Link>
+        <Link href="/about">
+          <button>About</button>
+        </Link>
+        <section className="violet">
           <h1>Legal Notices</h1>
           <p>
             The CineTour service, including all content provided on the CineTour
@@ -47,8 +97,9 @@ export default function Terms() {
             CineTour. Unless you are one of our licensees, we don’t allow others
             to make, sell, or give away anything with our name or logo on it.
           </p>
+          <br />
         </section>
-        <section>
+        <section className="blue">
           <h1>Newsletter</h1>
           <p>
             {' '}
@@ -67,8 +118,9 @@ export default function Terms() {
             newsletter, for example via the "unsubscribe" link in the
             newsletter.
           </p>
+          <br />
         </section>
-        <section>
+        <section className="contact">
           <h1>Contact</h1>
           <h2>CineTour Inc.</h2>
           <p>
@@ -76,20 +128,45 @@ export default function Terms() {
           </p>
           <p>
             <strong>E-mail:</strong>
-            <a href="mailto:abc@example.com">abc@example.com</a>
+            <a href="mailto:fritz.eierschale@example.org">
+              fritz.eierschale@example.org
+            </a>
           </p>
           <p>
-            <strong>Tel: 0682932431234</strong>
-            <a href="tel:123-456-7890">123-456-7890</a>
+            <strong>Tel: </strong>
+            <a href="tel:068120268674">068120268674</a>
           </p>
-
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2656.947811998939!2d16.372811715184472!3d48.246132051573696!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x476d0640d0f80201%3A0x5c80aa109f934e4e!2sLeystra%C3%9Fe%2013%2C%201200%20Wien!5e0!3m2!1sde!2sat!4v1656343227960!5m2!1sde!2sat"
-            width="600"
-            height="450"
-          ></iframe>
         </section>
+        <GoogleMap
+          zoom={15}
+          center={center}
+          options={options}
+          mapContainerClassName="map-container"
+        >
+          <MarkerF
+            position={{
+              lat: 48.246239221589306,
+              lng: 16.3749789405296,
+            }}
+            icon={{
+              url: '/nav/icon.png',
+              scaledSize: new window.google.maps.Size(16, 16),
+            }}
+          />
+        </GoogleMap>
       </main>
     </div>
   );
+}
+
+export async function getServerSideProps() {
+  const baseUrl = await process.env.BASE_URL;
+  const ApiKey = await process.env.NEXT_APP_GOOGLE_MAPS_API_KEY;
+
+  return {
+    // making data about the user available at the page in props
+    props: {
+      apiKey: ApiKey,
+    },
+  };
 }

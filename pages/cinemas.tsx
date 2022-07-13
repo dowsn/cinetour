@@ -1,7 +1,6 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
-import { produceWithPatches } from 'immer';
 import { GetServerSidePropsContext } from 'next';
 import { AppContextType } from 'next/dist/shared/lib/utils';
 import Head from 'next/head';
@@ -9,27 +8,59 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
-import {
-  Film,
-  getProgrammes,
-  getToursForProgrammes,
-  Programme,
-  TourOrganizers,
-} from '../utils/database';
+import { colors } from '../styles/constants';
+import { getUserByValidSessionToken, Programme, User } from '../utils/database';
+import { getReducedProgramme } from '../utils/datastructures';
 
 const cinemasStyles = css`
-  .English {
-    background-color: blue;
+  .filter {
+    padding: 10px;
+    padding-bottom: 2rem;
+    display: flex;
+    justify-content: space-around;
+    border-bottom: 3px solid white;
   }
 
-  .notEnglish {
-    background-color: white;
+  button {
+    margin: 0;
+  }
+
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    color: white;
+    border-bottom: 3px solid white;
+  }
+
+  a {
+    color: ${colors.blue};
+
+    :hover {
+      color: white;
+    }
+  }
+
+  .tours {
+    text-align: end;
+    padding: 0;
+    margin: 0;
+  }
+
+  .englishswitc {
+    margin-bottom: 10px;
+    padding: 10px;
+    align-self: center;
   }
 `;
 
 type Props = {
-  refreshUserProfile: () => Promise<void>;
-  programmes: Programme[];
+  programmes: any;
+  cinemas: string[];
+  films: string[];
+  loggedUser: User | null;
 };
 
 export default function Cinemas(props: Props) {
@@ -37,61 +68,95 @@ export default function Cinemas(props: Props) {
   const [cinema, setCinema] = useState('');
   const [film, setFilm] = useState('');
   const [english, setEnglish] = useState(false);
+  const [programmes, setProgrammes] = useState(props.programmes);
 
-  const [programmeList, setProgrammeList] = useState<Programme[]>(
-    props.programmes,
+  // getting days from now
+  const today = new Date(Date.now()).toString().split(' ', 3).join(' ');
+  const tomorrow = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000)
+    .toString()
+    .split(' ', 3)
+    .join(' ');
+  const day2 = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+    .toString()
+    .split(' ', 3)
+    .join(' ');
+
+  const sevenDays = [today, tomorrow, day2];
+
+  const handleFilter = (data: any, key: any, value: any) => {
+    return data.filter((item: any) => item[key] === value);
+  };
+
+  const renderData = (data: any) => (
+    <ul>
+      {sevenDays.map((day) => (
+        <li>
+          <div className="date">
+            <h2>{day}</h2>
+          </div>
+          {data
+            .filter((item: any) => item.date === day)
+            .sort((a: any, b: any) => a.time.localeCompare(b.time))
+            .map((item: any) => (
+              <div
+                key={`programme_id-${item.programmeId}`}
+                className="programme"
+                id={item.programmeId}
+              >
+                <div>
+                  <div className="flex">
+                    <div>{item.time}</div>
+                    <div>{item.cinemaName}</div>
+                  </div>
+                  <div>
+                    <h3>
+                      <Link href={`/films/${item.filmId}`}>
+                        {item.filmTitle}
+                      </Link>
+                    </h3>
+                  </div>
+                </div>
+                <div className="flex">
+                  <div>#{item.genre}</div>
+                  {item.englishfriendly ? <div>English Friendly</div> : ''}
+                  <div>
+                    Tours:{' '}
+                    {item.username ? (
+                      <Link href={`../tours#${item.tourId}`}>
+                        <button>{item.username}</button>
+                      </Link>
+                    ) : props.loggedUser ? (
+                      <Link href={`/tours/create/${item.programmeId}`}>
+                        <button>+</button>
+                      </Link>
+                    ) : (
+                      <Link href={`../tours#${item.tourId}`}>
+                        <button disabled>+</button>
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </li>
+      ))}
+    </ul>
   );
 
-  // getting 7 days from now
-  const today = new Date(Date.now());
-  const tomorrow = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
-  const day2 = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
-  const day3 = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
-  const day4 = new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
-  const day5 = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
-  const day6 = new Date(Date.now() + 6 * 24 * 60 * 60 * 1000);
-  const day7 = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const sevenDays = [today, tomorrow, day2, day3, day4, day5, day6, day7];
-  const sevenDaysintoDates = sevenDays.map(
-    (day) =>
-      String(day.getFullYear()) +
-      '-' +
-      String(day.getMonth() + 1) +
-      '-' +
-      String(day.getDate()),
-  );
+  const data = programmes;
+  let filteredData = [...data];
 
-  // const date: Date = new Date(new Date().setDate(new Date().getDate() + 7));
-
-  // handles for filters
-  function filmHandle(film: string) {
-    const newList = programmeList;
-    const filteredList = newList.filter(
-      (programme) => programme.filmTitle === film,
-    );
-    setProgrammeList(filteredList);
+  if (day) {
+    filteredData = handleFilter(filteredData, 'date', day);
   }
-
-  function cinemaHandle(cinema: any) {
-    const newList = programmeList;
-    const filteredList = newList.filter(
-      (programme) => programme.cinemaName === cinema,
-    );
-    setProgrammeList(filteredList);
+  if (film) {
+    filteredData = handleFilter(filteredData, 'filmTitle', film);
   }
-
-  function dateHandle(date: string) {
-    const newList = programmeList;
-    const filteredList = newList.filter((programme) => programme.date === day);
-    setProgrammeList(filteredList);
+  if (cinema) {
+    filteredData = handleFilter(filteredData, 'cinemaName', cinema);
   }
-
-  function englishHandle(english: boolean) {
-    const newList = programmeList;
-    const filteredList = newList.filter(
-      (programme) => programme.englishfriendly === english,
-    );
-    setProgrammeList(filteredList);
+  if (english) {
+    filteredData = handleFilter(filteredData, 'englishfriendly', english);
   }
 
   return (
@@ -102,126 +167,116 @@ export default function Cinemas(props: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main css={cinemasStyles}>
-        <div>
-          <label htmlFor="day">Day:</label>
-          <select
-            id="day"
-            value={day}
-            onChange={(event) => {
-              setDay(event.currentTarget.value);
-              dateHandle(event.currentTarget.value);
-            }}
-          >
-            <option>''</option>
-            {sevenDaysintoDates.map((day) => (
-              <option value={day}>{day}</option>
-            ))}
-          </select>
-          <label htmlFor="cinema">Cinema:</label>
-          <select
-            id="cinema"
-            value={cinema}
-            onChange={(event) => {
-              setCinema(event.currentTarget.value);
-              cinemaHandle(event.currentTarget.value);
-            }}
-          >
-            <option value=""></option>
-            {props.programmes.map((programme) => (
-              <option
-                key={`cinema_id-${programme.programmeId}`}
-                value={programme.cinemaName}
-              >
-                {programme.cinemaName}
-              </option>
-            ))}
-          </select>
-          <label htmlFor="film">Film:</label>
-          <input
-            type="text"
-            list="films"
-            value={film}
-            onChange={(event) => setFilm(event.currentTarget.value)}
-          />
-          <datalist id="films">
-            <option></option>
-            {props.programmes.map((programme) => (
-              <option key={`film_id-${programme.programmeId}`}>
-                {programme.filmTitle}
-              </option>
-            ))}
-          </datalist>
-          <label htmlFor="english">English friendly:</label>
-          <input
-            type="checkbox"
-            checked={english}
-            onChange={(event) => {
-              setEnglish(event.currentTarget.checked);
-              englishHandle(event.currentTarget.checked);
-            }}
-          />
+        <div className="filter">
+          <div>
+            <label htmlFor="day">Day:</label>
+
+            <select
+              id="day"
+              value={day}
+              onChange={(event) => {
+                setDay(event.currentTarget.value);
+              }}
+            >
+              <option></option>
+              {sevenDays.map((day) => (
+                <option value={day}>{day}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="cinema">Cinema:</label>
+            <select
+              id="cinema"
+              value={cinema}
+              onChange={(event) => {
+                setCinema(event.currentTarget.value);
+              }}
+            >
+              <option></option>
+              {props.cinemas.map((cinema) => (
+                <option>{cinema}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="film">Film:</label>
+            <input
+              type="text"
+              list="films"
+              value={film}
+              onChange={(event) => setFilm(event.currentTarget.value)}
+            />
+            <datalist id="films">
+              <option></option>
+              {props.films.map((film) => (
+                <option>{film}</option>
+              ))}
+            </datalist>
+          </div>
+          <div>
+            <label htmlFor="english">English Friendly:</label>
+            <label className="switch">
+              <input
+                type="checkbox"
+                id="english"
+                checked={english}
+                onChange={(event) => {
+                  setEnglish(event.currentTarget.checked);
+                }}
+              />
+              <span className="slider round"></span>
+            </label>
+          </div>
         </div>
         <div>
-          <ul>
-            {programmeList.map((programme) =>
-              programme.englishfriendly ? (
-                <li
-                  key={`programme_id-${programme.programmeId}`}
-                  className="English"
-                >
-                  <div className="programme">
-                    <div>{programme.date}</div>
-                    <div>{programme.time}</div>
-                    <div>
-                      <Link href={`/films/${programme.filmId}`}>
-                        {programme.filmTitle}
-                      </Link>
-                    </div>
-                    <div>{programme.cinemaName}</div>
-                  </div>
-                  <div>Tours: </div>
-                  <Link href="../tours/create">
-                    <button>+</button>
-                  </Link>
-                </li>
-              ) : (
-                <li
-                  key={`programme_id-${programme.programmeId}`}
-                  className="notEnglish"
-                >
-                  <div className="programme">
-                    <div>{programme.date}</div>
-                    <div>{programme.time}</div>
-                    <div>
-                      <Link href={`/films/${programme.filmId}`}>
-                        {programme.filmTitle}
-                      </Link>
-                    </div>
-                    <div>{programme.cinemaName}</div>
-                  </div>
-                  <div>Tours: </div>
-                  <Link href="../tours/create">
-                    <button>+</button>
-                  </Link>
-                </li>
-              ),
-            )}
-          </ul>
+          {!!filteredData.length ? (
+            renderData(filteredData)
+          ) : (
+            <p>Nothing found</p>
+          )}
         </div>
       </main>
     </div>
   );
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const baseUrl = await process.env.BASE_URL;
   const request = await fetch(`${baseUrl}/api/programmes`);
 
-  const programmes = await request.json();
+  const loggedUser = await getUserByValidSessionToken(
+    context.req.cookies.sessionToken,
+  );
+
+  const programmesRaw = await request.json();
+
+  // getting a better datastructure
+  const programmes = programmesRaw.map((programme: Programme) =>
+    getReducedProgramme(programme),
+  );
+
+  // filtering only a list of unique items for filter
+  const cinemasRepeated = programmes.map(
+    (programme: Programme) => programme.cinemaName,
+  );
+  const cinemas = cinemasRepeated.filter((element: string, index: number) => {
+    return cinemasRepeated.indexOf(element) === index;
+  });
+
+  const filmsRepeated = programmes.map(
+    (programme: Programme) => programme.filmTitle,
+  );
+  const films = filmsRepeated.filter((element: string, index: number) => {
+    return filmsRepeated.indexOf(element) === index;
+  });
 
   return {
     props: {
       programmes: programmes,
+      cinemas: cinemas,
+      films: films,
+      loggedUser: loggedUser || null,
     },
   };
 }

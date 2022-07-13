@@ -1,14 +1,14 @@
 const tours_attendees = [
   {
     tour_id: 1,
-    attendee_id: 1,
+    attendee_id: 2,
   },
   {
     tour_id: 2,
-    attendee_id: 1,
+    attendee_id:2,
   },
   {
-    tour_id: 2,
+    tour_id: 3,
     attendee_id: 2,
   },
 ];

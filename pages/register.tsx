@@ -4,7 +4,6 @@ import { css } from '@emotion/react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { unstable_HistoryRouter } from 'react-router-dom';
 import { RegisterResponseBody } from './api/register';
 
 export const errorStyles = css`
@@ -14,21 +13,26 @@ export const errorStyles = css`
   margin-top: 5px;
 `;
 
-type Props = {
-  refreshUserProfile: () => Promise<void>;
-};
+const registerStyles = css`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-export default function Register(props: Props) {
+  label {
+    width: 300px;
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+  }
+`;
+
+export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [selfDescription, setSelfDescription] = useState('');
-  const [street, setStreet] = useState('');
-  const [streetNumber, setStreetNumber] = useState('');
-  const [city, setCity] = useState('');
-
   const [errors, setErrors] = useState<{ message: string }[]>([]);
 
   const router = useRouter();
@@ -45,9 +49,6 @@ export default function Register(props: Props) {
         firstName: firstName,
         lastName: lastName,
         email: email,
-        street: street,
-        streetNumber: streetNumber,
-        city: city,
         selfDescription: selfDescription,
       }),
     });
@@ -70,11 +71,9 @@ export default function Register(props: Props) {
       // (because this is untrusted user input)
       /^\/[a-zA-Z0-9-?=/]*$/.test(returnTo)
     ) {
-      await props.refreshUserProfile();
       await router.push(returnTo);
     } else {
       // redirect to main page
-      await props.refreshUserProfile();
       await router.push(`/profile`);
     }
   }
@@ -88,91 +87,75 @@ export default function Register(props: Props) {
 
       <main>
         <h1>Register</h1>
-        <label>
-          username:{' '}
-          <input
-            value={username}
-            onChange={(event) => {
-              setUsername(event.currentTarget.value);
-            }}
-          />
-        </label>
+        <div css={registerStyles}>
+          <label>
+            username:{' '}
+            <input
+              placeholder="cinetourist3"
+              value={username}
+              onChange={(event) => {
+                setUsername(event.currentTarget.value);
+              }}
+            />
+          </label>
 
-        <label>
-          password:{' '}
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => {
-              setPassword(event.currentTarget.value);
-            }}
-          />
-        </label>
-        <label>
-          First Name:
-          <input
-            value={firstName}
-            onChange={(event) => {
-              setFirstName(event.currentTarget.value);
-            }}
-          />
-        </label>
-        <label>
-          Last Name:
-          <input
-            value={lastName}
-            onChange={(event) => {
-              setLastName(event.currentTarget.value);
-            }}
-          />
-        </label>
-        <label>
-          E-Mail:
-          <input
-            value={email}
-            onChange={(event) => {
-              setEmail(event.currentTarget.value);
-            }}
-          />
-        </label>
-        <label>
-          Street:
-          <input
-            value={streetNumber}
-            onChange={(event) => {
-              setStreet(event.currentTarget.value);
-            }}
-          />
-        </label>
-        <label>
-          Street nr.:
-          <input
-            value={streetNumber}
-            onChange={(event) => {
-              setStreetNumber(event.currentTarget.value);
-            }}
-          />
-        </label>
-        <label>
-          City
-          <input
-            value={city}
-            onChange={(event) => {
-              setCity(event.currentTarget.value);
-            }}
-          />
-        </label>
-        <label>
-          Self-description:
-          <textarea
-            value={selfDescription}
-            maxLength={100}
-            placeholder="Try to describe yourself in a few words"
-            onChange={(event) => {
-              setSelfDescription(event.currentTarget.value);
-            }}
-          ></textarea>
-        </label>
+          <label>
+            password:{' '}
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => {
+                setPassword(event.currentTarget.value);
+              }}
+            />
+          </label>
+          <label>
+            First Name:
+            <input
+              placeholder="Lukas"
+              value={firstName}
+              onChange={(event) => {
+                setFirstName(event.currentTarget.value);
+              }}
+            />
+          </label>
+          <label>
+            Last Name:
+            <input
+              placeholder="Fritzl"
+              value={lastName}
+              onChange={(event) => {
+                setLastName(event.currentTarget.value);
+              }}
+            />
+          </label>
+          <label>
+            E-Mail:
+            <input
+              placeholder="lukas@gmail.com"
+              type="email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.currentTarget.value);
+              }}
+            />
+          </label>
+        </div>
+        <br />
+        <label htmlFor="selfdescription">Self-description:</label>
+        <br />
+        <textarea
+          id="selfdescription"
+          value={selfDescription}
+          rows={4}
+          cols={25}
+          maxLength={100}
+          placeholder="Try to describe yourself in a few words."
+          onChange={(event) => {
+            setSelfDescription(event.currentTarget.value);
+          }}
+        ></textarea>
+        <br />
         <button onClick={() => registerHandler()}>Register</button>
         {errors.map((error) => (
           <div css={errorStyles} key={`error-${error.message}`}>

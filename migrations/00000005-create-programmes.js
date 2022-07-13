@@ -6,7 +6,7 @@ exports.up = async (sql) => {
     cinema_id integer REFERENCES cinemas (id) ON DELETE CASCADE,
     date date NOT NULL,
     time time NOT NULL,
-    englishfriendly boolean NOT NULL
+    englishfriendly boolean
    )
  `;
 };

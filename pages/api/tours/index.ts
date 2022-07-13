@@ -10,14 +10,18 @@ export default async function handler(
     // get the films from my database
     const tours = await getTours();
 
-    return res.status(200).json(tours);
+    if (tours) {
+      return res.status(200).json(tours);
+    }
+
+    return res.status(400).json({ error: 'Item/s does not exist.' });
   }
 
   // if method POST
   if (req.method === 'POST') {
     if (!req.body.body || !req.body.programmeId || !req.body.hostId) {
       return res.status(400).json({
-        error: 'Please, provide all required data',
+        error: [{ message: 'Please, provide all required information' }],
       });
     }
 

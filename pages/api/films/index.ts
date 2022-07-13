@@ -10,6 +10,12 @@ export default async function handler(
     // get the films from my database
     const films = await getFilms();
 
+    if (!films) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'Item is missing.' }] });
+    }
+
     return res.status(200).json(films);
   }
 
@@ -24,9 +30,9 @@ export default async function handler(
       !req.body.country ||
       !req.body.trailer
     ) {
-      return res.status(400).json({
-        error: 'Please, provide all required data',
-      });
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'Please, provide all required data' }] });
     }
 
     const newFilm = await createFilm(
@@ -44,7 +50,5 @@ export default async function handler(
   }
 
   // If we are using any method that is not allowed
-  res.status(405).json({
-    error: 'Method not allowed',
-  });
+  res.status(405).json({ errors: [{ message: 'Method not allowed.' }] });
 }

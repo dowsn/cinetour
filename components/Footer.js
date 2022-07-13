@@ -10,7 +10,6 @@ const footerStyles = css`
   color: ${colors.dark};
   border-top: 3px solid #6209a5;
   bottom: 0;
-  height: 20vh;
   z-index: 999;
   color: #000c07;
   display: flex;
@@ -62,6 +61,8 @@ const footerStyles = css`
     border: solid ${colors.dark} 2px;
     margin: 0;
     margin-bottom: 2px;
+    height: 36px;
+    max-width: 300px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
@@ -115,7 +116,7 @@ export default function Footer() {
             onChange={(event) => setEmail(event.currentTarget.value)}
           />
           <button type="button" className="button" onClick={subscribe}>
-            Join newsletter
+            ✓ Newsletter
           </button>
         </div>
         {state === 'error' && <p>{error}</p>}

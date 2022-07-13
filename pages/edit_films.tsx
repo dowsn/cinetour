@@ -1,6 +1,10 @@
+/** @jsxImportSource @emotion/react */
+
+import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useState } from 'react';
+import { colors } from '../styles/constants';
 import {
   Film,
   getAdmin,
@@ -8,20 +12,31 @@ import {
   getUserByValidSessionToken,
   User,
 } from '../utils/database';
+import { errorStyles } from './register';
 
-type Props = { user: User };
+const editFilmsstyles = css`
+  .top {
+    background-color: ${colors.blue};
+  }
+`;
+
+type Props = { films: Film[] };
 
 export default function EditFilms(props: Props) {
   // list of units
-  const [filmList, setFilmList] = useState<Film[]>([]);
+  const [filmList, setFilmList] = useState<Film[]>(props.films);
+
+  //possible errors
+  const [errors, setErrors] = useState<
+    {
+      message: string;
+    }[]
+  >([]);
 
   // enable or disable
   const [activeFilmId, setActiveFilmId] = useState<Film['id'] | undefined>(
     undefined,
   );
-
-  console.log(filmList);
-  console.log(activeFilmId);
 
   // states for new unit
   const [newFilm, setNewFilm] = useState('');
@@ -44,19 +59,6 @@ export default function EditFilms(props: Props) {
   const [editCountry, setEditCountry] = useState('');
   const [editTopFilm, setEditTopFilm] = useState(false);
 
-  // getting animals via api
-
-  useEffect(() => {
-    async function getFilmsList() {
-      const request = await fetch('/api/films');
-      const films = await request.json();
-      setFilmList(films);
-    }
-    getFilmsList().catch(() => {
-      console.log('films request fails');
-    });
-  }, []);
-
   async function createFilmHandler() {
     const response = await fetch('/api/films', {
       method: 'POST',
@@ -75,14 +77,18 @@ export default function EditFilms(props: Props) {
       }),
     });
     const createdFilm = await response.json();
-    console.log(createdFilm);
+
+    if ('errors' in createdFilm) {
+      setErrors(createdFilm.errors);
+      return;
+    }
     // copy state
     // update copy of the state
     const newState = [...filmList, createdFilm];
     // use setState func
 
     setFilmList(newState);
-    setActiveFilmId(1);
+    setActiveFilmId(2);
     setNewFilm('');
     setNewGenre('');
     setNewDirector('');
@@ -102,6 +108,10 @@ export default function EditFilms(props: Props) {
     });
     const deletedFilm = await response.json();
 
+    if ('errors' in deletedFilm) {
+      setErrors(deletedFilm.errors);
+      return;
+    }
     // copy state
     // update copy of the state
     const newState = filmList.filter((film) => film.id !== deletedFilm.id);
@@ -128,6 +138,10 @@ export default function EditFilms(props: Props) {
     });
     const updatedFilm = await response.json();
 
+    if ('errors' in updatedFilm) {
+      setErrors(updatedFilm.errors);
+      return;
+    }
     // copy state
     // update copy of the state
     const newState = filmList.map((film) => {
@@ -143,10 +157,12 @@ export default function EditFilms(props: Props) {
 
   return (
     <>
-      <main>
+      <main css={editFilmsstyles}>
         <Link href="/../profile">
           <button>Back</button>
         </Link>
+        <br />
+        <br />
         <label>
           {' '}
           Film title:
@@ -171,9 +187,11 @@ export default function EditFilms(props: Props) {
             onChange={(event) => setNewDirector(event.currentTarget.value)}
           />
         </label>
+        <br />
         <label>
           {' '}
           Synopsis:
+          <br />
           <textarea
             rows={4}
             cols={50}
@@ -181,6 +199,7 @@ export default function EditFilms(props: Props) {
             onChange={(event) => setNewSynopsis(event.currentTarget.value)}
           ></textarea>
         </label>
+        <br />
         <label>
           {' '}
           Trailer:
@@ -214,6 +233,7 @@ export default function EditFilms(props: Props) {
             onChange={(event) => setNewTopFilm(event.currentTarget.checked)}
           />
         </label>
+        <br />
         <button
           onClick={() => {
             createFilmHandler().catch(() => {
@@ -223,7 +243,14 @@ export default function EditFilms(props: Props) {
         >
           Add
         </button>
-        <hr />
+        {errors.map((error) => (
+          <div css={errorStyles} key={`error-${error.message}`}>
+            {error.message}
+          </div>
+        ))}
+        <br />
+        <div className="whiteLine"></div>
+        <br />
         {filmList
           .sort((a, b) => a.filmTitle.localeCompare(b.filmTitle))
           .map((film) => {
@@ -257,9 +284,11 @@ export default function EditFilms(props: Props) {
                     }
                   />
                 </label>
+                <br />
                 <label>
                   {' '}
                   Synopsis:
+                  <br />
                   <textarea
                     rows={4}
                     cols={50}
@@ -269,6 +298,7 @@ export default function EditFilms(props: Props) {
                     }
                   ></textarea>
                 </label>
+                <br />
                 <label>
                   {' '}
                   Trailer:
@@ -300,7 +330,11 @@ export default function EditFilms(props: Props) {
                   />
                 </label>
                 <label>
-                  {' '}
+                  {editTopFilm ? (
+                    <div className="top">This is the top film</div>
+                  ) : (
+                    ''
+                  )}{' '}
                   Top Film:
                   <input
                     type="checkbox"
@@ -310,6 +344,7 @@ export default function EditFilms(props: Props) {
                     }
                   />
                 </label>
+                <br />
                 <button
                   onClick={() => {
                     setActiveFilmId(undefined);
@@ -320,6 +355,11 @@ export default function EditFilms(props: Props) {
                 >
                   Save
                 </button>
+                {errors.map((error) => (
+                  <div css={errorStyles} key={`error-${error.message}`}>
+                    {error.message}
+                  </div>
+                ))}
                 <button
                   onClick={() =>
                     deleteFilmHandler(film.id).catch(() => {
@@ -329,7 +369,14 @@ export default function EditFilms(props: Props) {
                 >
                   X
                 </button>
-                <hr />
+                {errors.map((error) => (
+                  <div css={errorStyles} key={`error-${error.message}`}>
+                    {error.message}
+                  </div>
+                ))}
+                <br />
+                <div className="whiteLine"></div>
+                <br />
               </Fragment>
             ) : (
               <Fragment key={film.id}>
@@ -348,9 +395,11 @@ export default function EditFilms(props: Props) {
                   Director:
                   <input value={film.director} disabled />
                 </label>
+                <br />
                 <label>
                   {' '}
                   Synopsis:
+                  <br />
                   <textarea
                     rows={4}
                     cols={50}
@@ -358,6 +407,7 @@ export default function EditFilms(props: Props) {
                     disabled
                   ></textarea>
                 </label>
+                <br />
                 <label>
                   {' '}
                   Trailer:
@@ -374,10 +424,15 @@ export default function EditFilms(props: Props) {
                   <input value={film.country} disabled />
                 </label>
                 <label>
-                  {' '}
+                  {film.topFilm ? (
+                    <div className="top">This is the top film</div>
+                  ) : (
+                    ''
+                  )}{' '}
                   Top Film:
                   <input type="checkbox" checked={film.topFilm} disabled />
                 </label>
+                <br />
                 <button
                   onClick={() => {
                     setActiveFilmId(film.id);
@@ -393,6 +448,11 @@ export default function EditFilms(props: Props) {
                 >
                   Edit
                 </button>
+                {errors.map((error) => (
+                  <div css={errorStyles} key={`error-${error.message}`}>
+                    {error.message}
+                  </div>
+                ))}
                 <button
                   onClick={() =>
                     deleteFilmHandler(film.id).catch(() => {
@@ -402,7 +462,14 @@ export default function EditFilms(props: Props) {
                 >
                   X
                 </button>
-                <hr />
+                {errors.map((error) => (
+                  <div css={errorStyles} key={`error-${error.message}`}>
+                    {error.message}
+                  </div>
+                ))}
+                <br />
+                <div className="whiteLine"></div>
+                <br />
               </Fragment>
             );
           })}
@@ -412,6 +479,8 @@ export default function EditFilms(props: Props) {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const baseUrl = await process.env.BASE_URL;
+
   // validation
   const user = await getUserByValidSessionToken(
     context.req.cookies.sessionToken,
@@ -428,9 +497,21 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         },
       };
     }
+
+    const filmsRequest = await fetch(`${baseUrl}/api/films`);
+
+    const films = await filmsRequest.json();
+
+    return {
+      // making data about the user available at the page in props
+      props: { films: films },
+    };
   }
+
   return {
-    // making data about the user available at the page in props
-    props: { user: user },
+    redirect: {
+      destination: `/login?returnTO=/profile`,
+      permanent: false,
+    },
   };
 }

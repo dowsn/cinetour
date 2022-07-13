@@ -23,7 +23,7 @@ const headerStyles = css`
     align-self: center;
     padding-bottom: 10px;
     padding-right: 1rem;
-    padding-left: 1rem;
+    padding-left: 0.1rem;
   }
 
   .logo {
@@ -73,9 +73,9 @@ const headerStyles = css`
 
   .profile {
     margin-right: 40px;
-    margin-left: 80px;
   }
 
+  // sandwich menu
   body {
     margin: 0;
     padding: 0;
@@ -168,8 +168,8 @@ const headerStyles = css`
   #menu {
     text-align: center;
     position: absolute;
-    width: 400px;
-    margin: 15px 0 0 50px;
+    width: 102vw;
+    margin: 0 0 0 50px;
     padding: 50px;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -191,6 +191,30 @@ const headerStyles = css`
   #menuToggle input:checked ~ ul {
     transform: translate(-100%, 0);
   }
+
+  //disappearing text description
+
+  .icon {
+    display: none;
+  }
+
+  @media only screen and (max-width: 800px) {
+    span {
+      display: none;
+    }
+
+    .icon {
+      display: flex;
+      justify-self: center;
+      cursor: pointer;
+      height: 60px;
+      margin-left: 0px;
+
+      :hover {
+        border-bottom: solid ${colors.blue} 3px;
+      }
+    }
+  }
 `;
 
 export default function Header(props) {
@@ -210,7 +234,7 @@ export default function Header(props) {
   return (
     <header css={headerStyles} className="container-fluid align-items-center">
       <div className="header row">
-        <div className="logo col-auto">
+        <span className="logo col-auto">
           <Link href="/">
             <Image
               src="/cinetour_logo.jpg"
@@ -220,7 +244,19 @@ export default function Header(props) {
               alt="cinetour"
             />
           </Link>
+        </span>
+        <div className="icon col-auto align-items-center">
+          <Link href="/">
+            <Image
+              src="/nav/icon.png"
+              width="32px"
+              height="32px"
+              layout="fixed"
+              alt="cinetour"
+            />
+          </Link>
         </div>
+
         <nav className="col-auto">
           <div
             onMouseEnter={onMouseEnter1}
@@ -237,7 +273,7 @@ export default function Header(props) {
                     layout="fixed"
                     height="32px"
                   />
-                  <span>Cinemas</span>
+                  <span className="description">Cinemas</span>
                 </div>
               ) : (
                 <div className="option">
@@ -253,7 +289,7 @@ export default function Header(props) {
               )}
             </Link>
           </div>
-          <span className="and"> & </span>
+          <span className="and description"> & </span>
           <div
             onMouseEnter={onMouseEnter2}
             onMouseLeave={onMouseLeave2}
@@ -269,7 +305,7 @@ export default function Header(props) {
                     layout="fixed"
                     height="32px"
                   />
-                  <span>Tours</span>
+                  <span className="description">Tours</span>
                 </div>
               ) : (
                 <div className="option">

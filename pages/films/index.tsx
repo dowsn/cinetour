@@ -1,21 +1,52 @@
-/** @jsxImportSource @emotion/react */
-
-import { css } from '@emotion/react';
-import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
-import { Film, getFilms } from '../../utils/database';
-
-const filmsStyles = css`
-  div {
-  }
-`;
+import { Film } from '../../utils/database';
 
 type Props = { films: Film[] };
 
-export default function Tours(props: Props) {
-  const [filmList, setFilmList] = useState<Film[] | undefined>(props.films);
+export default function Films(props: Props) {
+  const [filmsList, setFilmsList] = useState<any | undefined>(props.films);
+  const [film, setFilm] = useState('');
+
+  // getting alphabet
+  const alpha = Array.from(Array(26)).map((e, i) => i + 65);
+  const alphabet = alpha.map((x) => String.fromCharCode(x));
+
+  const handleFilter = (data: any, key: any, value: any) => {
+    return data.filter((item: any) => item[key] === value);
+  };
+
+  const renderData = (data: any) => (
+    <ul className="longList">
+      {alphabet.map((letter) => (
+        <li>
+          <div>
+            <h2>{letter}</h2>
+          </div>
+          {data
+            .filter(
+              (item: any) =>
+                item.filmTitle.charAt(0) === letter ||
+                item.filmTitle.charAt(0) === letter.toLowerCase(),
+            )
+            .sort((a: any, b: any) => a.filmTitle.localeCompare(b.filmTitle))
+            .map((item: any) => (
+              <div key={`film_id-${item.id}`}>
+                <Link href={`/films/${item.id}`}>{item.filmTitle}</Link>
+              </div>
+            ))}
+        </li>
+      ))}
+    </ul>
+  );
+
+  const data = filmsList;
+  let filteredData = [...data];
+
+  if (film) {
+    filteredData = handleFilter(filteredData, 'filmTitle', film);
+  }
 
   return (
     <div>
@@ -24,23 +55,29 @@ export default function Tours(props: Props) {
         <meta name="description" content="All Films" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main css={filmsStyles}>
-        <label>
-          {' '}
-          🔍
-          {/* <input list=> all films */}
-        </label>
-        <ul>
-          {filmList
-            ? filmList
-                .sort((a, b) => a.filmTitle.localeCompare(b.filmTitle))
-                .map((film) => (
-                  <li key={`tour_id-${film.id}`}>
-                    <Link href={`/films/${film.id}`}>{film.filmTitle}</Link>
-                  </li>
-                ))
-            : ''}
-        </ul>
+      <main>
+        <div>
+          <label htmlFor="film">Film:</label>
+          <input
+            type="text"
+            list="films"
+            value={film}
+            onChange={(event) => setFilm(event.currentTarget.value)}
+          />
+          <datalist id="films">
+            <option></option>
+            {props.films.map((film) => (
+              <option>{film.filmTitle}</option>
+            ))}
+          </datalist>
+        </div>
+        <div>
+          {!!filteredData.length ? (
+            renderData(filteredData)
+          ) : (
+            <p>Nothing found</p>
+          )}
+        </div>
       </main>
     </div>
   );

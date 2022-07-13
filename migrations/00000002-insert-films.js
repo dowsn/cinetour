@@ -1,25 +1,47 @@
 const films = [
   {
-    film_title: 'River',
-    director: 'Riddley Scott',
+    film_title: 'No Time To Die',
+    director: 'Cary Joji Fukunaga',
     year: 2021,
     country: 'US',
-    genre: 'documentary',
+    genre: 'action',
     synopsis:
-      'A cinematic and musical odyssey that explores the remarkable relationship between humans and rivers.',
-    top_film: true,
-    trailer: 'https://www.youtube.com/watch?v=VCTtLVw0RxE',
+      'James Bond has left active service. His peace is short-lived when Felix Leiter, an old friend from the CIA, turns up asking for help.',
+    top_film: false,
+    trailer: 'https://www.youtube.com/watch?v=BIhNsAtPbPI',
   },
   {
     film_title: 'River',
-    director: 'Riddley Scott',
-    year: 2022,
-    country: 'US',
+    director: 'Jennifer Peedom, Joseph Nizeti',
+    year: '2021',
+    country: 'AU',
     genre: 'documentary',
     top_film: false,
     synopsis:
-      'A cinematic and musical odyssey that explores the remarkable relationship between humans and rivers.',
+      'Throughout history, rivers have shaped our landscapes and our journeys; flowed through our cultures and dreams.',
     trailer: 'https://www.youtube.com/watch?v=VCTtLVw0RxE',
+  },
+  {
+    film_title: 'Dune',
+    director: 'Denis Villeneuve',
+    year: '2021',
+    country: 'US',
+    genre: 'sci-fi',
+    top_film: false,
+    synopsis:
+      "A noble family becomes embroiled in a war for control over the galaxy''s most valuable asset while its heir becomes troubled by visions of a dark future.",
+    trailer: 'https://www.youtube.com/watch?v=8g18jFHCLXk',
+  },
+  {
+    film_title: 'Top Gun: Maverick',
+    director: 'Joseph Kosinski',
+    year: '2022',
+    country: 'US',
+    genre: 'action',
+    top_film: true,
+    synopsis:
+      "After more than thirty years of service as one of the Navy's top aviators, Pete Mitchell is where he belongs, pushing the envelope as a courageous test pilot and dodging the advancement in rank that would ground him.",
+    trailer: 'https://www.youtube.com/watch?v=b1KJNW-iYlE',
   },
 ];
 

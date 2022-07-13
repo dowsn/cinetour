@@ -1,23 +1,25 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  createProgramme,
-  getCinetourists,
-  getProgrammeByDate,
-  getProgrammeByFilm,
-  getProgrammes,
-  Programme,
-} from '../../../utils/database';
-import { getReducedProgramme } from '../../../utils/datastructures';
+import { getProfile, getUserByUsername } from '../../../utils/database';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  // if method Get
-  if (req.method === 'GET') {
-    const users = await getCinetourists();
+  const username = req.query.username;
 
-    return res.status(200).json(users);
+  if (!username || Array.isArray(username)) {
+    return res.status(400).json({ error: 'User must have a valid username' });
+  }
+  // if method GET
+  if (req.method === 'GET') {
+    const user = await getUserByUsername(username);
+
+    if (user) {
+      const profile = await getProfile(user.id);
+
+      return res.status(200).json({ user: user, profile: profile });
+    }
+    return res.status(400).json({ error: 'Cinetourist does not exist.' });
   }
 
   return res.status(405).json('Method not allowed');

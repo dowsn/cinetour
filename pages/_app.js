@@ -6,25 +6,6 @@ import Layout from '../components/Layout';
 import { colors } from '../styles/constants';
 
 function MyApp({ Component, pageProps }) {
-  const [user, setUser] = useState();
-
-  // hooks stores a functions for callback
-
-  const refreshUserProfile = useCallback(async () => {
-    const profileResponse = await fetch('/api/profile');
-    const profileResponseBody = await profileResponse.json();
-    if (!('errors' in profileResponseBody)) {
-      setUser(profileResponseBody.user);
-    } else {
-      profileResponseBody.errors.forEach((error) => console.log(error.message));
-      setUser(undefined);
-    }
-  }, []);
-
-  useEffect(() => {
-    refreshUserProfile().catch(() => console.log('fetch api failed'));
-  }, [refreshUserProfile]);
-
   return (
     <>
       <Head>
@@ -35,11 +16,11 @@ function MyApp({ Component, pageProps }) {
         styles={css`
           html,
           body {
-            /* padding: 0;
-            margin: 0; */
+            padding: 0;
+            margin: 0;
             font-family: 'Capriola', sans-serif;
-            background-color: ${colors.dark};
             color: ${colors.dark};
+            text-align: center;
           }
 
           * {
@@ -51,7 +32,19 @@ function MyApp({ Component, pageProps }) {
           }
 
           a {
+            color: ${colors.violet};
             :hover {
+              color: ${colors.blue};
+              cursor: pointer;
+            }
+          }
+
+          .a {
+          }
+          a {
+            color: ${colors.blue};
+            :hover {
+              color: white;
               cursor: pointer;
             }
           }
@@ -64,46 +57,87 @@ function MyApp({ Component, pageProps }) {
             color: white;
           }
 
-          main {
-            margin-top: 6rem;
-            margin-bottom: 6rem;
-            height: 100vw;
+          h1,
+          h2 {
+            padding-top: 20px;
+            padding-bottom: 20px;
           }
 
-          /* .box {
-            border-radius: 20px;
-          } */
+          main {
+            padding-top: 5rem;
+            padding-bottom: 4rem;
+            min-height: 75vh;
+            background-color: ${colors.dark};
+          }
 
+          textarea {
+            border-radius: 10px;
+            padding: 10px;
+          }
+
+          .blue {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            color: ${colors.blue};
+          }
+
+          // youtube trailers
           iframe {
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
+            margin-bottom: 0;
+            border: 3px solid white;
+            border-bottom: none;
+            border-bottom: 0;
           }
 
-          /* p {
-            font-weight: 300;
+          .map-container {
+            margin: auto;
+            width: 80%;
+            height: 40vw;
+            border-radius: 20px;
+
+            h2 {
+              color: ${colors.dark};
+            }
+
+            p {
+              color: ${colors.dark};
+            }
           }
 
-          h1 {
-            margin: 40px auto 70px;
-            text-align: center;
+          section {
+            max-width: 60%;
+            margin: auto;
           }
 
-          h2 {
-            margin: 40px auto 40px;
-            text-align: center;
-          } */
+          .twocolumns {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin: auto;
+          }
 
           img {
             width: 100%;
             display: block;
           }
 
-          input {
+          ul {
+            list-style: none;
+            padding-left: 0;
+            margin-left: 0;
+          }
+
+          input,
+          select {
             font-family: 'Capriola', sans-serif;
             margin-right: 10px;
-            padding: 8px;
+            padding: 3px;
+            text-align: center;
             margin-left: 10px;
-            height: 30px;
+            margin-bottom: 10px;
+            height: 32px;
             border-radius: 10px;
             outline: solid ${colors.dark} 2px;
             border: solid white 2px;
@@ -119,11 +153,15 @@ function MyApp({ Component, pageProps }) {
 
           button {
             font-family: 'Capriola', sans-serif;
-            padding: 12px;
             border-radius: 10px;
-            height: 34px;
+            height: 41px;
             background-color: ${colors.violet};
             color: white;
+            padding: 5px;
+            padding-right: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding-left: 10px;
             border: solid white 4px;
 
             :hover {
@@ -135,10 +173,251 @@ function MyApp({ Component, pageProps }) {
               background-color: ${colors.dark};
             }
           }
+
+          /* .button {
+            a {
+              font-family: 'Capriola', sans-serif;
+              border-radius: 10px;
+              height: 41px;
+              background-color: ${colors.violet};
+              color: white;
+              border: solid white 4px;
+              text-decoration: none;
+              margin: 10px;
+              margin-bottom: 20px;
+              padding: 5px;
+              padding-right: 10px;
+              padding-left: 10px;
+
+              :hover {
+                background-color: ${colors.blue};
+                color: white;
+                cursor: pointer;
+              }
+            }
+          } */
+
+          .full {
+            max-width: 100vw;
+            margin: 0;
+            padding: 0;
+          }
+
+          /* slider */
+          .switch {
+            position: relative;
+            margin-left: 10px;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+          }
+
+          .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+          }
+
+          .slider {
+            position: absolute;
+            cursor: pointer;
+            top: -6px;
+            left: 0;
+            right: 0;
+            bottom: 5px;
+            background-color: white;
+            -webkit-transition: 0.4s;
+            transition: 0.4s;
+          }
+
+          .slider:before {
+            position: absolute;
+            content: '';
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 5px;
+            background-color: ${colors.dark};
+            -webkit-transition: 0.4s;
+            transition: 0.4s;
+          }
+
+          input:checked + .slider {
+            background-color: ${colors.blue};
+          }
+
+          input:focus + .slider {
+            box-shadow: 0 0 1px #2196f3;
+          }
+
+          input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+          }
+
+          /* Rounded sliders */
+          .slider.round {
+            border-radius: 34px;
+          }
+
+          .slider.round:before {
+            border-radius: 50%;
+          }
+
+          //programme display
+          .date {
+            background-color: ${colors.violet};
+            margin-bottom: 0;
+            border-top: 3px solid white;
+
+            h2 {
+              margin: 0;
+            }
+          }
+
+          .programme {
+            color: white;
+            width: 100 vw;
+            padding: 10px;
+            border-top: 3px solid white;
+            margin: 0;
+          }
+
+          // flex
+          .flex {
+            display: flex;
+            gap: 5rem;
+            justify-content: space-between;
+
+            div {
+              align-self: center;
+              flex-wrap: wrap;
+            }
+          }
+
+          .center {
+            justify-content: center;
+            gap: 1rem;
+          }
+
+          // responsiveness
+
+          @media only screen and (max-width: 800px) {
+            section {
+              max-width: 100vw;
+              margin: 1rem;
+            }
+
+            ul {
+              flex-direction: column;
+              align-items: center;
+              margin: auto;
+            }
+
+            .twocolumns {
+              flex-direction: column;
+              gap: 20px;
+            }
+
+            .filter {
+              flex-direction: column;
+              align-items: center;
+              gap: 2px;
+              margin: auto;
+              padding: 0;
+
+              input,
+              select {
+                width: 15rem;
+                align-self: center;
+              }
+
+              .switch {
+                margin-top: 10px;
+                margin-left: 45%;
+              }
+            }
+          }
+
+          //tours
+
+          .tours {
+            color: white;
+            text-align: center;
+            margin-top: -20px;
+            margin-bottom: 0;
+            border-top: 3px solid white;
+            width: 100%;
+            padding-top: 35px;
+
+            .videocontainer {
+              margin: 0;
+              padding-bottom: 0;
+              height: 240px;
+            }
+            .description {
+              padding: 1rem;
+              width: 21.88rem;
+              height: 32rem;
+              background-color: black;
+              border: 3px solid white;
+              border-top: none;
+              margin-top: 0;
+              border-bottom-left-radius: 20px;
+              border-bottom-right-radius: 20px;
+            }
+
+            .blue {
+              margin-top: 10px;
+              margin-bottom: 10px;
+              color: ${colors.blue};
+            }
+
+            ul {
+              display: flex;
+              justify-content: center;
+              margin: auto;
+              gap: 20px;
+              flex-wrap: wrap;
+              width: 100%;
+            }
+            li {
+              width: 350px;
+            }
+          }
+
+          // buttons for tours
+          .relative {
+            position: relative;
+            bottom: 70px;
+            margin-bottom: 0;
+          }
+
+          // qr code
+          .qr {
+            height: 120px;
+            width: 120px;
+            margin: auto;
+          }
+
+          // white line to divided editable elements
+          .whiteLine {
+            height: 3px;
+            background-color: white;
+            width: 100%;
+          }
+
+          // long lists of films and users
+          .longList {
+            columns: 100px 3;
+            ul {
+            }
+          }
         `}
       />
-      <Layout user={user}>
-        <Component {...pageProps} refreshUserProfile={refreshUserProfile} />
+      <Layout>
+        <Component {...pageProps} />
       </Layout>
     </>
   );

@@ -2,8 +2,8 @@ const cinemas = [
   {
     cinema_name: 'AMC High Noon Cinema',
     address: '9153 W. High Noon St.South Ozone Park, NY 11420',
-    longitude: 48.2168392,
-    lattitude: 16.3599535,
+    longitude: 16.3599535,
+    lattitude: 48.2168392,
     cinema_description:
       "Festival films and quality mainstream productions - those films are at the core of our cinema. We''re curators. Our topics resonate with modern society and we take great pride in offering you fresh and original content. We open our cinema to all, including creators, critics, and other professionals.",
     contact: 'l.ayrmer@gmail.com',
@@ -11,8 +11,8 @@ const cinemas = [
   {
     cinema_name: 'Regal 16 Cinemas',
     address: '332 Water St.North Tonawanda, NY 14120',
-    longitude: 48.2147235,
-    lattitude: 16.3469223,
+    longitude: 16.3469223,
+    lattitude: 48.2147235,
     cinema_description:
       'Along a fine selection of current distribution titles, we screen a wealth of classics, cult movies and hidden gems from the past decades of cinema history, which we present in specially curated monthly cycles, we also feature our own festivals and events like double features and marathons.',
     contact: 'l.ayrmer@gmail.com',

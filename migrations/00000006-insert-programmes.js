@@ -1,17 +1,93 @@
+const today = new Date(Date.now());
+const tomorrow = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
+
+const day2 = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+
+
 const programmes = [
   {
     cinema_id: 1,
     film_id: 2,
     englishfriendly: true,
-    time: '12:34',
-    date: '2001-04-01',
+    time: '18:30',
+    date: today,
+  },
+  {
+    cinema_id: 2,
+    film_id: 4,
+    englishfriendly: false,
+    time: '20:30',
+    date: today,
+  },
+  {
+    cinema_id: 1,
+    film_id: 1,
+    englishfriendly: true,
+    time: '14:00',
+    date: today,
   },
   {
     cinema_id: 2,
     film_id: 1,
     englishfriendly: false,
-    time: '12:34:54.1237',
-    date: '2001-12-30',
+    time: '16:00',
+    date: today,
+  },
+  {
+    cinema_id: 1,
+    film_id: 3,
+    englishfriendly: true,
+    time: '12:30',
+    date: tomorrow,
+  },
+  {
+    cinema_id: 2,
+    film_id: 1,
+    englishfriendly: false,
+    time: '18:00',
+    date: tomorrow,
+  },
+  {
+    cinema_id: 1,
+    film_id: 4,
+    englishfriendly: true,
+    time: '20:00',
+    date: tomorrow,
+  },
+  {
+    cinema_id: 2,
+    film_id: 2,
+    englishfriendly: false,
+    time: '12:30',
+    date: day2,
+  },
+  {
+    cinema_id: 1,
+    film_id: 2,
+    englishfriendly: true,
+    time: '21:00',
+    date: tomorrow,
+  },
+  {
+    cinema_id: 2,
+    film_id: 4,
+    englishfriendly: false,
+    time: '15:00',
+    date: day2,
+  },
+  {
+    cinema_id: 1,
+    film_id: 1,
+    englishfriendly: true,
+    time: '17:00',
+    date: day2,
+  },
+  {
+    cinema_id: 2,
+    film_id: 4,
+    englishfriendly: false,
+    time: '22:00',
+    date: day2,
   },
 ];
 
