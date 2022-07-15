@@ -6,6 +6,7 @@ import {
 import {
   deleteUserById,
   getProfile,
+  getSessionByValidToken,
   getUserByUsername,
   getUserByValidSessionToken,
   updateUser,
@@ -61,6 +62,17 @@ export default async function handler(
             errors: [{ message: 'Please, provide all required data' }],
           });
         }
+
+        // authentication
+        const sessionToken = req.cookies.sessionToken;
+
+        const session = await getSessionByValidToken(sessionToken);
+
+        if (!session) {
+          return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+        }
+
+        // the action
 
         // get the user datails
         const request = req.body;

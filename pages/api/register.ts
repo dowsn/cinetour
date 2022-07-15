@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { createCSRFSecret } from '../../utils/auth';
 // import { createCSRFSecret } from '../../utils/auth';
 import { createSerializedRegisterSessionTokenCookie } from '../../utils/cookies';
 import {
@@ -81,18 +82,17 @@ export default async function handler(
     // creating a token
     const token = crypto.randomBytes(80).toString('base64');
 
-    // then creating session with user id and the token
-    const session = await createSession(token, newUser.id);
+    // csrf
+    // 1. create a secret
+    const CSRFsecret = createCSRFSecret();
+
+    // then creating session with user id, secret and the token
+    const session = await createSession(token, newUser.id, CSRFsecret);
 
     // creating serialized cookie that will be passed to header, tells the browser to create a new cookie for us
     const serializedCookie = await createSerializedRegisterSessionTokenCookie(
       session.token,
     );
-
-    // csrf
-    // 1. create a secret
-    // const CSRFsecret = createCSRFSecret();
-    // 2. update the session create function to receive the secret
 
     res
       .status(200)

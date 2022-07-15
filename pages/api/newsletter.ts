@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { getSessionByValidToken } from '../../utils/database';
 
 function getRequestParams(email: string) {
   // get env variables
@@ -44,6 +45,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       error: 'Forgot to add your email?',
     });
   }
+
+  // authentication
+  const sessionToken = req.cookies.sessionToken;
+
+  const session = await getSessionByValidToken(sessionToken);
+
+  if (!session) {
+    return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+  }
+
+  // the action
 
   try {
     const { url, data, headers } = getRequestParams(email);

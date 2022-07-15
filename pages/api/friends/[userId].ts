@@ -3,14 +3,12 @@ import {
   NextApiRequest,
   NextApiResponse,
 } from 'next';
+import { productionBrowserSourceMaps } from '../../../next.config';
 import {
   createFriend,
   deleteFriendById,
-  deleteUserById,
   getFriends,
-  getProfile,
-  getUserByValidSessionToken,
-  updateUser,
+  getSessionByValidToken,
 } from '../../../utils/database';
 
 // get the cookie from the request
@@ -21,7 +19,6 @@ export default async function handler(
   // getting the user from query
 
   const userId = Number(req.query.userId);
-
   if (!userId || typeof userId !== 'number') {
     return res.status(400).json({ errors: [{ message: 'No User' }] });
   }
@@ -40,12 +37,49 @@ export default async function handler(
   }
 
   //  if method POST
+  if (req.method === 'POST') {
+    if (typeof req.body.friendId !== 'number' || !req.body.friendId) {
+      res.status(400).json({ errors: [{ message: 'No user available' }] });
+    }
+
+    // authentication
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
+
+    const friendship = await createFriend(userId, req.body.friendId);
+    if (!friendship) {
+      res
+        .status(400)
+        .json({ errors: [{ message: 'No session token passed' }] });
+    }
+
+    res.status(200).json(friendship);
+  }
+
   if (req.method === 'DELETE') {
     if (typeof req.body.friendId !== 'number' || !req.body.friendId) {
       return res.status(400).json({
         errors: [{ message: 'Please, provide all required data' }],
       });
     }
+
+    // authentication
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
 
     const deletedFriend = await deleteFriendById(userId, req.body.friendId);
 

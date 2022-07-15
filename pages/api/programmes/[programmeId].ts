@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   deleteProgrammeById,
+  getAdmin,
   getProgrammeById,
+  getSessionByValidToken,
+  getUserByValidSessionToken,
   updateProgrammeById,
 } from '../../../utils/database';
 
@@ -40,6 +43,29 @@ export default async function handler(
         .json({ errors: [{ message: 'Please provide all required data' }] });
     }
 
+    // authentication
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // authenticating admin
+    const user = await getUserByValidSessionToken(req.cookies.sessionToken);
+    if (!user) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    const admin = await getAdmin(user.id);
+
+    if (!admin) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
+
     const updatedProgramme = await updateProgrammeById(
       programmeId,
       req.body.filmId,
@@ -58,6 +84,29 @@ export default async function handler(
 
   // if the method delete
   if (req.method === 'DELETE') {
+    // authentication by session token
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // authenticating admin
+    const user = await getUserByValidSessionToken(req.cookies.sessionToken);
+    if (!user) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    const admin = await getAdmin(user.id);
+
+    if (!admin) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
+
     const deletedProgramme = await deleteProgrammeById(programmeId);
 
     if (!programmeId) {

@@ -1,5 +1,6 @@
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -13,7 +14,6 @@ import {
   User,
 } from '../../utils/database';
 import { getReducedTour } from '../../utils/datastructures';
-import Tours from '../films/[filmId]';
 
 // function to get youtube id from the complete youtube link
 function getYoutubeId(link: string) {
@@ -48,19 +48,9 @@ export default function UserDetail(props: Props) {
   const [tourList, setTourList] = useState<any[] | undefined>(props.tours);
 
   // adding and deleting friends
-  async function handleDeleteFriend(friendId: number) {
-    const response = await fetch(`api/friend/${props.user.id}`, {
+  async function handleDeleteFriend() {
+    const response = await fetch(`/api/friends/${props.loggedUser.id}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const deletedFilm = await response.json();
-  }
-
-  async function handleAddFriend() {
-    const response = await fetch(`api/friends/${props.loggedUser.id}`, {
-      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -68,9 +58,27 @@ export default function UserDetail(props: Props) {
         friendId: props.user.id,
       }),
     });
+    const deletedFriend = await response.json();
+    await router.push(`/cinetourists/${props.user.username}`);
+  }
+
+  async function handleAddFriend() {
+    const response = await fetch(
+      `/api/friends/${props.loggedUser.id}
+    `,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          friendId: props.user.id,
+        }),
+      },
+    );
     const newFriend = await response.json();
 
-    await router.push(`/cinetourist/${props.user.username}`);
+    await router.push(`/cinetourists/${props.user.username}`);
   }
 
   if (!props.user && !props.profile) {
@@ -97,9 +105,7 @@ export default function UserDetail(props: Props) {
       <main>
         {props.loggedUser ? (
           props.friend ? (
-            <button onClick={() => handleDeleteFriend(props.user.id)}>
-              Delete Friend
-            </button>
+            <button onClick={() => handleDeleteFriend()}>Delete Friend</button>
           ) : (
             <button onClick={() => handleAddFriend()}>Add Friend</button>
           )
@@ -107,6 +113,13 @@ export default function UserDetail(props: Props) {
           ''
         )}
         <h1>CineTourist {props.user.username}</h1>
+        <Image
+          className="profileImage"
+          src={`/users/${props.user.id}.jpeg`}
+          height="150"
+          width="150"
+          alt="profile picture"
+        />
         <section>
           <h2>First name:</h2>
           <p>{props.profile.firstName}</p>
@@ -317,9 +330,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const attendeesRaw = await fetch(`${baseUrl}/api/tour_attendees`);
 
-  // checking if this is my friend by selecting the user
-  const friend = await getFriendByOwnId(user.id);
-
   const attendees = await attendeesRaw.json();
 
   const tours = await toursRaw.map((tour: Tour) =>
@@ -344,13 +354,27 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         },
       };
     }
+
+    // checking if this is my friend by selecting the user
+    console.log(user.id);
+    const friend = await getFriendByOwnId(user.user.id, loggedUser.id);
+    if (friend) {
+      return {
+        props: {
+          loggedUser: loggedUser,
+          user: user.user,
+          profile: user.profile,
+          tours: tours || undefined,
+          friend: friend,
+        },
+      };
+    }
     return {
       props: {
         loggedUser: loggedUser,
         user: user.user,
         profile: user.profile,
         tours: tours || undefined,
-        friend: friend || null,
       },
     };
   }

@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import {
   deleteTourById,
+  getSessionByValidToken,
   getTourByProgrammeId,
   updateTourById,
 } from '../../../utils/database';
@@ -13,7 +14,7 @@ export default async function handler(
   const programmeId = Number(req.query.tourId);
 
   if (!tourId || !programmeId) {
-    return res.status(400).json({ error: 'Valid Id is required' });
+    return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
   }
 
   // if method GET
@@ -24,7 +25,9 @@ export default async function handler(
       return res.status(200).json(tour);
     }
 
-    return res.status(400).json({ error: 'Item/s does not exist.' });
+    return res
+      .status(400)
+      .json({ errors: [{ message: 'Item/s do not exist' }] });
   }
 
   // if method PUT
@@ -35,10 +38,21 @@ export default async function handler(
       });
     }
 
+    // authentication
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
+
     const updatedTour = await updateTourById(tourId, req.body.body);
 
     if (!updatedTour) {
-      return res.status(400).json({ error: 'Id is not valid' });
+      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
     }
 
     return res.status(200).json(updatedTour);
@@ -46,14 +60,25 @@ export default async function handler(
 
   // if the method delete
   if (req.method === 'DELETE') {
+    // authentication
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
+
     const deletedTour = await deleteTourById(tourId);
 
     if (!deletedTour) {
-      return res.status(400).json({ error: 'Id is not valid' });
+      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
     }
 
     return res.status(200).json(deletedTour);
   }
 
-  res.status(405).json({ error: 'Method not allowed' });
+  res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
 }

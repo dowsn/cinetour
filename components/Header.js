@@ -221,6 +221,7 @@ export default function Header(props) {
   const [isExplore, setIsExplore] = useState(false);
   const [isMeet, setIsMeet] = useState(false);
   const [isProfile, setIsProfile] = useState(false);
+  const [sandwich, setSandwich] = useState(false);
 
   const onMouseEnter1 = () => setIsExplore(true);
   const onMouseLeave1 = () => setIsExplore(false);
@@ -233,7 +234,7 @@ export default function Header(props) {
 
   return (
     <header css={headerStyles} className="container-fluid align-items-center">
-      <div className="header row">
+      <div className="header row" onClick={() => setSandwich(false)}>
         <span className="logo col-auto">
           <Link href="/">
             <Image
@@ -245,7 +246,10 @@ export default function Header(props) {
             />
           </Link>
         </span>
-        <div className="icon col-auto align-items-center">
+        <div
+          className="icon col-auto align-items-center"
+          onClick={() => setSandwich(false)}
+        >
           <Link href="/">
             <Image
               src="/nav/icon.png"
@@ -262,6 +266,7 @@ export default function Header(props) {
             onMouseEnter={onMouseEnter1}
             onMouseLeave={onMouseLeave1}
             className="select"
+            onClick={() => setSandwich(false)}
           >
             <Link href="/cinemas">
               {isExplore ? (
@@ -294,6 +299,7 @@ export default function Header(props) {
             onMouseEnter={onMouseEnter2}
             onMouseLeave={onMouseLeave2}
             className="select"
+            onClick={() => setSandwich(false)}
           >
             <Link href="/tours">
               {isMeet ? (
@@ -354,23 +360,27 @@ export default function Header(props) {
         <div>
           <nav role="navigation">
             <div id="menuToggle">
-              <input type="checkbox" />
+              <input
+                type="checkbox"
+                checked={sandwich}
+                onChange={(event) => setSandwich(event.currentTarget.checked)}
+              />
 
               <span></span>
               <span></span>
               <span></span>
 
               <ul id="menu">
-                <li>
+                <li onClick={() => setSandwich(false)}>
                   <Link href="/about">About</Link>
                 </li>
-                <li>
+                <li onClick={() => setSandwich(false)}>
                   <Link href="/films">Films</Link>
                 </li>
-                <li>
+                <li onClick={() => setSandwich(false)}>
                   <Link href="/cinetourists">Cinetourists</Link>
                 </li>
-                <li>
+                <li onClick={() => setSandwich(false)}>
                   <Link href="/terms">Terms</Link>
                 </li>
               </ul>

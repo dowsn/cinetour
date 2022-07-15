@@ -108,8 +108,10 @@ type Props = {
 
 export default function Home(props: Props) {
   const [tourList, setTourList] = useState<any>(props.tours);
-  // const [join, setJoin] = useState(false);
   const [programmes, setProgrammes] = useState(props.programmes);
+  // const ToggleItem = ({ discription, id }) => {
+  //   const [join, setJoin] = useState(false);
+  const [join, setJoin] = useState<string | undefined>('');
   const today = new Date(Date.now()).toString().split(' ', 3).join(' ');
   const router = useRouter();
 
@@ -124,11 +126,7 @@ export default function Home(props: Props) {
         userId: `${userId}`,
       }),
     });
-    const deletedTourAttendee = await response.json();
-
-    console.log(deletedTourAttendee);
-
-    await router.push(`/#tour-${tourId}`);
+    const createdTourAttendee = await response.json();
   }
 
   async function handleLeave(tourId: number) {
@@ -139,8 +137,6 @@ export default function Home(props: Props) {
       },
     });
     const deletedTourAttendee = await response.json();
-
-    await router.push(`/#tour-${tourId}`);
   }
 
   const renderData = (data: any) => (
@@ -260,9 +256,12 @@ export default function Home(props: Props) {
           </div>
           <ul>
             {tourList
-              .filter((tour: any) => tour.date === today)
-              .sort((a: any, b: any) => a.date.localeCompare(b.date))
-              // .sort((a: any, b: any) => a.time.localeCompare(b.time))
+              .sort(function (a: any, b: any) {
+                if (a.date > b.date) return +1;
+                if (a.date < b.date) return -1;
+                if (a.time > b.time) return +1;
+                if (a.time < b.time) return -1;
+              })
               .slice(0, 3)
               .map((tour: any) => (
                 <li key={`tour_id-${tour.tourId}`} id={`tour-${tour.tourId}`}>
@@ -293,32 +292,65 @@ export default function Home(props: Props) {
                       </Link>
                     </div>
                     <br />
-                    {tour.attendees.length ? <div>Going:</div> : ''}
-                    <div className="flex center">
-                      {tour.attendees.map((attendee: any) => (
+                    {tour.attendees.length ? (
+                      <>
+                        <div>Going:</div>
+                        <div className="flex center">
+                          {tour.attendees.map((attendee: any) => (
+                            <div key={`attendee-${attendee}`}>
+                              <Link
+                                href={`/cinetourists/${attendee}`}
+                                key={`username-${attendee}`}
+                              >
+                                {attendee}
+                              </Link>
+                            </div>
+                          ))}
+                          {join === 'joined' ? (
+                            <div>
+                              <Link
+                                href={`/cinetourists/${props.user.username}`}
+                                key={`username-${props.user.username}`}
+                              >
+                                {props.user.username}
+                              </Link>
+                            </div>
+                          ) : (
+                            ''
+                          )}
+                        </div>
+                      </>
+                    ) : !tour.attendees.length && join === 'joined' ? (
+                      <>
+                        <div>Going:</div>
                         <div>
                           <Link
-                            href={`/cinetourists/${attendee}`}
-                            key={`username-${attendee}`}
+                            href={`/cinetourists/${props.user.username}`}
+                            key={`username-${props.user.username}`}
                           >
-                            {attendee}
+                            {props.user.username}
                           </Link>
                         </div>
-                      ))}
-                    </div>
+                      </>
+                    ) : (
+                      ''
+                    )}
                   </div>
                   {props.user ? (
                     tour.hostId === props.user.id ? (
                       <div className="relative">
-                        <Link href={`/tours/edit/${tour.programmeId}`}>
+                        <Link
+                          href={`/tours/edit/${tour.programmeId}?returnTO=login`}
+                        >
                           <button>Edit</button>
                         </Link>
                       </div>
                     ) : tour.attendees.includes(props.user.username) ? (
                       <button
                         className="relative"
+                        value={join}
                         onClick={() => {
-                          // setJoin(false);
+                          setJoin('unjoined');
                           handleLeave(props.user.id);
                         }}
                       >
@@ -328,7 +360,7 @@ export default function Home(props: Props) {
                       <button
                         className="relative"
                         onClick={() => {
-                          // setJoin(true);
+                          setJoin('joined');
                           handleJoin(tour.tourId, props.user.id).catch(() => {
                             console.log('Request fails');
                           });

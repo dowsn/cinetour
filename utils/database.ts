@@ -155,12 +155,16 @@ type Session = {
   token: string;
 };
 
-export async function createSession(token: string, userId: User['id']) {
+export async function createSession(
+  token: string,
+  userId: User['id'],
+  CSRFSecret: string,
+) {
   const [session] = await sql<[Session]>`
   INSERT INTO sessions
-    (token, user_id)
+    (token, user_id, csrf_secret)
   VALUES
-    (${token}, ${userId})
+    (${token}, ${userId}, ${CSRFSecret})
   RETURNING
     id,
     token
@@ -223,30 +227,6 @@ export async function deleteExpiredSessions() {
   `;
 
   return sessions.map((session) => camelcaseKeys(session));
-}
-
-// for checking of valid token to display the profile or other secured pages
-export async function getSessionByValidToken(token: string) {
-  if (!token) {
-    return undefined;
-  }
-
-  const [sessionId] = await sql<[Session | undefined]>`
-
-SELECT
-  sessions.id,
-  sessions.token,
-  sessions.csrf_secret
- FROM
-  sessions
- WHERE
-  sessions.token = ${token} AND
-  sessions.expiry_timestamp > now()
- `;
-
-  await deleteExpiredSessions();
-
-  return sessionId && camelcaseKeys(sessionId);
 }
 
 //
@@ -321,7 +301,26 @@ export async function getAdmin(userId: number) {
 
 //  csrf:
 
-// type SessionWithCSRF = Session & { csrfSecret: string };
+export type SessionWithCSRF = Session & { csrfSecret: string };
+
+export async function getSessionByValidToken(token: string) {
+  if (!token) return undefined;
+
+  const [session] = await sql<[SessionWithCSRF | undefined]>`
+  SELECT
+      sessions.id,
+      sessions.token,
+      sessions.csrf_secret
+   FROM
+      sessions
+   WHERE
+    sessions.token = ${token} AND
+    sessions.expiry_timestamp > NOW();
+  `;
+  await deleteExpiredSessions();
+
+  return session && camelcaseKeys(session);
+}
 
 // if ("errors" in props) {
 //   return <h1>no animals for you</h1>;
@@ -411,6 +410,29 @@ export async function getProgrammes() {
   `;
 
   await deleteExpiredProgrammes();
+
+  if (!programmesWithTours.length && !programmesWithoutTours.length) {
+    const programmes = await sql<Programme[]>`
+    SELECT
+    programmes.id AS programme_id,
+     film_title,
+    film_id,
+    cinema_name,
+    genre,
+    date,
+    time,
+    englishfriendly
+     FROM
+    films,
+    cinemas,
+    programmes
+    WHERE
+    cinema_id = cinemas.id AND
+    film_id = films.id
+  `;
+
+    return camelcaseKeys(programmes);
+  }
 
   const programmes = [...programmesWithTours, ...programmesWithoutTours];
   return camelcaseKeys(programmes);
@@ -874,16 +896,18 @@ export type Subscriber = {
   subscriberId: number;
   expiryTimestamp: string;
   checkoutSession: string;
+  qrCode: string;
 };
 export async function createSubscriber(
   userId: number,
   checkoutSession: string,
+  qr_code: string,
 ) {
   const [subscriber] = await sql<[Subscriber]>`
   INSERT INTO subscribers
-    (subscriber_id, checkout_session)
+    (subscriber_id, checkout_session, qr_code)
   VALUES
-    (${userId}, ${checkoutSession})
+    (${userId}, ${checkoutSession}, ${qr_code})
   RETURNING
     *
   `;
@@ -896,7 +920,7 @@ export async function getSubscriberByValidSubscription(userId: number) {
     return undefined;
   }
 
-  const [subscriber] = await sql<[Subscriber | undefined]>`
+  const [subscriber] = await sql<[Subscriber]>`
 
   SELECT
    *
@@ -985,7 +1009,7 @@ users.id = friend2_id
   return SuperFriends && camelcaseKeys(SuperFriends);
 }
 
-export async function getFriendByOwnId(userId: number) {
+export async function getFriendByOwnId(userId: number, friendId: number) {
   if (!userId) return undefined;
   const [friend] = await sql<[Friend | undefined]>`
     SELECT
@@ -993,8 +1017,10 @@ export async function getFriendByOwnId(userId: number) {
     FROM
     friends
   WHERE
-    friend1_id = ${userId} or
-    friend2_id = ${userId}
+    (friend1_id = ${userId} AND
+    friend2_id = ${friendId}) or
+    (friend1_id = ${friendId} AND
+    friend2_id = ${userId})
   `;
   return friend && camelcaseKeys(friend);
 }

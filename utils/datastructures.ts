@@ -1,17 +1,17 @@
-import { Programme, Subscriber, Tour, User } from './database';
+import { Programme, Subscriber, Tour } from './database';
 
 export type ReducedProgramme = {
-  programmeId: number | null,
-  filmTitle: string | null,
-  filmId: number | null,
-  cinemaName: string,
-  englishfriendly: boolean | null,
-  date: Date | string,
-  time: string,
-  hostId: number,
-  username: string,
-  genre: string,
-  tourId: number,
+  programmeId: number | null;
+  filmTitle: string | null;
+  filmId: number | null;
+  cinemaName: string;
+  englishfriendly: boolean | null;
+  date: Date | string;
+  time: string;
+  hostId: number;
+  username: string;
+  genre: string;
+  tourId: number;
 };
 
 export function getReducedProgramme(programme: Programme) {
@@ -32,19 +32,19 @@ export function getReducedProgramme(programme: Programme) {
 }
 
 export type ReducedTour = {
-  tourId: number,
-  username: string,
-  programmeId: number,
-  filmTitle: string,
-  filmId: number,
-  cinemaName: string,
-  date: Date | string,
-  time: string,
-  hostId: number,
-  genre: string,
-  trailer: string,
-  body: string,
-  attendees: string[]
+  tourId: number;
+  username: string;
+  programmeId: number;
+  filmTitle: string;
+  filmId: number;
+  cinemaName: string;
+  date: Date | string;
+  time: string;
+  hostId: number;
+  genre: string;
+  trailer: string;
+  body: string;
+  attendees: string[];
 };
 
 export function getReducedTour(tour: Tour, attendees: any) {
@@ -75,6 +75,7 @@ export function getReducedSubscriber(s: Subscriber) {
   const reducedsubscriber = {
     subscriberId: s.subscriberId,
     expiryTimestamp: s.expiryTimestamp.toString(),
+    qrCode: s.qrCode,
   };
   return reducedsubscriber;
 }

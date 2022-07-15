@@ -1,18 +1,18 @@
 const tours = [
   {
     programme_id: 2,
-    body: 'I just wanna have fun and meet new people. Let us meet in front of the cinema 30 minutes before.',
+    body: 'I just wanna have fun and meet new people. Let us meet in front of the cinema 10 minutes before.',
     host_id: 1,
   },
   {
     programme_id: 6,
-    body: 'One or two drinks after the film?',
+    body: 'One or two drinks after the film? We meet at 30 minutes before already.',
     host_id: 1,
   },
   {
     programme_id: 4,
-    body: 'asdf',
-    host_id: 2,
+    body: "Let's watch this. You will recognize me - I wear a red hat.",
+    host_id: 1,
   },
 ];
 

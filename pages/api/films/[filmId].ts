@@ -1,7 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { verifyCsrfToken } from '../../../utils/auth';
 import {
   deleteFilmById,
+  getAdmin,
   getFilmById,
+  getFilms,
+  getSessionByValidToken,
+  getUserByValidSessionToken,
   updateFilmById,
 } from '../../../utils/database';
 
@@ -43,6 +48,25 @@ export default async function handler(
         .json({ errors: [{ message: 'Please, provide all required data' }] });
     }
 
+    const films: any = await getFilms();
+
+    if (!films) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'Item is missing.' }] });
+    }
+
+    if (req.body.topFilm && films.some((e: any) => e.topFilm === true)) {
+      return res.status(400).json({
+        errors: [
+          {
+            message:
+              'One film is already selected as top film. Please deselect this film first.',
+          },
+        ],
+      });
+    }
+
     const updatedFilm = await updateFilmById(
       filmId,
       req.body.filmTitle,
@@ -59,6 +83,45 @@ export default async function handler(
       return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
     }
 
+    // check for csrf token
+    if (!req.body.csrfToken) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'No csrf token found' }] });
+    }
+
+    // 1. we get the sessionToken from req.body
+    const csrfToken = req.body.csrfToken;
+
+    // 2. we get the session for this session token
+    const sessionToken = req.cookies.sessionToken;
+
+    // 3. we get the session for this session Token
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // 4. validates the csrf token against the seed we have in the database
+    if (!(await verifyCsrfToken(session.csrfSecret, csrfToken))) {
+      return res
+        .status(403)
+        .json({ errors: [{ message: 'csrf is not valid' }] });
+    }
+
+    // authenticating admin
+    const user = await getUserByValidSessionToken(req.cookies.sessionToken);
+    if (!user) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    const admin = await getAdmin(user.id);
+
+    if (!admin) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
     return res.status(200).json(updatedFilm);
   }
 
@@ -68,6 +131,46 @@ export default async function handler(
 
     if (!deletedFilm) {
       return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
+    }
+
+    // CSRF authentication
+    // check for csrf token
+    if (!req.body.csrfToken) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'No csrf token found' }] });
+    }
+
+    // 1. we get the sessionToken from req.body
+    const csrfToken = req.body.csrfToken;
+
+    // 2. we get the session for this session token
+    const sessionToken = req.cookies.sessionToken;
+
+    // 3. we get the session for this session Token
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // 4. validates the csrf token against the seed we have in the database
+    if (!(await verifyCsrfToken(session.csrfSecret, csrfToken))) {
+      return res
+        .status(403)
+        .json({ errors: [{ message: 'csrf is not valid' }] });
+    }
+
+    // authenticating admin
+    const user = await getUserByValidSessionToken(req.cookies.sessionToken);
+    if (!user) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    const admin = await getAdmin(user.id);
+
+    if (!admin) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
     }
 
     return res.status(200).json(deletedFilm);

@@ -1,7 +1,7 @@
 exports.up = async (sql) => {
   await sql`
   CREATE TABLE films (
-    id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id serial NOT NULL,
     film_title varchar(30) NOT NULL,
     director varchar(40),
     year integer,
@@ -9,9 +9,9 @@ exports.up = async (sql) => {
     genre varchar(20) NOT NULL,
     synopsis varchar(300),
     top_film boolean DEFAULT false,
-   CONSTRAINT top_film_true_or_null CHECK (top_film),
-  CONSTRAINT standard_only_1_true UNIQUE (top_film),
-  trailer varchar(150) NOT NULL
+    CONSTRAINT films_pkey PRIMARY KEY (id),
+    EXCLUDE (top_film WITH =) WHERE (top_film),
+    trailer varchar(150) NOT NULL
 );
  `;
 };

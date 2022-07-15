@@ -10,11 +10,11 @@ export default async function handler(
     const users = await getCinetourists();
 
     if (!users) {
-      return res.status(400).json({ error: 'Items are missing' });
+      return res.status(400).json({ errors: [{ message: 'Item missing' }] });
     }
 
     return res.status(200).json(users);
   }
 
-  return res.status(405).json('Method not allowed');
+  return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
 }

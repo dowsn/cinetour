@@ -7,6 +7,7 @@ import {
 import { loadStripe } from '@stripe/stripe-js';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import QRCode from 'qrcode';
@@ -37,7 +38,7 @@ type Props = {
   profile: Profile;
   admin?: Admin;
   publicKey: string;
-  subscriber?: Subscriber;
+  subscriber: Subscriber;
   apiKey: string;
   cinemas: Cinemas[];
   tours: any[];
@@ -59,17 +60,44 @@ export default function UserDetail(props: Props) {
   //getting QR Code for user
   const [src, setSrc] = useState('');
 
-  useEffect(() => {
-    QRCode.toDataURL(props.user.username).then((data: any) => {
-      setSrc(data);
-    });
-  }, []);
-
+  if (props.subscriber) {
+    useEffect(() => {
+      QRCode.toDataURL(props.subscriber.qrCode).then((data: any) => {
+        setSrc(data);
+      });
+    }, []);
+  }
   // router
   const router = useRouter();
 
-  //tours
+  // tours
   const [tourList, setTourList] = useState<any[]>(props.tours);
+
+  // profile image
+  // const [setImgsrc];
+
+  // async function handleOnSubmit(event) {
+  //   event.preventDefault();
+  //   const form = event.currentTarget;
+  //   const fileInput = Array.from(form.elements).find(
+  //     ({ name }) => name === 'file',
+  //   );
+
+  //   const formData = new FormData();
+
+  //   for (const file of fileInput.files) {
+  //     FormData.append('file', file);
+
+  //     formData.append('upload_preset', 'cinetour');
+
+  //     const data = await fetch(
+  //       'htttps://api.cloudinary.com/v1_1/dkiienrq4/image/upload',
+  //       { method: 'POST', body: formData },
+  //     ).then((r) => r.json());
+
+  //     console.log(data);
+  //   }
+  // }
 
   // handling tours
   async function handleJoin(tourId: number, userId: number) {
@@ -96,7 +124,6 @@ export default function UserDetail(props: Props) {
       },
     });
     const deletedTourAttendee = await response.json();
-    console.log(deletedTourAttendee);
 
     await router.push(`/tours#${tourId}`);
   }
@@ -158,11 +185,23 @@ export default function UserDetail(props: Props) {
         <meta name="description" content="Your profile page" />
       </Head>
       <main>
+        <Link href="/logout">
+          <button>Log Out</button>
+        </Link>
         <h1>CineTourist {props.user.username}</h1>
+        <Image
+          className="profileImage"
+          src={`/users/${props.user.id}.jpeg`}
+          height="150"
+          width="150"
+          alt="profile picture"
+        />
+        <br />
         <section>
           {props.admin ? (
             <>
               <div className="button a">
+                <h2>Admin Tools</h2>
                 <Link href="/edit_programme">Edit Programme</Link>
                 <br />
                 <Link href="/edit_films">Edit Films</Link>

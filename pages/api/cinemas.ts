@@ -14,7 +14,9 @@ export default async function handler(
       return res.status(200).json(cinemas);
     }
 
-    return res.status(400).json({ error: 'Item/s does not exist.' });
+    return res
+      .status(400)
+      .json({ errors: [{ message: 'Item does not exist' }] });
   }
-  return res.status(405).json('Method not allowed');
+  return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
 }

@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { getSessionByValidToken } from '../../utils/database';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -24,11 +25,22 @@ export default async function handler(request, response) {
     success_url: successUrl + '?session_id={CHECKOUT_SESSION_ID}',
     cancel_url: cancelUrl,
   });
-  // response the client with the new session or an error if no session
 
+  // check if the session is in order
   if (!session) {
-    return response.status(400).json({ error: 'create session failed' });
+    return response.status(400).json({ error: 'Create session failed' });
   }
+
+  // authentication
+  const sessionToken = req.cookies.sessionToken;
+
+  const sessionUser = await getSessionByValidToken(sessionToken);
+
+  if (!sessionUser) {
+    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+  }
+
+  // response the client with the new session or an error if no session
 
   response.status(200).json({ session: session });
 }

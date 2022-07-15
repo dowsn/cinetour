@@ -64,24 +64,23 @@ export default async function handler(
     // creating a token
     const token = crypto.randomBytes(80).toString('base64');
 
-    // then creating session with user id and the token
-    const session = await createSession(token, userId);
+    // csrf
+    // 1. create a secret
+    const CSRFsecret = createCSRFSecret();
+    // 2.
+    // then creating session with user id, secret and the token
+    const session = await createSession(token, userId, CSRFsecret);
 
     // creating serialized cookie that will be passed to header
     const serializedCookie = await createSerializedRegisterSessionTokenCookie(
       session.token,
     );
 
-    // csrf
-    // 1. create a secret
-    // const CSRFsecret = createCSRFSecret();
-    // 2. update the session create function to receive the secret
-
     res
       .status(200)
       .setHeader('set-Cookie', serializedCookie)
       .json({ user: { id: userId, username: username } });
   } else {
-    res.status(405).json({ errors: [{ message: 'method not allowed' }] });
+    res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
   }
 }

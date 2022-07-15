@@ -63,7 +63,21 @@ export default function EditTour(props: Props) {
       return;
     }
 
-    await router.push(`/tours#${props.tour.tourId}}`);
+    const returnTo = router.query.returnTo;
+
+    if (
+      returnTo &&
+      !Array.isArray(returnTo)
+      // &&
+      // Security: Validate returnTo parameter against valid path
+      // (because this is untrusted user input)
+      // /^\/[a-zA-Z0-9-?=/@#$%-^&-*]*$/.test(returnTo)
+    ) {
+      await router.push(returnTo);
+    } else {
+      // redirect to main page
+      await router.push(`/`);
+    }
   }
 
   return (

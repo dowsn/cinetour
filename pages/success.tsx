@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 
+import crypto from 'node:crypto';
 import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
@@ -67,8 +68,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             sessionId,
           );
 
+          // creating a token
+          const token = crypto.randomBytes(80).toString('base64');
+
           if (!checkSession) {
-            createSubscriber(user.id, sessionId);
+            createSubscriber(user.id, sessionId, token);
             return {
               props: {
                 user: user,

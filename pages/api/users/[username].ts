@@ -8,7 +8,9 @@ export default async function handler(
   const username = req.query.username;
 
   if (!username || Array.isArray(username)) {
-    return res.status(400).json({ error: 'User must have a valid username' });
+    return res
+      .status(400)
+      .json({ errors: [{ message: 'User must have a valid name' }] });
   }
   // if method GET
   if (req.method === 'GET') {
@@ -19,8 +21,10 @@ export default async function handler(
 
       return res.status(200).json({ user: user, profile: profile });
     }
-    return res.status(400).json({ error: 'Cinetourist does not exist.' });
+    return res
+      .status(400)
+      .json({ errors: [{ message: 'Cinetourist does not exist' }] });
   }
 
-  return res.status(405).json('Method not allowed');
+  return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
 }

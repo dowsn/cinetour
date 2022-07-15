@@ -1,7 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import { css, Global } from '@emotion/react';
 import Head from 'next/head';
-import { useCallback, useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { colors } from '../styles/constants';
 
@@ -299,6 +298,10 @@ function MyApp({ Component, pageProps }) {
           .center {
             justify-content: center;
             gap: 1rem;
+          }
+
+          .profileImage {
+            border-radius: 20px;
           }
 
           // responsiveness

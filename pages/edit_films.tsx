@@ -5,12 +5,13 @@ import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { Fragment, useState } from 'react';
 import { colors } from '../styles/constants';
+import { createCsrfToken } from '../utils/auth';
 import {
   Film,
   getAdmin,
-  getFilms,
+  getSessionByValidToken,
   getUserByValidSessionToken,
-  User,
+  SessionWithCSRF,
 } from '../utils/database';
 import { errorStyles } from './register';
 
@@ -20,7 +21,7 @@ const editFilmsstyles = css`
   }
 `;
 
-type Props = { films: Film[] };
+type Props = { films: Film[]; csrfToken: SessionWithCSRF };
 
 export default function EditFilms(props: Props) {
   // list of units
@@ -74,6 +75,7 @@ export default function EditFilms(props: Props) {
         year: newYear,
         country: newCountry,
         topFilm: newTopFilm,
+        csrfToken: props.csrfToken,
       }),
     });
     const createdFilm = await response.json();
@@ -105,6 +107,9 @@ export default function EditFilms(props: Props) {
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        csrfToken: props.csrfToken,
+      }),
     });
     const deletedFilm = await response.json();
 
@@ -134,6 +139,7 @@ export default function EditFilms(props: Props) {
         year: editYear,
         country: editCountry,
         topFilm: editTopFilm,
+        csrfToken: props.csrfToken,
       }),
     });
     const updatedFilm = await response.json();
@@ -227,11 +233,15 @@ export default function EditFilms(props: Props) {
         <label>
           {' '}
           Top Film:
-          <input
-            type="checkbox"
-            checked={newTopFilm}
-            onChange={(event) => setNewTopFilm(event.currentTarget.checked)}
-          />
+          {filmList.some((e) => e.topFilm === true) ? (
+            <input type="checkbox" disabled />
+          ) : (
+            <input
+              type="checkbox"
+              checked={newTopFilm}
+              onChange={(event) => setNewTopFilm(event.currentTarget.checked)}
+            />
+          )}
         </label>
         <br />
         <button
@@ -497,15 +507,20 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         },
       };
     }
+    const session = await getSessionByValidToken(
+      context.req.cookies.sessionToken,
+    );
 
-    const filmsRequest = await fetch(`${baseUrl}/api/films`);
+    if (session) {
+      const csrfToken = await createCsrfToken(session.csrfSecret);
+      const filmsRequest = await fetch(`${baseUrl}/api/films`);
+      const films = await filmsRequest.json();
 
-    const films = await filmsRequest.json();
-
-    return {
-      // making data about the user available at the page in props
-      props: { films: films },
-    };
+      return {
+        // making data about the user available at the page in props
+        props: { films: films, csrfToken: csrfToken },
+      };
+    }
   }
 
   return {

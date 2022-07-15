@@ -1,5 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { joinTourbyUserId, unjoinTourbyUserId } from '../../../utils/database';
+import {
+  getSessionByValidToken,
+  joinTourbyUserId,
+  unjoinTourbyUserId,
+} from '../../../utils/database';
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,7 +12,7 @@ export default async function handler(
   const tourId = Number(req.query.tourId);
 
   if (!tourId) {
-    return res.status(400).json({ error: 'Valid Id is required' });
+    return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
   }
 
   // if method POST
@@ -19,10 +23,21 @@ export default async function handler(
       });
     }
 
+    // authentication
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
+
     const tourAttendee = await joinTourbyUserId(tourId, req.body.userId);
 
     if (!tourAttendee) {
-      return res.status(400).json({ error: 'Id is not valid' });
+      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
     }
 
     return res.status(200).json(tourAttendee);
@@ -30,14 +45,25 @@ export default async function handler(
 
   // if the method delete
   if (req.method === 'DELETE') {
+    // authentication
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
+
     const deletedTour = await unjoinTourbyUserId(tourId);
 
     if (!deletedTour) {
-      return res.status(400).json({ error: 'Id is not valid' });
+      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
     }
 
     return res.status(200).json(deletedTour);
   }
 
-  res.status(405).json({ error: 'Method not allowed' });
+  res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
 }

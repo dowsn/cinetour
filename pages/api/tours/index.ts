@@ -1,5 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createTour, getTours } from '../../../utils/database';
+import {
+  createTour,
+  getSessionByValidToken,
+  getTours,
+} from '../../../utils/database';
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,7 +18,9 @@ export default async function handler(
       return res.status(200).json(tours);
     }
 
-    return res.status(400).json({ error: 'Item/s does not exist.' });
+    return res
+      .status(400)
+      .json({ errors: [{ message: 'Item/s do not exist' }] });
   }
 
   // if method POST
@@ -24,6 +30,17 @@ export default async function handler(
         error: [{ message: 'Please, provide all required information' }],
       });
     }
+
+    // authentication
+    const sessionToken = req.cookies.sessionToken;
+
+    const session = await getSessionByValidToken(sessionToken);
+
+    if (!session) {
+      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    }
+
+    // the action
 
     const newTour = await createTour(
       req.body.programmeId,
@@ -35,7 +52,5 @@ export default async function handler(
   }
 
   // If we are using any method that is not allowed
-  res.status(405).json({
-    error: 'Method not allowed',
-  });
+  res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
 }
