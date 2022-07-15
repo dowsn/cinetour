@@ -47,6 +47,36 @@ export default function UserDetail(props: Props) {
   //tours
   const [tourList, setTourList] = useState<any[] | undefined>(props.tours);
 
+  // handling joining and leaving tours
+
+  async function handleJoin(tourId: number, userId: number) {
+    const response = await fetch(`/api/tour_attendees/${tourId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: `${userId}`,
+      }),
+    });
+    const TourAttendee = await response.json();
+    console.log(TourAttendee);
+
+    await router.push(`/tours#${tourId}`);
+  }
+
+  async function handleLeave(tourId: number) {
+    const response = await fetch(`/api/tour_attendees/${tourId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const deletedTourAttendee = await response.json();
+
+    await router.push(`/tours#${tourId}`);
+  }
+
   // adding and deleting friends
   async function handleDeleteFriend() {
     const response = await fetch(`/api/friends/${props.loggedUser.id}`, {
@@ -192,7 +222,7 @@ export default function UserDetail(props: Props) {
                                   handleLeave(props.user.id);
                                 }}
                               >
-                                Unjoin
+                                Leave
                               </button>
                             ) : (
                               <button
@@ -277,7 +307,7 @@ export default function UserDetail(props: Props) {
                             ) : tour.attendees.includes(props.user.username) ? (
                               <button
                                 onClick={() => {
-                                  handleUnjoin(props.user.id);
+                                  handleLeave(props.user.id);
                                 }}
                               >
                                 Unjoin
