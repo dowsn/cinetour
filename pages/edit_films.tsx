@@ -1,7 +1,9 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
+import Axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
+import Head from 'next/head';
 import Link from 'next/link';
 import { Fragment, useState } from 'react';
 import { colors } from '../styles/constants';
@@ -27,7 +29,7 @@ export default function EditFilms(props: Props) {
   // list of units
   const [filmList, setFilmList] = useState<Film[]>(props.films);
 
-  //possible errors
+  // possible errors
   const [errors, setErrors] = useState<
     {
       message: string;
@@ -84,19 +86,20 @@ export default function EditFilms(props: Props) {
       setErrors(createdFilm.errors);
       return;
     }
-    // copy state
-    // update copy of the state
-    const newState = [...filmList, createdFilm];
+    // new state
+    const filmsRequest = await fetch(`/api/films`);
+    const films = await filmsRequest.json();
+
     // use setState func
 
-    setFilmList(newState);
-    setActiveFilmId(2);
+    setFilmList(films);
+    setActiveFilmId(undefined);
     setNewFilm('');
     setNewGenre('');
     setNewDirector('');
     setNewSynopsis('');
     setNewTrailer('');
-    setNewYear(undefined);
+    setNewYear(2022);
     setNewCountry('');
     setNewTopFilm(false);
   }
@@ -117,11 +120,13 @@ export default function EditFilms(props: Props) {
       setErrors(deletedFilm.errors);
       return;
     }
-    // copy state
-    // update copy of the state
-    const newState = filmList.filter((film) => film.id !== deletedFilm.id);
+
+    // new state
+    const filmsRequest = await fetch(`/api/films`);
+    const films = await filmsRequest.json();
+
     // use setState func
-    setFilmList(newState);
+    setFilmList(films);
   }
 
   async function updateFilmHandler(id: number) {
@@ -148,21 +153,49 @@ export default function EditFilms(props: Props) {
       setErrors(updatedFilm.errors);
       return;
     }
-    // copy state
-    // update copy of the state
-    const newState = filmList.map((film) => {
-      if (film.id === updatedFilm.id) {
-        return updatedFilm;
-      } else {
-        return film;
-      }
-    });
+
+    // new state
+    const filmsRequest = await fetch(`/api/films`);
+    const films = await filmsRequest.json();
+
     // use setState func
-    setFilmList(newState);
+    setFilmList(films);
+    setActiveFilmId(undefined);
   }
+
+  // uploading top film image
+  // selected file
+  const [imageSelected, SetImageSelected] = useState<File | undefined>(
+    undefined,
+  );
+
+  // uploading profile image
+  const uploadImage = async () => {
+    const formData: any = new FormData();
+    formData.append('file', imageSelected);
+
+    // how to set the folder and name to save
+    formData.append('upload_preset', 'top_film');
+    formData.append('public_id]', 'top_tour/tour_film');
+    Axios.post(
+      'https://api.cloudinary.com/v1_1/dkiienrq4/image/upload',
+      formData,
+    ).then((response: any) => {
+      console.log(response);
+    });
+
+    setSuccess('Success');
+  };
+
+  const [success, setSuccess] = useState('');
 
   return (
     <>
+      <Head>
+        <title>Edit Films</title>
+        <meta name="description" content="Edit Films" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <main css={editFilmsstyles}>
         <Link href="/../profile">
           <button>Back</button>
@@ -173,6 +206,7 @@ export default function EditFilms(props: Props) {
           {' '}
           Film title:
           <input
+            placeholder="The Best Film"
             value={newFilm}
             onChange={(event) => setNewFilm(event.currentTarget.value)}
           />
@@ -181,6 +215,7 @@ export default function EditFilms(props: Props) {
           {' '}
           Genre:
           <input
+            placeholder="comedy"
             value={newGenre}
             onChange={(event) => setNewGenre(event.currentTarget.value)}
           />
@@ -189,6 +224,7 @@ export default function EditFilms(props: Props) {
           {' '}
           Director:
           <input
+            placeholder="Christopher Nolan"
             value={newDirector}
             onChange={(event) => setNewDirector(event.currentTarget.value)}
           />
@@ -199,17 +235,19 @@ export default function EditFilms(props: Props) {
           Synopsis:
           <br />
           <textarea
+            placeholder="This movie is about..."
             rows={4}
             cols={50}
             value={newSynopsis}
             onChange={(event) => setNewSynopsis(event.currentTarget.value)}
-          ></textarea>
+          />
         </label>
         <br />
         <label>
           {' '}
           Trailer:
           <input
+            placeholder="https://www.youtube.com/watch?v=wBDLRvjHVOY"
             value={newTrailer}
             onChange={(event) => setNewTrailer(event.currentTarget.value)}
           />
@@ -218,6 +256,7 @@ export default function EditFilms(props: Props) {
           {' '}
           Year:
           <input
+            placeholder="2022"
             value={newYear}
             onChange={(event) => setNewYear(Number(event.currentTarget.value))}
           />
@@ -226,13 +265,14 @@ export default function EditFilms(props: Props) {
           {' '}
           Country:
           <input
+            placeholder="US"
             value={newCountry}
             onChange={(event) => setNewCountry(event.currentTarget.value)}
           />
         </label>
         <label>
           {' '}
-          Top Film:
+          Top Film (only one):
           {filmList.some((e) => e.topFilm === true) ? (
             <input type="checkbox" disabled />
           ) : (
@@ -253,13 +293,26 @@ export default function EditFilms(props: Props) {
         >
           Add
         </button>
-        {errors.map((error) => (
-          <div css={errorStyles} key={`error-${error.message}`}>
-            {error.message}
-          </div>
-        ))}
         <br />
-        <div className="whiteLine"></div>
+        <br />
+        <div className="whiteLine" />
+        <div className="inputFile">
+          <div>
+            <h2>Change Top Film Image</h2>
+            <p>* best result with resolution 1920x1080</p>
+          </div>
+          <input
+            type="file"
+            onChange={(event) => {
+              SetImageSelected(event.currentTarget.files?.[0]);
+            }}
+          />
+          <br />
+          <button onClick={() => uploadImage()}>Upload Top Film Image</button>
+          {success ? <h3>{success}</h3> : ''}
+        </div>
+        <br />
+        <div className="whiteLine" />
         <br />
         {filmList
           .sort((a, b) => a.filmTitle.localeCompare(b.filmTitle))
@@ -306,7 +359,7 @@ export default function EditFilms(props: Props) {
                     onChange={(event) =>
                       setEditSynopsis(event.currentTarget.value)
                     }
-                  ></textarea>
+                  />
                 </label>
                 <br />
                 <label>
@@ -385,7 +438,7 @@ export default function EditFilms(props: Props) {
                   </div>
                 ))}
                 <br />
-                <div className="whiteLine"></div>
+                <div className="whiteLine" />
                 <br />
               </Fragment>
             ) : (
@@ -410,12 +463,7 @@ export default function EditFilms(props: Props) {
                   {' '}
                   Synopsis:
                   <br />
-                  <textarea
-                    rows={4}
-                    cols={50}
-                    value={film.synopsis}
-                    disabled
-                  ></textarea>
+                  <textarea rows={4} cols={50} value={film.synopsis} disabled />
                 </label>
                 <br />
                 <label>
@@ -478,7 +526,7 @@ export default function EditFilms(props: Props) {
                   </div>
                 ))}
                 <br />
-                <div className="whiteLine"></div>
+                <div className="whiteLine" />
                 <br />
               </Fragment>
             );
@@ -502,7 +550,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     if (!admin) {
       return {
         redirect: {
-          destination: `/login?returnTO=/profile`,
+          destination: `/login?returnTo=/profile`,
           permanent: false,
         },
       };
@@ -525,7 +573,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   return {
     redirect: {
-      destination: `/login?returnTO=/profile`,
+      destination: `/login?returnTo=/profile`,
       permanent: false,
     },
   };

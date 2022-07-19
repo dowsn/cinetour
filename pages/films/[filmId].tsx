@@ -66,8 +66,6 @@ const filmStyles = css`
 type Props = { film: Film; programmes: any; loggedUser: User | null };
 
 export default function FilmId(props: Props) {
-  const [programmes, setProgrammes] = useState(props.programmes);
-
   // getting days from now
   const today = new Date(Date.now()).toString().split(' ', 3).join(' ');
   const tomorrow = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000)
@@ -84,7 +82,7 @@ export default function FilmId(props: Props) {
   const renderData = (data: any) => (
     <ul>
       {sevenDays.map((day) => (
-        <li>
+        <li key={day}>
           <div className="date">
             <h2>{day}</h2>
           </div>
@@ -117,7 +115,7 @@ export default function FilmId(props: Props) {
                   <div>
                     Tours:{' '}
                     {item.username ? (
-                      <Link href={`../tours#${item.tourId}`}>
+                      <Link href={`/tours#${item.tourId}`}>
                         <button>{item.username}</button>
                       </Link>
                     ) : props.loggedUser ? (
@@ -125,7 +123,7 @@ export default function FilmId(props: Props) {
                         <button>+</button>
                       </Link>
                     ) : (
-                      <Link href={`../tours#${item.tourId}`}>
+                      <Link href={`/tours#${item.tourId}`}>
                         <button disabled>+</button>
                       </Link>
                     )}
@@ -138,8 +136,7 @@ export default function FilmId(props: Props) {
     </ul>
   );
 
-  const data = programmes;
-  let filteredData = [...data];
+  const data = props.programmes;
 
   return (
     <div>
@@ -149,7 +146,7 @@ export default function FilmId(props: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main css={filmStyles}>
-        <Link href="/../films">
+        <Link href="/films">
           <button>All Films</button>
         </Link>
         <div className="title">
@@ -176,13 +173,7 @@ export default function FilmId(props: Props) {
           <br />
           <br />
           <br />
-          <div>
-            {!!filteredData.length ? (
-              renderData(filteredData)
-            ) : (
-              <p>Nothing found</p>
-            )}
-          </div>
+          <div>{!!data.length ? renderData(data) : <p>Nothing found</p>}</div>
         </div>
       </main>
     </div>

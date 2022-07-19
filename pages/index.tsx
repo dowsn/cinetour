@@ -22,6 +22,7 @@ import {
   getReducedProgramme,
   getReducedSubscriber,
   getReducedTour,
+  ReducedTour,
 } from '../utils/datastructures';
 
 const indexStyles = css`
@@ -100,43 +101,82 @@ const opts: YouTubeProps['opts'] = {
 
 type Props = {
   subscriber?: Subscriber | undefined;
-  tours: any;
+  tours: ReducedTour[];
   user: User;
   programmes: any;
   filmoftheweek: Film;
 };
 
 export default function Home(props: Props) {
-  const [tourList, setTourList] = useState<any>(props.tours);
-  const [programmes, setProgrammes] = useState(props.programmes);
-  // const ToggleItem = ({ discription, id }) => {
-  //   const [join, setJoin] = useState(false);
-  const [join, setJoin] = useState<string | undefined>('');
+  // showing just today
   const today = new Date(Date.now()).toString().split(' ', 3).join(' ');
   const router = useRouter();
 
   // handling tours
-  async function handleJoin(tourId: number, userId: number) {
+  const [tourList, setTourList] = useState(props.tours);
+
+  // handling joining and leaving tours
+
+  async function handleJoin(tourId: number, userId: number | undefined) {
+    if (!userId) {
+      return;
+    }
     const response = await fetch(`/api/tour_attendees/${tourId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        userId: `${userId}`,
+        userId: userId,
       }),
     });
-    const createdTourAttendee = await response.json();
+    const tourAttendee = await response.json();
+    console.log(tourAttendee);
+
+    //updating the tourList
+    const requestTours = await fetch(`/api/tours`);
+    const toursRaw = await requestTours.json();
+
+    const attendeesRaw = await fetch(`/api/tour_attendees`);
+
+    const attendees = await attendeesRaw.json();
+
+    const tours = await toursRaw.map((tour: Tour) =>
+      getReducedTour(tour, attendees),
+    );
+
+    setTourList(tours);
   }
 
-  async function handleLeave(tourId: number) {
+  async function handleLeave(tourId: number, userId: number) {
+    if (!userId) {
+      return;
+    }
     const response = await fetch(`/api/tour_attendees/${tourId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        userId: userId,
+      }),
     });
     const deletedTourAttendee = await response.json();
+    console.log(deletedTourAttendee);
+
+    //updating the tourList
+    const requestTours = await fetch(`/api/tours`);
+    const toursRaw = await requestTours.json();
+
+    const attendeesRaw = await fetch(`/api/tour_attendees`);
+
+    const attendees = await attendeesRaw.json();
+
+    const tours = await toursRaw.map((tour: Tour) =>
+      getReducedTour(tour, attendees),
+    );
+
+    setTourList(tours);
   }
 
   const renderData = (data: any) => (
@@ -167,15 +207,15 @@ export default function Home(props: Props) {
               <div>
                 Tours:{' '}
                 {item.username ? (
-                  <Link href={`../tours#${item.tourId}`}>
+                  <Link href={`/tours#${item.tourId}`}>
                     <button>{item.username}</button>
                   </Link>
                 ) : props.user ? (
-                  <Link href={`/tours/create/${item.programmeId}`}>
+                  <Link href={`/tours/create/${item.programmeId}?returnTo=/`}>
                     <button>+</button>
                   </Link>
                 ) : (
-                  <Link href={`../tours#${item.tourId}`}>
+                  <Link href={`/tours#${item.tourId}`}>
                     <button disabled>+</button>
                   </Link>
                 )}
@@ -230,11 +270,15 @@ export default function Home(props: Props) {
               priority
             />
           </div>
-          <Link href={`/films/${[props.filmoftheweek.id]}`}>
-            <button className="watch">
-              Watch {props.filmoftheweek.filmTitle}
-            </button>
-          </Link>
+          {props.filmoftheweek ? (
+            <Link href={`/films/${[props.filmoftheweek.id]}`}>
+              <button className="watch">
+                Watch {props.filmoftheweek.filmTitle}
+              </button>
+            </Link>
+          ) : (
+            ''
+          )}
         </section>
         <section className="full">
           <div className="date">
@@ -242,13 +286,13 @@ export default function Home(props: Props) {
           </div>
           <div>
             {!!renderData.length ? (
-              renderData(programmes)
+              renderData(props.programmes)
             ) : (
               <p>Nothing found</p>
             )}
           </div>
         </section>
-        <section className="full tours ">
+        <section className="full tours">
           <div className="buttontours">
             <Link href="/tours">
               <button>Tours</button>
@@ -256,48 +300,48 @@ export default function Home(props: Props) {
           </div>
           <ul>
             {tourList
-              .sort(function (a: any, b: any) {
-                if (a.date > b.date) return +1;
-                if (a.date < b.date) return -1;
-                if (a.time > b.time) return +1;
-                if (a.time < b.time) return -1;
-              })
-              .slice(0, 3)
-              .map((tour: any) => (
-                <li key={`tour_id-${tour.tourId}`} id={`tour-${tour.tourId}`}>
-                  <div className="videocontainer">
-                    <YouTube
-                      videoId={getYoutubeId(tour.trailer)}
-                      opts={opts}
-                      onReady={onPlayerReady}
-                    />
-                  </div>
-                  <div className="description">
-                    <div>
-                      <h2>
-                        <Link href={`../films/${tour.filmId}`}>
-                          {tour.filmTitle}
-                        </Link>
-                      </h2>
-                    </div>
-                    <div>{tour.cinemaName}</div>
-                    <div>{tour.date}</div>
-                    <div>{tour.time}</div>
-                    <div>#{tour.genre}</div>
-                    <div className="blue">{tour.body}</div>
-                    <div>
-                      Hosted by{' '}
-                      <Link href={`/cinetourists/${tour.username}`}>
-                        {tour.username}
-                      </Link>
-                    </div>
-                    <br />
-                    {tour.attendees.length ? (
-                      <>
-                        <div>Going:</div>
+              ? tourList
+                  .sort(function (a: any, b: any) {
+                    if (a.date > b.date) return +1;
+                    if (a.date < b.date) return -1;
+                    if (a.time > b.time) return +1;
+                    if (a.time < b.time) return -1;
+                    return 0;
+                  })
+                  .slice(0, 3)
+                  .map((tour: ReducedTour) => (
+                    <li key={`tour_id-${tour.tourId}`}>
+                      <div className="videocontainer">
+                        <YouTube
+                          videoId={getYoutubeId(tour.trailer)}
+                          opts={opts}
+                          onReady={onPlayerReady}
+                        />
+                      </div>
+                      <div className="description">
+                        <div>
+                          <h2>
+                            <Link href={`../films/${tour.filmId}`}>
+                              {tour.filmTitle}
+                            </Link>
+                          </h2>
+                        </div>
+                        <div>{tour.cinemaName}</div>
+                        <div>{tour.date}</div>
+                        <div>{tour.time}</div>
+                        <div>#{tour.genre}</div>
+                        <div className="blue">{tour.body}</div>
+                        <div>
+                          Hosted by{' '}
+                          <Link href={`/cinetourists/${tour.username}`}>
+                            {tour.username}
+                          </Link>
+                        </div>
+                        <br />
+                        {tour.attendees.length ? <div>Going:</div> : ''}
                         <div className="flex center">
                           {tour.attendees.map((attendee: any) => (
-                            <div key={`attendee-${attendee}`}>
+                            <div>
                               <Link
                                 href={`/cinetourists/${attendee}`}
                                 key={`username-${attendee}`}
@@ -306,76 +350,46 @@ export default function Home(props: Props) {
                               </Link>
                             </div>
                           ))}
-                          {join === 'joined' ? (
-                            <div>
-                              <Link
-                                href={`/cinetourists/${props.user.username}`}
-                                key={`username-${props.user.username}`}
-                              >
-                                {props.user.username}
-                              </Link>
-                            </div>
-                          ) : (
-                            ''
-                          )}
                         </div>
-                      </>
-                    ) : !tour.attendees.length && join === 'joined' ? (
-                      <>
-                        <div>Going:</div>
-                        <div>
-                          <Link
-                            href={`/cinetourists/${props.user.username}`}
-                            key={`username-${props.user.username}`}
-                          >
-                            {props.user.username}
-                          </Link>
-                        </div>
-                      </>
-                    ) : (
-                      ''
-                    )}
-                  </div>
-                  {props.user ? (
-                    tour.hostId === props.user.id ? (
-                      <div className="relative">
-                        <Link
-                          href={`/tours/edit/${tour.programmeId}?returnTO=login`}
-                        >
-                          <button>Edit</button>
-                        </Link>
                       </div>
-                    ) : tour.attendees.includes(props.user.username) ? (
-                      <button
-                        className="relative"
-                        value={join}
-                        onClick={() => {
-                          setJoin('unjoined');
-                          handleLeave(props.user.id);
-                        }}
-                      >
-                        Leave
-                      </button>
-                    ) : (
-                      <button
-                        className="relative"
-                        onClick={() => {
-                          setJoin('joined');
-                          handleJoin(tour.tourId, props.user.id).catch(() => {
-                            console.log('Request fails');
-                          });
-                        }}
-                      >
-                        Join
-                      </button>
-                    )
-                  ) : (
-                    <button className="relative" disabled>
-                      Join
-                    </button>
-                  )}
-                </li>
-              ))}
+                      {props.user ? (
+                        tour.hostId === props.user.id ? (
+                          <Link
+                            href={`/tours/edit/${tour.programmeId}?returnTo=/`}
+                          >
+                            <button className="relative">Edit</button>
+                          </Link>
+                        ) : tour.attendees.includes(props.user.username) ? (
+                          <button
+                            className="relative"
+                            onClick={() => {
+                              handleLeave(tour.tourId, props.user.id);
+                            }}
+                          >
+                            Leave
+                          </button>
+                        ) : (
+                          <button
+                            className="relative"
+                            onClick={() => {
+                              handleJoin(tour.tourId, props.user.id).catch(
+                                () => {
+                                  console.log('Request fails');
+                                },
+                              );
+                            }}
+                          >
+                            Join
+                          </button>
+                        )
+                      ) : (
+                        <button className="relative" disabled>
+                          Join
+                        </button>
+                      )}
+                    </li>
+                  ))
+              : ''}
           </ul>
         </section>
       </main>
@@ -404,7 +418,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const attendees = await attendeesRaw.json();
 
-  //getting a better datastructure
+  // getting a better datastructure
   const tours = await toursRaw.map((tour: Tour) =>
     getReducedTour(tour, attendees),
   );
@@ -421,21 +435,29 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
       return {
         props: {
-          user: user || null,
+          user: user,
           subscriber: reducedSubscriber,
           tours: tours,
           programmes: programmes,
-          filmoftheweek: filmoftheweek,
+          filmoftheweek: filmoftheweek || null,
         },
       };
     }
+
+    return {
+      props: {
+        user: user,
+        tours: tours,
+        programmes: programmes,
+        filmoftheweek: filmoftheweek || null,
+      },
+    };
   }
   return {
     props: {
-      user: user || null,
       tours: tours,
       programmes: programmes,
-      filmoftheweek: filmoftheweek,
+      filmoftheweek: filmoftheweek || null,
     },
   };
 }

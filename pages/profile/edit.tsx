@@ -66,7 +66,7 @@ export default function Register(props: Props) {
 
     const updateResponseBody = await updateResponse.json();
 
-    //if we have error show an error message
+    // if we have error show an error message
     if ('errors' in updateResponseBody) {
       setErrors(updateResponseBody.errors);
       return;
@@ -152,7 +152,7 @@ export default function Register(props: Props) {
           onChange={(event) => {
             setSelfDescription(event.currentTarget.value);
           }}
-        ></textarea>
+        />
         <br />
         <button onClick={() => updateHandler()}>Update</button>
         <button onClick={() => deleteHandler()}>Delete Profile</button>
@@ -167,8 +167,6 @@ export default function Register(props: Props) {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const baseUrl = await process.env.BASE_URL;
-
   const user = await getUserByValidSessionToken(
     context.req.cookies.sessionToken,
   );
@@ -185,7 +183,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   return {
     redirect: {
-      destination: `/login?returnTO=/profile`,
+      destination: `/login?returnTo=/profile`,
       permanent: false,
     },
   };

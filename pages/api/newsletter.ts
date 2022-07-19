@@ -37,7 +37,7 @@ function getRequestParams(email: string) {
   };
 }
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
+export default async function name(req: NextApiRequest, res: NextApiResponse) {
   const { email } = req.body;
 
   if (!email || !email.length) {
@@ -52,7 +52,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getSessionByValidToken(sessionToken);
 
   if (!session) {
-    return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
   }
 
   // the action
@@ -61,6 +61,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const { url, data, headers } = getRequestParams(email);
 
     const response = await axios.post(url, data, { headers });
+    console.log(response);
 
     // Success
     return res.status(201).json({ error: null });
@@ -68,7 +69,5 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(400).json({
       error: `Oops, something went wrong... Maybe you are already in our mailing list. Please, contact us.`,
     });
-
-    // Report error to Sentry or whatever
   }
-};
+}

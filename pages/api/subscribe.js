@@ -32,12 +32,12 @@ export default async function handler(request, response) {
   }
 
   // authentication
-  const sessionToken = req.cookies.sessionToken;
+  const sessionToken = request.cookies.sessionToken;
 
   const sessionUser = await getSessionByValidToken(sessionToken);
 
   if (!sessionUser) {
-    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+    return response.status(403).json({ errors: [{ message: 'Unauthorized' }] });
   }
 
   // response the client with the new session or an error if no session

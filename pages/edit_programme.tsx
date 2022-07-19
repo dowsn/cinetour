@@ -1,7 +1,5 @@
-/** @jsxImportSource @emotion/react */
-
-import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
+import Head from 'next/head';
 import Link from 'next/link';
 import { Fragment, useState } from 'react';
 import {
@@ -21,7 +19,7 @@ export default function EditProgrammes(props: Props) {
     props.programmes,
   );
 
-  //possible errors
+  // possible errors
   const [errors, setErrors] = useState<
     {
       message: string;
@@ -67,13 +65,15 @@ export default function EditProgrammes(props: Props) {
       setErrors(createdProgramme.errors);
       return;
     }
+
+    const programmesRequest = await fetch(`/api/programmes`);
+    const programmes = await programmesRequest.json();
     // copy state
     // update copy of the state
-    const newState = [...programmeList, createdProgramme];
     // use setState func
 
-    setProgrammeList(newState);
-    setActiveProgrammeId(1);
+    setProgrammeList(programmes);
+    setActiveProgrammeId(undefined);
     setNewFilm('');
     setNewCinema('');
     setNewDate(null);
@@ -97,11 +97,11 @@ export default function EditProgrammes(props: Props) {
 
     // copy state
     // update copy of the state
-    const newState = programmeList.filter(
-      (programme) => programme.programmeId !== deletedProgramme.id,
-    );
+    const programmesRequest = await fetch(`/api/programmes`);
+    const programmes = await programmesRequest.json();
     // use setState func
-    setProgrammeList(newState);
+    setProgrammeList(programmes);
+    setActiveProgrammeId(0);
   }
 
   async function updateProgrammeHandler(id: number) {
@@ -127,19 +127,21 @@ export default function EditProgrammes(props: Props) {
 
     // copy state
     // update copy of the state
-    const newState = programmeList.map((programme) => {
-      if (programme.programmeId === updatedProgramme.id) {
-        return updatedProgramme;
-      } else {
-        return programme;
-      }
-    });
+
+    const programmesRequest = await fetch(`/api/programmes`);
+    const programmes = await programmesRequest.json();
     // use setState func
-    setProgrammeList(newState);
+    setProgrammeList(programmes);
+    setActiveProgrammeId(0);
   }
 
   return (
     <>
+      <Head>
+        <title>Edit Films</title>
+        <meta name="description" content="Edit Films" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <main>
         <Link href="/../profile">
           <button>Back</button>
@@ -150,7 +152,6 @@ export default function EditProgrammes(props: Props) {
         <div>
           <label htmlFor="film">Film:</label>
           <input
-            type="text"
             list="films"
             value={newFilm}
             onChange={(event) => setNewFilm(event.currentTarget.value)}
@@ -158,14 +159,13 @@ export default function EditProgrammes(props: Props) {
           <datalist id="films">
             <option></option>
             {props.films.map((film) => (
-              <option>{film.filmTitle}</option>
+              <option key={film.filmTitle}>{film.filmTitle}</option>
             ))}
           </datalist>
         </div>
         <div>
           <label htmlFor="film">Cinema:</label>
           <input
-            type="text"
             list="cinemas"
             value={newCinema}
             onChange={(event) => setNewCinema(event.currentTarget.value)}
@@ -222,22 +222,21 @@ export default function EditProgrammes(props: Props) {
           </div>
         ))}
         <br />
-        <div className="whiteLine"></div>
+        <div className="whiteLine" />
         <br />
         {programmeList
           .sort(function (a: Programme, b: Programme) {
-            let c: any = new Date(a.date);
-            let d: any = new Date(b.date);
+            const c: any = new Date(a.date);
+            const d: any = new Date(b.date);
             return c - d;
           })
           .sort((a, b) => a.time.localeCompare(b.time))
           .map((programme) => {
             return programme.programmeId === activeProgrammeId ? (
-              <Fragment key={programme.programmeId}>
+              <Fragment key={`${programme.programmeId}`}>
                 <div>
                   <label htmlFor="film">Film:</label>
                   <input
-                    type="text"
                     list="films"
                     value={editFilm}
                     onChange={(event) => setEditFilm(event.currentTarget.value)}
@@ -252,7 +251,6 @@ export default function EditProgrammes(props: Props) {
                 <div>
                   <label htmlFor="film">Cinema:</label>
                   <input
-                    type="text"
                     list="cinemas"
                     value={editCinema}
                     onChange={(event) =>
@@ -262,7 +260,9 @@ export default function EditProgrammes(props: Props) {
                   <datalist id="cinemas">
                     <option></option>
                     {props.cinemas.map((cinema) => (
-                      <option>{cinema.cinemaName}</option>
+                      <option key={cinema.cinemaName}>
+                        {cinema.cinemaName}
+                      </option>
                     ))}
                   </datalist>
                 </div>
@@ -327,7 +327,7 @@ export default function EditProgrammes(props: Props) {
                   </div>
                 ))}
                 <br />
-                <div className="whiteLine"></div>
+                <div className="whiteLine" />
                 <br />
               </Fragment>
             ) : (
@@ -345,7 +345,7 @@ export default function EditProgrammes(props: Props) {
                 <label>
                   {' '}
                   Date:
-                  <input type="text" value={programme.date} disabled />
+                  <input value={programme.date} disabled />
                 </label>
                 <label>
                   {' '}
@@ -367,7 +367,7 @@ export default function EditProgrammes(props: Props) {
                     setActiveProgrammeId(programme.programmeId);
                     setEditFilm(programme.filmTitle);
                     setEditCinema(programme.cinemaName);
-                    setEditDate(programme.date);
+                    setEditDate(new Date(programme.date));
                     setEditTime(programme.time);
                     setEditEnglish(programme.englishfriendly);
                   }}
@@ -389,7 +389,7 @@ export default function EditProgrammes(props: Props) {
                   </div>
                 ))}
                 <br />
-                <div className="whiteLine"></div>
+                <div className="whiteLine" />
                 <br />
               </Fragment>
             );
@@ -413,7 +413,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     if (!admin) {
       return {
         redirect: {
-          destination: `/login?returnTO=/profile`,
+          destination: `/login?returnTo=/profile`,
           permanent: false,
         },
       };
@@ -438,7 +438,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   return {
     redirect: {
-      destination: `/login?returnTO=/profile`,
+      destination: `/login?returnTo=/profile`,
       permanent: false,
     },
   };

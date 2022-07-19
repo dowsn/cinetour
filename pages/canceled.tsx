@@ -2,16 +2,22 @@
 
 import { css } from '@emotion/react';
 import { loadStripe } from '@stripe/stripe-js';
+import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
 import { colors } from '../styles/constants';
-import { Cinemas, getCinemas } from '../utils/database';
+import {
+  Cinemas,
+  getCinemas,
+  getUserByValidSessionToken,
+} from '../utils/database';
 
 const canceledStyles = css`
   background: ${colors.violet};
 `;
 
 type Props = {
-  cinemas: Cinemas[];
   publicKey: string;
 };
 
@@ -61,11 +67,22 @@ export default function Canceled(props: Props) {
   );
 }
 
-export async function getServerSideProps() {
-  const cinemas = await getCinemas();
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const user = await getUserByValidSessionToken(
+    context.req.cookies.sessionToken,
+  );
+
+  if (!user) {
+    return {
+      redirect: {
+        destination: `/`,
+        permanent: false,
+      },
+    };
+  }
+
   return {
     props: {
-      cinemas: cinemas,
       publicKey: process.env.STRIPE_PUBLISHABLE_KEY,
     },
   };

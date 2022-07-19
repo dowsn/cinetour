@@ -59,7 +59,7 @@ export default async function handler(
     const session = await getSessionByValidToken(sessionToken);
 
     if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
     }
 
     // 4. validates the csrf token against the seed we have in the database

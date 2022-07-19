@@ -1,4 +1,4 @@
-import { Programme, Subscriber, Tour } from './database';
+import { Programme, Subscriber, Tour, TourAttendee } from './database';
 
 export type ReducedProgramme = {
   programmeId: number | null;
@@ -38,7 +38,7 @@ export type ReducedTour = {
   filmTitle: string;
   filmId: number;
   cinemaName: string;
-  date: Date | string;
+  date: string;
   time: string;
   hostId: number;
   genre: string;
@@ -47,7 +47,7 @@ export type ReducedTour = {
   attendees: string[];
 };
 
-export function getReducedTour(tour: Tour, attendees: any) {
+export function getReducedTour(tour: Tour, attendees: TourAttendee[]) {
   const reducedtour = {
     tourId: tour.tourId,
     username: tour.username,
@@ -62,8 +62,8 @@ export function getReducedTour(tour: Tour, attendees: any) {
     trailer: tour.trailer,
     body: tour.body,
     attendees: attendees
-      .filter((attendee: any) => attendee.tourId === tour.tourId)
-      .map((attendee: any) => attendee.username),
+      .filter((attendee: TourAttendee) => attendee.tourId === tour.tourId)
+      .map((attendee: TourAttendee) => attendee.username),
   };
   return reducedtour;
 }

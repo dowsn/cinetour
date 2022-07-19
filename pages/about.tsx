@@ -9,7 +9,6 @@ import Link from 'next/link';
 import { colors } from '../styles/constants';
 import {
   Cinemas,
-  getCinemas,
   getProfile,
   getSubscriberByValidSubscription,
   getUserByValidSessionToken,
@@ -152,7 +151,7 @@ export default function About(props: Props) {
             <article>
               <div>
                 <Image
-                  src={`/card/howdoesitwork 1.jpeg`}
+                  src="/card/howdoesitwork 1.jpeg"
                   layout="fixed"
                   height="200px"
                   width="200px"
@@ -161,21 +160,21 @@ export default function About(props: Props) {
               <br />
               {props.profile ? (
                 <div>
-                  <Link href="../register">
+                  <Link href="/../register">
                     <button disabled>Register</button>
                   </Link>
                   <h2>or</h2>
-                  <Link href="../login">
+                  <Link href="/login">
                     <button disabled>Login</button>
                   </Link>
                 </div>
               ) : (
                 <div>
-                  <Link href="../register">
+                  <Link href="/register">
                     <button>Register</button>
                   </Link>
                   <h2>or</h2>
-                  <Link href="../login">
+                  <Link href="/login">
                     <button>Login</button>
                   </Link>
                 </div>
@@ -183,7 +182,7 @@ export default function About(props: Props) {
             </article>
             <article>
               <Image
-                src={`/card/howdoesitwork 2.jpeg`}
+                src="/card/howdoesitwork 2.jpeg"
                 alt=""
                 layout="fixed"
                 height="200px"
@@ -202,7 +201,7 @@ export default function About(props: Props) {
             </article>
             <article>
               <Image
-                src={`/card/howdoesitwork 3.jpeg`}
+                src="/card/howdoesitwork 3.jpeg"
                 alt=""
                 layout="fixed"
                 height="200px"
@@ -212,13 +211,13 @@ export default function About(props: Props) {
               <br />
               <h2>Explore</h2>
               <div>
-                <Link href="../cinemas">
+                <Link href="/cinemas">
                   <button>Cinemas</button>
                 </Link>
               </div>
               <h2>&</h2>
               <div>
-                <Link href="../tours">
+                <Link href="/tours">
                   <button>Tours</button>
                 </Link>
               </div>
@@ -272,30 +271,27 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         cinemas: cinemas,
       },
     };
-  } else if (user) {
-    if (user) {
-      const subscriber = await getSubscriberByValidSubscription(user.id);
-      const profile = await getProfile(user.id);
+  }
+    const subscriber = await getSubscriberByValidSubscription(user.id);
+    const profile = await getProfile(user.id);
 
-      if (subscriber) {
-        const reducedSubscriber = getReducedSubscriber(subscriber);
-
-        return {
-          props: {
-            subscriber: reducedSubscriber,
-            profile: profile,
-            cinemas: cinemas,
-          },
-        };
-      }
+    if (subscriber) {
+      const reducedSubscriber = getReducedSubscriber(subscriber);
 
       return {
         props: {
+          subscriber: reducedSubscriber,
           profile: profile,
           cinemas: cinemas,
-          publicKey: process.env.STRIPE_PUBLISHABLE_KEY,
         },
       };
     }
+
+    return {
+      props: {
+        profile: profile,
+        cinemas: cinemas,
+        publicKey: process.env.STRIPE_PUBLISHABLE_KEY,
+      },
+    };
   }
-}

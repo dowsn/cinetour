@@ -52,7 +52,20 @@ export default function CreateTour(props: Props) {
       return;
     }
 
-    await router.push(`/tours#${createdTour.id}`);
+    const returnTo = router.query.returnTo;
+
+    if (
+      returnTo &&
+      !Array.isArray(returnTo) &&
+      // Security: Validate returnTo parameter against valid path
+      // (because this is untrusted user input)
+      /^\/[a-zA-Z0-9-?=/]*$/.test(returnTo)
+    ) {
+      await router.push(returnTo);
+    } else {
+      // redirect to main page
+      await router.push(`/`);
+    }
   }
 
   return (
@@ -88,7 +101,7 @@ export default function CreateTour(props: Props) {
             onChange={(event) => setDescription(event.currentTarget.value)}
             placeholder="Please, describe clearly in 100 characters the most basic details
   about your tour. "
-          ></textarea>
+          />
           <br />
           <br />
 
@@ -126,7 +139,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if (!user) {
     return {
       redirect: {
-        destination: `/login?returnTO=/tours/create`,
+        destination: `/login?returnTo=/tours/create`,
         permanent: false,
       },
     };

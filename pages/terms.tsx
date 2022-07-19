@@ -53,7 +53,7 @@ type Props = {
 
 export default function Terms(props: Props) {
   // Google Maps
-  //checking google maps api key
+  // checking google maps api key
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: props.apiKey,
   });
@@ -137,36 +137,39 @@ export default function Terms(props: Props) {
             <a href="tel:068120268674">068120268674</a>
           </p>
         </section>
-        <GoogleMap
-          zoom={15}
-          center={center}
-          options={options}
-          mapContainerClassName="map-container"
-        >
-          <MarkerF
-            position={{
-              lat: 48.246239221589306,
-              lng: 16.3749789405296,
-            }}
-            icon={{
-              url: '/nav/icon.png',
-              scaledSize: new window.google.maps.Size(16, 16),
-            }}
-          />
-        </GoogleMap>
+        {!isLoaded ? (
+          <div>Loading map...</div>
+        ) : (
+          <GoogleMap
+            zoom={15}
+            center={center}
+            options={options}
+            mapContainerClassName="map-container"
+          >
+            <MarkerF
+              position={{
+                lat: 48.246239221589306,
+                lng: 16.3749789405296,
+              }}
+              icon={{
+                url: '/nav/icon.png',
+                scaledSize: new window.google.maps.Size(16, 16),
+              }}
+            />
+          </GoogleMap>
+        )}
       </main>
     </div>
   );
 }
 
 export async function getServerSideProps() {
-  const baseUrl = await process.env.BASE_URL;
-  const ApiKey = await process.env.NEXT_APP_GOOGLE_MAPS_API_KEY;
+  const apiKey = await process.env.NEXT_APP_GOOGLE_MAPS_API_KEY;
 
   return {
     // making data about the user available at the page in props
     props: {
-      apiKey: ApiKey,
+      apiKey: apiKey,
     },
   };
 }

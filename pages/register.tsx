@@ -57,7 +57,7 @@ export default function Register() {
     const registerResponseBody: RegisterResponseBody =
       await registerResponse.json();
 
-    //if we have error show an error message
+    // if we have error show an error message
     if ('errors' in registerResponseBody) {
       setErrors(registerResponseBody.errors);
       return;
@@ -155,7 +155,7 @@ export default function Register() {
           onChange={(event) => {
             setSelfDescription(event.currentTarget.value);
           }}
-        ></textarea>
+        />
         <br />
         <button onClick={() => registerHandler()}>Register</button>
         {errors.map((error) => (
@@ -168,7 +168,7 @@ export default function Register() {
   );
 }
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export function getServerSideProps(context: GetServerSidePropsContext) {
   // making sure we are using https
   if (
     context.req.headers.host &&
@@ -182,4 +182,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
     };
   }
+  return {
+    props: {},
+  };
 }

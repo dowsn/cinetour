@@ -6,7 +6,6 @@ import { Film } from '../../utils/database';
 type Props = { films: Film[] };
 
 export default function Films(props: Props) {
-  const [filmsList, setFilmsList] = useState<any | undefined>(props.films);
   const [film, setFilm] = useState('');
 
   // getting alphabet
@@ -20,7 +19,7 @@ export default function Films(props: Props) {
   const renderData = (data: any) => (
     <ul className="longList">
       {alphabet.map((letter) => (
-        <li>
+        <li key={letter}>
           <div>
             <h2>{letter}</h2>
           </div>
@@ -41,7 +40,7 @@ export default function Films(props: Props) {
     </ul>
   );
 
-  const data = filmsList;
+  const data = props.films;
   let filteredData = [...data];
 
   if (film) {
@@ -59,15 +58,16 @@ export default function Films(props: Props) {
         <div>
           <label htmlFor="film">Film:</label>
           <input
-            type="text"
             list="films"
             value={film}
             onChange={(event) => setFilm(event.currentTarget.value)}
           />
           <datalist id="films">
-            <option></option>
-            {props.films.map((film) => (
-              <option>{film.filmTitle}</option>
+            <option />
+            {props.films.map((selectedFilm) => (
+              <option key={selectedFilm.filmTitle}>
+                {selectedFilm.filmTitle}
+              </option>
             ))}
           </datalist>
         </div>

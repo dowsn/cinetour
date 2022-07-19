@@ -13,7 +13,7 @@ import {
   Tour,
   User,
 } from '../../utils/database';
-import { getReducedTour } from '../../utils/datastructures';
+import { getReducedTour, ReducedTour } from '../../utils/datastructures';
 
 const toursStyles = css`
   .switcherFriends {
@@ -46,53 +46,95 @@ const opts: YouTubeProps['opts'] = {
 };
 
 type Props = {
-  tours: any;
+  tours: ReducedTour[];
   user: User;
-  attendees: any;
   friends: Friend[];
 };
 
 export default function Tours(props: Props) {
-  const [tourList, setTourList] = useState(props.tours);
   const [friends, setFriends] = useState(false);
-  const router = useRouter();
 
   // handling tours
-  async function handleJoin(tourId: number, userId: number) {
+  const [tourList, setTourList] = useState(props.tours);
+
+  // handling joining and leaving tours
+
+  async function handleJoin(tourId: number, userId: number | undefined) {
+    if (!userId) {
+      return;
+    }
     const response = await fetch(`/api/tour_attendees/${tourId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        userId: `${userId}`,
+        userId: userId,
       }),
     });
-    const deletedTourAttendee = await response.json();
+    const tourAttendee = await response.json();
+    console.log(tourAttendee);
 
-    await router.push(`/tours#${tourId}`);
+    //updating the tourList
+    const requestTours = await fetch(`/api/tours`);
+    const toursRaw = await requestTours.json();
+
+    const attendeesRaw = await fetch(`/api/tour_attendees`);
+
+    const attendees = await attendeesRaw.json();
+
+    const tours = await toursRaw.map((tour: Tour) =>
+      getReducedTour(tour, attendees),
+    );
+
+    setTourList(tours);
   }
 
-  async function handleUnjoin(tourId: number) {
+  async function handleLeave(tourId: number, userId: number) {
+    if (!userId) {
+      return;
+    }
     const response = await fetch(`/api/tour_attendees/${tourId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        userId: userId,
+      }),
     });
     const deletedTourAttendee = await response.json();
+    console.log(deletedTourAttendee);
 
-    await router.push(`/#${tourId}`);
+    //updating the tourList
+    const requestTours = await fetch(`/api/tours`);
+    const toursRaw = await requestTours.json();
+
+    const attendeesRaw = await fetch(`/api/tour_attendees`);
+
+    const attendees = await attendeesRaw.json();
+
+    const tours = await toursRaw.map((tour: Tour) =>
+      getReducedTour(tour, attendees),
+    );
+
+    setTourList(tours);
   }
 
-  //tours data
+  // tours data
+  // will be updated as well as functions
   const renderData = (data: any) => (
     <ul>
       {data
-        .sort((a: any, b: any) => a.date.localeCompare(b.date))
-        .sort((a: any, b: any) => a.time.localeCompare(b.time))
-        .map((tour: any) => (
-          <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
+        .sort(function (a: ReducedTour, b: ReducedTour) {
+          if (a.date > b.date) return +1;
+          if (a.date < b.date) return -1;
+          if (a.time > b.time) return +1;
+          if (a.time < b.time) return -1;
+          return 0;
+        })
+        .map((tour: ReducedTour) => (
+          <li key={`tour_id-${tour.tourId}`}>
             <div className="videocontainer">
               <YouTube
                 videoId={getYoutubeId(tour.trailer)}
@@ -131,35 +173,38 @@ export default function Tours(props: Props) {
                   </div>
                 ))}
               </div>
-              {props.user ? (
-                tour.hostId === props.user.id ? (
-                  <Link href={`/tours/edit/${tour.programmeId}`}>
-                    <button>Edit</button>
-                  </Link>
-                ) : tour.attendees.includes(props.user.username) ? (
-                  <button
-                    onClick={() => {
-                      handleUnjoin(props.user.id);
-                    }}
-                  >
-                    Unjoin
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      // setJoin(false);
-                      handleJoin(tour.tourId, props.user.id).catch(() => {
-                        console.log('Request fails');
-                      });
-                    }}
-                  >
-                    Join
-                  </button>
-                )
-              ) : (
-                <button disabled>Join</button>
-              )}
             </div>
+            {props.user ? (
+              tour.hostId === props.user.id ? (
+                <Link href={`/tours/edit/${tour.programmeId}?returnTo=/tours`}>
+                  <button className="relative">Edit</button>
+                </Link>
+              ) : tour.attendees.includes(props.user.username) ? (
+                <button
+                  className="relative"
+                  onClick={() => {
+                    handleLeave(tour.tourId, props.user.id);
+                  }}
+                >
+                  Leave
+                </button>
+              ) : (
+                <button
+                  className="relative"
+                  onClick={() => {
+                    handleJoin(tour.tourId, props.user.id).catch(() => {
+                      console.log('Request fails');
+                    });
+                  }}
+                >
+                  Join
+                </button>
+              )
+            ) : (
+              <button className="relative" disabled>
+                Join
+              </button>
+            )}
           </li>
         ))}
     </ul>
@@ -184,7 +229,7 @@ export default function Tours(props: Props) {
 
   let filteredData: any = [];
   if (friends) {
-    const filter = props.friends.map((friend) => {
+    props.friends.map((friend) => {
       const f = handleFilter(
         source,
         'hostId',
@@ -193,9 +238,12 @@ export default function Tours(props: Props) {
         friend.username,
       );
       filteredData = [...filteredData, ...f];
-      filteredData = filteredData.filter(function (item: any, pos: any) {
-        return filteredData.indexOf(item) == pos;
-      });
+      return (filteredData = filteredData.filter(function (
+        item: any,
+        pos: any,
+      ) {
+        return filteredData.indexOf(item) === pos;
+      }));
     });
   }
 
@@ -218,28 +266,25 @@ export default function Tours(props: Props) {
               <label className="switch">
                 <input
                   type="checkbox"
-                  id="friends"
                   checked={friends}
                   onChange={(event) => {
                     setFriends(event.currentTarget.checked);
                   }}
                 />
-                <span className="slider round"></span>
+                <span className="slider round" />
               </label>
             </div>
           </div>
         ) : (
           ''
         )}
-        <div className="full tours">
-          <div>
-            {!!filteredData.length ? (
-              renderData(filteredData)
-            ) : (
-              <div>Nothing to show</div>
-            )}
-          </div>
-        </div>
+        <section className="full tours">
+          {!!filteredData.length ? (
+            renderData(filteredData)
+          ) : (
+            <div>Nothing to show</div>
+          )}
+        </section>
       </main>
     </div>
   );

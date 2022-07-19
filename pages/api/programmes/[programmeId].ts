@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import {
   deleteProgrammeById,
   getAdmin,
+  getCinemaByName,
+  getFilmByName,
   getProgrammeById,
   getSessionByValidToken,
   getUserByValidSessionToken,
@@ -49,37 +51,46 @@ export default async function handler(
     const session = await getSessionByValidToken(sessionToken);
 
     if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
     }
 
     // authenticating admin
     const user = await getUserByValidSessionToken(req.cookies.sessionToken);
     if (!user) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
     }
 
     const admin = await getAdmin(user.id);
 
     if (!admin) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
     }
 
     // the action
+    const film = await getFilmByName(req.body.filmTitle);
+    const cinema = await getCinemaByName(req.body.cinemaName);
 
-    const updatedProgramme = await updateProgrammeById(
-      programmeId,
-      req.body.filmId,
-      req.body.cinemaId,
-      req.body.date,
-      req.body.time,
-      req.body.englishfriendly,
-    );
+    if (film && cinema) {
+      const updatedProgramme = await updateProgrammeById(
+        programmeId,
+        film.id,
+        cinema.id,
+        req.body.date,
+        req.body.time,
+        req.body.englishfriendly,
+      );
 
-    if (!updatedProgramme) {
-      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
+      if (!updatedProgramme) {
+        return res
+          .status(400)
+          .json({ errors: [{ message: 'Id is not valid' }] });
+      }
+
+      return res.status(200).json(updatedProgramme);
     }
-
-    return res.status(200).json(updatedProgramme);
+    return res
+      .status(400)
+      .json({ errors: [{ message: 'Cinema or film do not exist' }] });
   }
 
   // if the method delete

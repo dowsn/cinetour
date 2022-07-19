@@ -188,6 +188,13 @@ const headerStyles = css`
     font-size: 22px;
   }
 
+  button {
+    background-color: white;
+    color: ${colors.violet};
+    padding: 0;
+    margin: 0 0 auto;
+  }
+
   #menuToggle input:checked ~ ul {
     transform: translate(-100%, 0);
   }
@@ -366,22 +373,30 @@ export default function Header(props) {
                 onChange={(event) => setSandwich(event.currentTarget.checked)}
               />
 
-              <span></span>
-              <span></span>
-              <span></span>
+              <span />
+              <span />
+              <span />
 
               <ul id="menu">
-                <li onClick={() => setSandwich(false)}>
-                  <Link href="/about">About</Link>
+                <li>
+                  <button onClick={() => setSandwich(false)}>
+                    <Link href="/about">About</Link>
+                  </button>
                 </li>
-                <li onClick={() => setSandwich(false)}>
-                  <Link href="/films">Films</Link>
+                <li>
+                  <button onClick={() => setSandwich(false)}>
+                    <Link href="/films">Films</Link>
+                  </button>
                 </li>
-                <li onClick={() => setSandwich(false)}>
-                  <Link href="/cinetourists">Cinetourists</Link>
+                <li>
+                  <button onClick={() => setSandwich(false)}>
+                    <Link href="/cinetourists">Cinetourists</Link>
+                  </button>
                 </li>
-                <li onClick={() => setSandwich(false)}>
-                  <Link href="/terms">Terms</Link>
+                <li>
+                  <button onClick={() => setSandwich(false)}>
+                    <Link href="/terms">Terms</Link>
+                  </button>
                 </li>
               </ul>
             </div>

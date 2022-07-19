@@ -45,7 +45,7 @@ export default async function handler(
       return;
     }
 
-    //compare password with hash
+    // compare password with hash
     const passwordMatches = await bcrypt.compare(
       req.body.password,
       userWithPasswordHashUseWithCaution.passwordHash,
@@ -66,10 +66,10 @@ export default async function handler(
 
     // csrf
     // 1. create a secret
-    const CSRFsecret = createCSRFSecret();
+    const csrfSecret = createCSRFSecret();
     // 2.
     // then creating session with user id, secret and the token
-    const session = await createSession(token, userId, CSRFsecret);
+    const session = await createSession(token, userId, csrfSecret);
 
     // creating serialized cookie that will be passed to header
     const serializedCookie = await createSerializedRegisterSessionTokenCookie(

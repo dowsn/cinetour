@@ -301,7 +301,29 @@ function MyApp({ Component, pageProps }) {
           }
 
           .profileImage {
-            border-radius: 20px;
+            img {
+              border-radius: 20px;
+              height: 150px;
+              width: 150px;
+              margin: auto;
+            }
+          }
+
+          // importing images
+          .inputFile {
+            input {
+              color: white;
+              padding: 10px;
+              width: 20rem;
+              height: 4rem;
+            }
+          }
+
+          // profile changing buttons
+          .editProfile {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
           }
 
           // responsiveness

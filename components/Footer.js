@@ -1,3 +1,5 @@
+/** @jsxImportSource @emotion/react */
+
 import { css } from '@emotion/react';
 import axios from 'axios';
 import Image from 'next/image';
@@ -97,7 +99,7 @@ export default function Footer() {
   const subscribe = async () => {
     setError('');
     try {
-      const response = await axios.post('/api/newsletter', { email });
+      await axios.post('/api/newsletter', { email });
       setState('success');
     } catch (e) {
       setError(e.response.data.error);

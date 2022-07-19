@@ -2,7 +2,6 @@
 
 import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
-import { AppContextType } from 'next/dist/shared/lib/utils';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -66,7 +65,6 @@ export default function Cinemas(props: Props) {
   const [cinema, setCinema] = useState('');
   const [film, setFilm] = useState('');
   const [english, setEnglish] = useState(false);
-  const [programmes, setProgrammes] = useState(props.programmes);
 
   // getting days from now
   const today = new Date(Date.now()).toString().split(' ', 3).join(' ');
@@ -87,13 +85,13 @@ export default function Cinemas(props: Props) {
 
   const renderData = (data: any) => (
     <ul>
-      {sevenDays.map((day) => (
-        <li>
+      {sevenDays.map((dayOfTheWeek) => (
+        <li key={dayOfTheWeek}>
           <div className="date">
-            <h2>{day}</h2>
+            <h2>{dayOfTheWeek}</h2>
           </div>
           {data
-            .filter((item: any) => item.date === day)
+            .filter((item: any) => item.date === dayOfTheWeek)
             .sort((a: any, b: any) => a.time.localeCompare(b.time))
             .map((item: any) => (
               <div
@@ -120,15 +118,17 @@ export default function Cinemas(props: Props) {
                   <div>
                     Tours:{' '}
                     {item.username ? (
-                      <Link href={`../tours#${item.tourId}`}>
+                      <Link href={`/tours#${item.tourId}`}>
                         <button>{item.username}</button>
                       </Link>
                     ) : props.loggedUser ? (
-                      <Link href={`/tours/create/${item.programmeId}`}>
+                      <Link
+                        href={`/tours/create/${item.programmeId}?returnTo=/cinemas`}
+                      >
                         <button>+</button>
                       </Link>
                     ) : (
-                      <Link href={`../tours#${item.tourId}`}>
+                      <Link href={`/tours#${item.tourId}`}>
                         <button disabled>+</button>
                       </Link>
                     )}
@@ -141,7 +141,7 @@ export default function Cinemas(props: Props) {
     </ul>
   );
 
-  const data = programmes;
+  const data = props.programmes;
   let filteredData = [...data];
 
   if (day) {
@@ -176,9 +176,9 @@ export default function Cinemas(props: Props) {
                 setDay(event.currentTarget.value);
               }}
             >
-              <option></option>
-              {sevenDays.map((day) => (
-                <option value={day}>{day}</option>
+              <option />
+              {sevenDays.map((dayOfTheWeek) => (
+                <option key={dayOfTheWeek}>{dayOfTheWeek}</option>
               ))}
             </select>
           </div>
@@ -191,24 +191,23 @@ export default function Cinemas(props: Props) {
                 setCinema(event.currentTarget.value);
               }}
             >
-              <option></option>
-              {props.cinemas.map((cinema) => (
-                <option>{cinema}</option>
+              <option />
+              {props.cinemas.map((selectedCinema) => (
+                <option key={selectedCinema}>{selectedCinema}</option>
               ))}
             </select>
           </div>
           <div>
             <label htmlFor="film">Film:</label>
             <input
-              type="text"
               list="films"
               value={film}
               onChange={(event) => setFilm(event.currentTarget.value)}
             />
             <datalist id="films">
-              <option></option>
-              {props.films.map((film) => (
-                <option>{film}</option>
+              <option />
+              {props.films.map((selectedFilm) => (
+                <option key={selectedFilm}>{selectedFilm}</option>
               ))}
             </datalist>
           </div>
@@ -223,7 +222,7 @@ export default function Cinemas(props: Props) {
                   setEnglish(event.currentTarget.checked);
                 }}
               />
-              <span className="slider round"></span>
+              <span className="slider round" />
             </label>
           </div>
         </div>

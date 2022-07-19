@@ -6,14 +6,27 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { getUserByValidSessionToken, User } from '../../../utils/database';
-import { getReducedProgramme } from '../../../utils/datastructures';
+import {
+  getUserByValidSessionToken,
+  Tour,
+  User,
+} from '../../../utils/database';
+import {
+  getReducedProgramme,
+  ReducedProgramme,
+} from '../../../utils/datastructures';
 
 type Props = {
-  programme: any;
-  user: User;
-  tour: any;
+  programme: ReducedProgramme;
+  tour: Tour;
 };
+
+export const tourDescription = css`
+  p {
+    margin: 0;
+    padding: 0;
+  }
+`;
 
 export const errorStyles = css`
   background-color: #c24b4b;
@@ -67,11 +80,10 @@ export default function EditTour(props: Props) {
 
     if (
       returnTo &&
-      !Array.isArray(returnTo)
-      // &&
+      !Array.isArray(returnTo) &&
       // Security: Validate returnTo parameter against valid path
       // (because this is untrusted user input)
-      // /^\/[a-zA-Z0-9-?=/@#$%-^&-*]*$/.test(returnTo)
+      /^\/[a-zA-Z0-9-?=/]*$/.test(returnTo)
     ) {
       await router.push(returnTo);
     } else {
@@ -91,16 +103,17 @@ export default function EditTour(props: Props) {
         <Link href="/tours">
           <button>All Tours</button>
         </Link>
+        <br />
+        <br />
         <form>
-          <div>
-            <h2>
-              {props.programme.filmTitle} <br /> at <br />{' '}
-              {props.programme.date},
-              <br />
-              {props.programme.time} <br />
-              {props.programme.cinemaName}
-            </h2>
-          </div>
+          <article css={tourDescription}>
+            <p>{props.programme.filmTitle}</p>
+            <p>{`${props.programme.date}`}</p>
+            <p>at </p>
+            <p>{props.programme.time} </p>
+            <p>{props.programme.cinemaName}</p>
+          </article>
+          <br />
           <label htmlFor="body">Description:</label>
           <br />
           <br />
@@ -113,7 +126,7 @@ export default function EditTour(props: Props) {
             onChange={(event) => setDescription(event.currentTarget.value)}
             placeholder="Please, describe clearly in 100 characters the most basic details
   about your tour. "
-          ></textarea>
+          />
           <br />
           <br />
 
@@ -173,7 +186,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if (!user) {
     return {
       redirect: {
-        destination: `/login?returnTO=/tours/create`,
+        destination: `/login?returnTo=/tours/create`,
         permanent: false,
       },
     };
@@ -188,6 +201,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   return {
-    props: { user: user, programme: reducedProgramme, tour: tour },
+    props: { programme: reducedProgramme, tour: tour },
   };
 }

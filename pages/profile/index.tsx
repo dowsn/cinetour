@@ -1,3 +1,5 @@
+import { AdvancedImage } from '@cloudinary/react';
+import { Cloudinary } from '@cloudinary/url-gen';
 import {
   GoogleMap,
   InfoWindow,
@@ -7,11 +9,10 @@ import {
 import { loadStripe } from '@stripe/stripe-js';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import QRCode from 'qrcode';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import {
   Admin,
@@ -30,6 +31,7 @@ import {
 import {
   getReducedSubscriber,
   getReducedTour,
+  ReducedTour,
 } from '../../utils/datastructures';
 import mapStyles from '../../utils/mapStyles';
 
@@ -41,8 +43,8 @@ type Props = {
   subscriber: Subscriber;
   apiKey: string;
   cinemas: Cinemas[];
-  tours: any[];
-  friends: any;
+  tours?: ReducedTour[];
+  friends?: Friend[];
 };
 
 // options for the map
@@ -52,80 +54,107 @@ const options = {
   zoomControl: true,
 };
 
-export default function UserDetail(props: Props) {
-  //states: database of cinemas and windowinf for google maps
-  const [map, setMap] = useState<Cinemas[]>(props.cinemas);
-  const [selected, SetSelected] = useState<Cinemas | null>(null);
+export default function UserDetails(props: Props) {
+  // states: database of cinemas and windowinf for google maps
+  const [selected, setSelected] = useState<Cinemas | null>(null);
 
-  //getting QR Code for user
+  // displaying profile picture
+  // Create a Cloudinary instance and set your cloud name.
+  const cld = new Cloudinary({
+    cloud: {
+      cloudName: 'dkiienrq4',
+    },
+  });
+
+  // cld.image returns a CloudinaryImage with the configuration set.
+  const myImage = cld.image(`userlist/${props.user.id}`);
+
+  // getting QR Code for user
   const [src, setSrc] = useState('');
 
   if (props.subscriber) {
     useEffect(() => {
-      QRCode.toDataURL(props.subscriber.qrCode).then((data: any) => {
-        setSrc(data);
-      });
+      QRCode.toDataURL(props.subscriber.qrCode)
+        .catch(() => {
+          console.log('film request fails');
+        })
+        .then((data: any) => {
+          setSrc(data);
+        });
     }, []);
   }
+
   // router
   const router = useRouter();
 
   // tours
-  const [tourList, setTourList] = useState<any[]>(props.tours);
-
-  // profile image
-  // const [setImgsrc];
-
-  // async function handleOnSubmit(event) {
-  //   event.preventDefault();
-  //   const form = event.currentTarget;
-  //   const fileInput = Array.from(form.elements).find(
-  //     ({ name }) => name === 'file',
-  //   );
-
-  //   const formData = new FormData();
-
-  //   for (const file of fileInput.files) {
-  //     FormData.append('file', file);
-
-  //     formData.append('upload_preset', 'cinetour');
-
-  //     const data = await fetch(
-  //       'htttps://api.cloudinary.com/v1_1/dkiienrq4/image/upload',
-  //       { method: 'POST', body: formData },
-  //     ).then((r) => r.json());
-
-  //     console.log(data);
-  //   }
-  // }
-
   // handling tours
-  async function handleJoin(tourId: number, userId: number) {
+  const [tourList, setTourList] = useState<ReducedTour[] | undefined>(
+    props.tours,
+  );
+
+  // handling joining and leaving tours
+
+  async function handleJoin(tourId: number, userId: number | undefined) {
+    if (!userId) {
+      return;
+    }
     const response = await fetch(`/api/tour_attendees/${tourId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        userId: `${userId}`,
+        userId: userId,
       }),
     });
-    const TourAttendee = await response.json();
-    console.log(TourAttendee);
+    const tourAttendee = await response.json();
+    console.log(tourAttendee);
 
-    await router.push(`/tours#${tourId}`);
+    //updating the tourList
+    const requestTours = await fetch(`/api/tours`);
+    const toursRaw = await requestTours.json();
+
+    const attendeesRaw = await fetch(`/api/tour_attendees`);
+
+    const attendees = await attendeesRaw.json();
+
+    const tours = await toursRaw.map((tour: Tour) =>
+      getReducedTour(tour, attendees),
+    );
+
+    setTourList(tours);
   }
 
-  async function handleUnjoin(tourId: number) {
+  async function handleLeave(tourId: number, userId: number) {
+    if (!userId) {
+      return;
+    }
     const response = await fetch(`/api/tour_attendees/${tourId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        userId: userId,
+      }),
     });
     const deletedTourAttendee = await response.json();
+    console.log(deletedTourAttendee);
 
-    await router.push(`/tours#${tourId}`);
+    //updating the tourList
+    const requestTours = await fetch(`/api/tours`);
+    const toursRaw = await requestTours.json();
+
+    const attendeesRaw = await fetch(`/api/tour_attendees`);
+
+    const attendees = await attendeesRaw.json();
+
+    const tours = await toursRaw.map((tour: Tour) =>
+      getReducedTour(tour, attendees),
+    );
+
+    setTourList(tours);
   }
 
   // function to get youtube id from the complete youtube link
@@ -146,7 +175,7 @@ export default function UserDetail(props: Props) {
   };
 
   // Google Maps
-  //checking google maps api key
+  // checking google maps api key
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: props.apiKey,
   });
@@ -189,24 +218,18 @@ export default function UserDetail(props: Props) {
           <button>Log Out</button>
         </Link>
         <h1>CineTourist {props.user.username}</h1>
-        <Image
-          className="profileImage"
-          src={`/users/${props.user.id}.jpeg`}
-          height="150"
-          width="150"
-          alt="profile picture"
-        />
+        <div className="profileImage">
+          <AdvancedImage cldImg={myImage} />
+        </div>
         <br />
         <section>
           {props.admin ? (
-            <>
-              <div className="button a">
-                <h2>Admin Tools</h2>
-                <Link href="/edit_programme">Edit Programme</Link>
-                <br />
-                <Link href="/edit_films">Edit Films</Link>
-              </div>
-            </>
+            <div className="button a">
+              <h2>Admin Tools</h2>
+              <Link href="/edit_programme">Edit Programme</Link>
+              <br />
+              <Link href="/edit_films">Edit Films</Link>
+            </div>
           ) : (
             ''
           )}
@@ -214,11 +237,11 @@ export default function UserDetail(props: Props) {
           <p>{props.profile.firstName}</p>
           <h2>Last name:</h2>
           <p>{props.profile.lastName}</p>
-          <div></div>
+          <br />
           {props.subscriber ? (
             <>
               <h2>Subscribed member till</h2>
-              <p>{`${props.subscriber.expiryTimestamp}`}</p>
+              <p>{props.subscriber.expiryTimestamp}</p>
               <img src={src} className="qr" alt="Girl in a jacket" />
             </>
           ) : (
@@ -235,24 +258,21 @@ export default function UserDetail(props: Props) {
                 options={options}
                 mapContainerClassName="map-container"
               >
-                {map.map((cinema) => (
-                  <>
-                    <MarkerF
-                      key={`cinema-id-${cinema.id}`}
-                      position={{
-                        lat: Number(cinema.lattitude),
-                        lng: Number(cinema.longitude),
-                      }}
-                      icon={{
-                        url: '/nav/icon.png',
-                        scaledSize: new window.google.maps.Size(16, 16),
-                      }}
-                      onClick={() => {
-                        SetSelected(cinema);
-                      }}
-                    />
-                    {/* */}
-                  </>
+                {props.cinemas.map((cinema) => (
+                  <MarkerF
+                    key={`cinema-id-${cinema.id}`}
+                    position={{
+                      lat: Number(cinema.lattitude),
+                      lng: Number(cinema.longitude),
+                    }}
+                    icon={{
+                      url: '/nav/icon.png',
+                      scaledSize: new window.google.maps.Size(16, 16),
+                    }}
+                    onClick={() => {
+                      setSelected(cinema);
+                    }}
+                  />
                 ))}
                 {selected ? (
                   <InfoWindow
@@ -261,7 +281,7 @@ export default function UserDetail(props: Props) {
                       lng: Number(selected.longitude),
                     }}
                     onCloseClick={() => {
-                      SetSelected(null);
+                      setSelected(null);
                     }}
                   >
                     <div>
@@ -291,181 +311,172 @@ export default function UserDetail(props: Props) {
               ))
             : ''}
         </section>
-
         <section>
           <h1>Tours</h1>
           <h2>Hosting</h2>
-          <div className="full tours">
+          <section className="full tours">
             <ul>
               {tourList
-                .filter((tour) => tour.hostId == props.user.id)
-                .sort((a: any, b: any) => a.date.localeCompare(b.date))
-                .sort((a: any, b: any) => a.time.localeCompare(b.time))
-                .map((tour: any) => (
-                  <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
-                    <div className="videocontainer">
-                      <YouTube
-                        videoId={getYoutubeId(tour.trailer)}
-                        opts={opts}
-                        onReady={onPlayerReady}
-                      />
-                    </div>
-                    <div className="description">
-                      <div>
-                        <h2>
-                          <Link href={`../films/${tour.filmId}`}>
-                            {tour.filmTitle}
-                          </Link>
-                        </h2>
-                      </div>
-                      <div>{tour.cinemaName}</div>
-                      <div>{tour.date}</div>
-                      <div>{tour.time}</div>
-                      <div>#{tour.genre}</div>
-                      <div className="blue">{tour.body}</div>
-                      <div>
-                        Hosted by{' '}
-                        <Link href={`/cinetourists/${tour.username}`}>
-                          {tour.username}
-                        </Link>
-                      </div>
-                      <br />
-                      {tour.attendees.length ? <div>Going:</div> : ''}
-                      <div className="flex center">
-                        {tour.attendees.map((attendee: any) => (
+                ? tourList
+                    .filter((tour) => tour.hostId === props.user.id)
+                    .sort(function (a: ReducedTour, b: ReducedTour) {
+                      if (a.date > b.date) return +1;
+                      if (a.date < b.date) return -1;
+                      if (a.time > b.time) return +1;
+                      if (a.time < b.time) return -1;
+                      return 0;
+                    })
+                    .map((tour) => (
+                      <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
+                        <div className="videocontainer">
+                          <YouTube
+                            videoId={getYoutubeId(tour.trailer)}
+                            opts={opts}
+                            onReady={onPlayerReady}
+                          />
+                        </div>
+                        <div className="description">
                           <div>
-                            <Link
-                              href={`/cinetourists/${attendee}`}
-                              key={`username-${attendee}`}
-                            >
-                              {attendee}
+                            <h2>
+                              <Link href={`/films/${tour.filmId}`}>
+                                {tour.filmTitle}
+                              </Link>
+                            </h2>
+                          </div>
+                          <div>{tour.cinemaName}</div>
+                          <div>{tour.date}</div>
+                          <div>{tour.time}</div>
+                          <div>#{tour.genre}</div>
+                          <div className="blue">{tour.body}</div>
+                          <div>
+                            Hosted by{' '}
+                            <Link href={`/cinetourists/${tour.username}`}>
+                              {tour.username}
                             </Link>
                           </div>
-                        ))}
-                      </div>
-                      {props.user ? (
-                        tour.hostId === props.user.id ? (
-                          <Link href={`/tours/edit/${tour.programmeId}`}>
+                          <br />
+                          {tour.attendees.length ? (
+                            <div className="flex center">
+                              <div>Going:</div>
+                              <div className="flex center">
+                                {tour.attendees.map((attendee: any) => (
+                                  <div key={`attendee-${attendee}`}>
+                                    <Link
+                                      href={`/cinetourists/${attendee}`}
+                                      key={`username-${attendee}`}
+                                    >
+                                      {attendee}
+                                    </Link>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            ''
+                          )}
+                        </div>
+                        <div className="relative">
+                          <Link
+                            href={`/tours/edit/${tour.programmeId}?returnTo=/profile`}
+                          >
                             <button>Edit</button>
                           </Link>
-                        ) : tour.attendees.includes(props.user.username) ? (
-                          <button
-                            onClick={() => {
-                              handleUnjoin(props.user.id);
-                            }}
-                          >
-                            Unjoin
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              // setJoin(false);
-                              handleJoin(tour.tourId, props.user.id).catch(
-                                () => {
-                                  console.log('Request fails');
-                                },
-                              );
-                            }}
-                          >
-                            Join
-                          </button>
-                        )
-                      ) : (
-                        <button disabled>Join</button>
-                      )}
-                    </div>
-                  </li>
-                ))}
+                        </div>
+                      </li>
+                    ))
+                : ''}
             </ul>
-          </div>
+          </section>
           <h2>Attending</h2>
-          <div className="full tours">
+          <section className="full tours">
             <ul>
               {tourList
-                .filter((tour) => tour.attendees.includes(props.user.username))
-                .sort((a: any, b: any) => a.date.localeCompare(b.date))
-                .sort((a: any, b: any) => a.time.localeCompare(b.time))
-                .map((tour: any) => (
-                  <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
-                    <div className="videocontainer">
-                      <YouTube
-                        videoId={getYoutubeId(tour.trailer)}
-                        opts={opts}
-                        onReady={onPlayerReady}
-                      />
-                    </div>
-                    <div className="description">
-                      <div>
-                        <h2>
-                          <Link href={`../films/${tour.filmId}`}>
-                            {tour.filmTitle}
-                          </Link>
-                        </h2>
-                      </div>
-                      <div>{tour.cinemaName}</div>
-                      <div>{tour.date}</div>
-                      <div>{tour.time}</div>
-                      <div>#{tour.genre}</div>
-                      <div className="blue">{tour.body}</div>
-                      <div>
-                        Hosted by{' '}
-                        <Link href={`/cinetourists/${tour.username}`}>
-                          {tour.username}
-                        </Link>
-                      </div>
-                      <br />
-                      {tour.attendees.length ? <div>Going:</div> : ''}
-                      <div className="flex center">
-                        {tour.attendees.map((attendee: any) => (
+                ? tourList
+                    .sort(function (a: ReducedTour, b: ReducedTour) {
+                      if (a.date > b.date) return +1;
+                      if (a.date < b.date) return -1;
+                      if (a.time > b.time) return +1;
+                      if (a.time < b.time) return -1;
+                      return 0;
+                    })
+                    .filter((tour) =>
+                      tour.attendees.includes(props.user.username),
+                    )
+                    .map((tour) => (
+                      <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
+                        <div className="videocontainer">
+                          <YouTube
+                            videoId={getYoutubeId(tour.trailer)}
+                            opts={opts}
+                            onReady={onPlayerReady}
+                          />
+                        </div>
+                        <div className="description">
                           <div>
-                            <Link
-                              href={`/cinetourists/${attendee}`}
-                              key={`username-${attendee}`}
-                            >
-                              {attendee}
+                            <h2>
+                              <Link href={`/films/${tour.filmId}`}>
+                                {tour.filmTitle}
+                              </Link>
+                            </h2>
+                          </div>
+                          <div>{tour.cinemaName}</div>
+                          <div>{tour.date}</div>
+                          <div>{tour.time}</div>
+                          <div>#{tour.genre}</div>
+                          <div className="blue">{tour.body}</div>
+                          <div>
+                            Hosted by{' '}
+                            <Link href={`/cinetourists/${tour.username}`}>
+                              {tour.username}
                             </Link>
                           </div>
-                        ))}
-                      </div>
-                      {props.user ? (
-                        tour.hostId === props.user.id ? (
-                          <Link href={`/tours/edit/${tour.programmeId}`}>
-                            <button>Edit</button>
-                          </Link>
-                        ) : tour.attendees.includes(props.user.username) ? (
-                          <button
-                            onClick={() => {
-                              handleUnjoin(props.user.id);
-                            }}
-                          >
-                            Unjoin
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              // setJoin(false);
-                              handleJoin(tour.tourId, props.user.id).catch(
-                                () => {
-                                  console.log('Request fails');
-                                },
-                              );
-                            }}
-                          >
-                            Join
-                          </button>
-                        )
-                      ) : (
-                        <button disabled>Join</button>
-                      )}
-                    </div>
-                  </li>
-                ))}
+                          <br />
+                          {tour.attendees.length ? (
+                            <div className="flex center">
+                              <div>Going:</div>
+                              <div className="flex center">
+                                {tour.attendees.map((attendee: any) => (
+                                  <div key={`attendee-${attendee}`}>
+                                    <Link
+                                      href={`/cinetourists/${attendee}`}
+                                      key={`username-${attendee}`}
+                                    >
+                                      {attendee}
+                                    </Link>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            ''
+                          )}
+                        </div>
+                        <button
+                          className="relative"
+                          onClick={() => {
+                            handleLeave(tour.tourId, props.user.id).catch(
+                              () => {
+                                console.log('Request fails');
+                              },
+                            );
+                          }}
+                        >
+                          Leave
+                        </button>
+                      </li>
+                    ))
+                : ''}
             </ul>
-          </div>
+          </section>
         </section>
-        <Link href={`/profile/edit`}>
-          <button>Edit Profile</button>
-        </Link>
+        <div className="editProfile">
+          <Link href={`/profile/edit`}>
+            <button>Edit Profile</button>
+          </Link>
+          <Link href="/profile/profile_picture">
+            <button>Change Picture</button>
+          </Link>
+        </div>
         <br />
         <Link href="/logout">
           <button>Log Out</button>
@@ -503,7 +514,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     const friendsRequest = await fetch(`${baseUrl}/api/friends/${user.id}`);
     const friends = await friendsRequest.json();
 
-    const ApiKey = await process.env.NEXT_APP_GOOGLE_MAPS_API_KEY;
+    const apiKey = await process.env.NEXT_APP_GOOGLE_MAPS_API_KEY;
     const cinemas = await getCinemas();
 
     if (!admin) {
@@ -518,7 +529,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             user: user,
             subscriber: reducedSubscriber,
             profile: profile,
-            apiKey: ApiKey,
+            apiKey: apiKey,
             cinemas: cinemas,
             tours: tours || undefined,
             friends: friends || undefined,
@@ -530,7 +541,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           user: user,
           profile: profile,
           publicKey: process.env.STRIPE_PUBLISHABLE_KEY,
-          apiKey: ApiKey,
+          apiKey: apiKey,
           cinemas: cinemas,
           tours: tours || undefined,
           friends: friends || undefined,
@@ -544,7 +555,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         profile: profile,
         admin: admin,
         publicKey: process.env.STRIPE_PUBLISHABLE_KEY,
-        apiKey: ApiKey,
+        apiKey: apiKey,
         cinemas: cinemas,
         tours: tours || undefined,
         friends: friends || undefined,
@@ -554,7 +565,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   return {
     redirect: {
-      destination: `/login?returnTO=/profile`,
+      destination: `/login?returnTo=/profile`,
       permanent: false,
     },
   };

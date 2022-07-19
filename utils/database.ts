@@ -523,8 +523,14 @@ export async function deleteProgrammeById(programmeId: number) {
 // Tour attendees
 //
 
+export type TourAttendee = {
+  programmeId: number;
+  username: string;
+  tourId: number;
+};
+
 export async function getAttendees() {
-  const tours = await sql<TourOrganizers[]>`
+  const tours = await sql<TourAttendee[]>`
     SELECT
     programme_id,
     username,
@@ -567,7 +573,7 @@ export async function getCinemas() {
 
 // getting cinema id in api for creating the programme
 
-export async function getCinemaIdByName(cinemaName: string) {
+export async function getCinemaByName(cinemaName: string) {
   if (!cinemaName) {
     return undefined;
   }
@@ -666,7 +672,7 @@ export async function updateFilmById(
   topFilm: boolean,
   country: string,
 ) {
-  const [film] = await sql`
+  const [film] = await sql<[Film | undefined]>`
     UPDATE
       films
     SET
@@ -682,11 +688,11 @@ export async function updateFilmById(
       id = ${id}
     RETURNING *
   `;
-  return camelcaseKeys(film);
+  return film && camelcaseKeys(film);
 }
 
 export async function deleteFilmById(id: number) {
-  const [film] = await sql`
+  const [film] = await sql<[Film | undefined]>`
     DELETE FROM
       films
     WHERE
@@ -694,17 +700,17 @@ export async function deleteFilmById(id: number) {
     RETURNING *
   `;
 
-  return camelcaseKeys(film);
+  return film && camelcaseKeys(film);
 }
 
 // getting film id in api for creating the programme
-export async function getFilmIdByName(filmTitle: string) {
+export async function getFilmByName(filmTitle: string) {
   if (!filmTitle) {
     return undefined;
   }
   const [film] = await sql<[Film | undefined]>`
   SELECT
-    id
+    *
   FROM
     films
   WHERE
@@ -837,12 +843,13 @@ export async function joinTourbyUserId(tourId: number, userId: number) {
   return camelcaseKeys(tour_attendee);
 }
 
-export async function unjoinTourbyUserId(attendeeId: number) {
+export async function unjoinTourbyUserId(tourId: number, attendeeId: number) {
   const [tour_attendee] = await sql`
   DELETE FROM
   tours_attendees
   WHERE
-    attendee_id = ${attendeeId}
+    attendee_id = ${attendeeId} AND
+    tour_id = ${tourId}
   RETURNING *
   `;
 
@@ -850,14 +857,14 @@ export async function unjoinTourbyUserId(attendeeId: number) {
 }
 
 export async function deleteExpiredProgrammes() {
-  const tours = await sql<[Programme[]]>`
+  const programmes = await sql<[Programme[]]>`
     DELETE FROM programmes
   WHERE
     date < now()::date
   RETURNING *
   `;
 
-  return tours.map((tour) => camelcaseKeys(tour));
+  return programmes.map((programme) => camelcaseKeys(programme));
 }
 
 //
@@ -1026,7 +1033,7 @@ export async function getFriendByOwnId(userId: number, friendId: number) {
 }
 
 export async function createFriend(userId: number, friendId: number) {
-  const [friend] = await sql<[Friend]>`
+  const [friend] = await sql<[Friend | undefined]>`
   INSERT INTO friends
     (friend1_id, friend2_id)
   VALUES
@@ -1035,7 +1042,7 @@ export async function createFriend(userId: number, friendId: number) {
     *
   `;
 
-  return camelcaseKeys(friend);
+  return friend && camelcaseKeys(friend);
 }
 
 export async function deleteFriendById(userId: number, friendId: number) {

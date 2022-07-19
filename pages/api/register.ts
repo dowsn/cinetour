@@ -65,10 +65,10 @@ export default async function handler(
 
     // get the password
     const password = user.password;
-    // // hash the password
+    // hash the password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // // create a new user
+    // create a new user
 
     const newUser = await createUser(username, passwordHash);
     const createdProfile = await createProfile(
@@ -78,16 +78,17 @@ export default async function handler(
       email,
       selfDescription,
     );
+    console.log(createdProfile);
 
     // creating a token
     const token = crypto.randomBytes(80).toString('base64');
 
     // csrf
     // 1. create a secret
-    const CSRFsecret = createCSRFSecret();
+    const csrfSecret = createCSRFSecret();
 
     // then creating session with user id, secret and the token
-    const session = await createSession(token, newUser.id, CSRFsecret);
+    const session = await createSession(token, newUser.id, csrfSecret);
 
     // creating serialized cookie that will be passed to header, tells the browser to create a new cookie for us
     const serializedCookie = await createSerializedRegisterSessionTokenCookie(

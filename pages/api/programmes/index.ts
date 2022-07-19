@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import {
   createProgramme,
   getAdmin,
-  getCinemaIdByName,
-  getFilmIdByName,
+  getCinemaByName,
+  getFilmByName,
   getProgrammes,
   getSessionByValidToken,
   getUserByValidSessionToken,
@@ -62,8 +62,8 @@ export default async function handler(
 
     // the action
 
-    const film = await getFilmIdByName(req.body.filmTitle);
-    const cinema = await getCinemaIdByName(req.body.cinemaName);
+    const film = await getFilmByName(req.body.filmTitle);
+    const cinema = await getCinemaByName(req.body.cinemaName);
 
     if (film && cinema) {
       const newProgramme = await createProgramme(

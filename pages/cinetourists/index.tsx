@@ -5,9 +5,6 @@ import { useState } from 'react';
 type Props = { users: any[] };
 
 export default function Cinetourists(props: Props) {
-  const [cinetouristList, setCinetouristList] = useState<any | undefined>(
-    props.users,
-  );
   const [cinetourist, setCinetourist] = useState('');
 
   // getting alphabet
@@ -21,7 +18,7 @@ export default function Cinetourists(props: Props) {
   const renderData = (data: any) => (
     <ul className="longList">
       {alphabet.map((letter) => (
-        <li>
+        <li key={letter}>
           <div>
             <h2>{letter}</h2>
           </div>
@@ -44,7 +41,7 @@ export default function Cinetourists(props: Props) {
     </ul>
   );
 
-  const data = cinetouristList;
+  const data = props.users;
   let filteredData = [...data];
 
   if (cinetourist) {
@@ -62,15 +59,14 @@ export default function Cinetourists(props: Props) {
         <div>
           <label htmlFor="film">Cinetourist:</label>
           <input
-            type="text"
             list="cinetourists"
             value={cinetourist}
             onChange={(event) => setCinetourist(event.currentTarget.value)}
           />
           <datalist id="cinetourists">
-            <option></option>
+            <option />
             {props.users.map((user) => (
-              <option>{user.username}</option>
+              <option key={`user-id-${user.id}`}>{user.username}</option>
             ))}
           </datalist>
         </div>

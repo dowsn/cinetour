@@ -63,7 +63,7 @@ export default function Login() {
       await router.push(returnTo);
     } else {
       // redirect to user profile
-      await router.push(`/`);
+      await router.push(`/profile`);
     }
   }
 
@@ -78,7 +78,7 @@ export default function Login() {
         <h1>Login</h1>
         <div className="container">
           <div className="row">
-            <div className="col-auto"></div>
+            <div className="col-auto" />
           </div>
           <label>
             username:{' '}

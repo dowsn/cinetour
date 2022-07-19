@@ -56,7 +56,13 @@ export default async function handler(
 
     // the action
 
-    const deletedTour = await unjoinTourbyUserId(tourId);
+    if (!req.body.userId) {
+      return res.status(400).json({
+        error: [{ message: 'Please, provide all required information' }],
+      });
+    }
+
+    const deletedTour = await unjoinTourbyUserId(tourId, req.body.userId);
 
     if (!deletedTour) {
       return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });

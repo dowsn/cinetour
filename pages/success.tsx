@@ -72,7 +72,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
           const token = crypto.randomBytes(80).toString('base64');
 
           if (!checkSession) {
-            createSubscriber(user.id, sessionId, token);
+            createSubscriber(user.id, sessionId, token).catch(() => {
+              console.log('Request fails');
+            });
             return {
               props: {
                 user: user,
