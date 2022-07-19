@@ -4,7 +4,6 @@ import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import {
@@ -46,16 +45,16 @@ const opts: YouTubeProps['opts'] = {
 };
 
 type Props = {
-  tours: ReducedTour[];
-  user: User;
-  friends: Friend[];
+  tours: ReducedTour[] | [];
+  user?: User;
+  friends?: Friend[];
 };
 
 export default function Tours(props: Props) {
   const [friends, setFriends] = useState(false);
 
   // handling tours
-  const [tourList, setTourList] = useState(props.tours);
+  const [tourList, setTourList] = useState<ReducedTour[]>(props.tours);
 
   // handling joining and leaving tours
 
@@ -75,7 +74,7 @@ export default function Tours(props: Props) {
     const tourAttendee = await response.json();
     console.log(tourAttendee);
 
-    //updating the tourList
+    // updating the tourList
     const requestTours = await fetch(`/api/tours`);
     const toursRaw = await requestTours.json();
 
@@ -106,7 +105,7 @@ export default function Tours(props: Props) {
     const deletedTourAttendee = await response.json();
     console.log(deletedTourAttendee);
 
-    //updating the tourList
+    // updating the tourList
     const requestTours = await fetch(`/api/tours`);
     const toursRaw = await requestTours.json();
 
@@ -145,7 +144,7 @@ export default function Tours(props: Props) {
             <div className="description">
               <div>
                 <h2>
-                  <Link href={`../films/${tour.filmId}`}>{tour.filmTitle}</Link>
+                  <Link href={`/films/${tour.filmId}`}>{tour.filmTitle}</Link>
                 </h2>
               </div>
               <div>{tour.cinemaName}</div>
@@ -163,7 +162,7 @@ export default function Tours(props: Props) {
               {tour.attendees.length ? <div>Going:</div> : ''}
               <div className="flex center">
                 {tour.attendees.map((attendee: any) => (
-                  <div>
+                  <div key={attendee}>
                     <Link
                       href={`/cinetourists/${attendee}`}
                       key={`username-${attendee}`}
@@ -183,7 +182,11 @@ export default function Tours(props: Props) {
                 <button
                   className="relative"
                   onClick={() => {
-                    handleLeave(tour.tourId, props.user.id);
+                    handleLeave(tour.tourId, props.user?.id as number).catch(
+                      () => {
+                        console.log('Request fails');
+                      },
+                    );
                   }}
                 >
                   Leave
@@ -192,9 +195,11 @@ export default function Tours(props: Props) {
                 <button
                   className="relative"
                   onClick={() => {
-                    handleJoin(tour.tourId, props.user.id).catch(() => {
-                      console.log('Request fails');
-                    });
+                    handleJoin(tour.tourId, props.user?.id as number).catch(
+                      () => {
+                        console.log('Request fails');
+                      },
+                    );
                   }}
                 >
                   Join
@@ -229,7 +234,7 @@ export default function Tours(props: Props) {
 
   let filteredData: any = [];
   if (friends) {
-    props.friends.map((friend) => {
+    props.friends?.map((friend) => {
       const f = handleFilter(
         source,
         'hostId',

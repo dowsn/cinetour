@@ -5,6 +5,7 @@ import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Fragment, useState } from 'react';
+import { colors } from '../styles/constants';
 import {
   Cinemas,
   Film,
@@ -13,6 +14,12 @@ import {
   Programme,
 } from '../utils/database';
 import { errorStyles } from './register';
+
+const editProgrammestyles = css`
+  .english {
+    background-color: ${colors.blue};
+  }
+`;
 
 type Props = { films: Film[]; cinemas: Cinemas[]; programmes: Programme[] };
 
@@ -145,13 +152,12 @@ export default function EditProgrammes(props: Props) {
         <meta name="description" content="Edit Films" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
+      <main css={editProgrammestyles}>
         <Link href="/../profile">
           <button>Back</button>
         </Link>
         <br />
         <br />
-
         <div>
           <label htmlFor="film">Film:</label>
           <input
@@ -160,9 +166,9 @@ export default function EditProgrammes(props: Props) {
             onChange={(event) => setNewFilm(event.currentTarget.value)}
           />
           <datalist id="films">
-            <option></option>
+            <option />
             {props.films.map((film) => (
-              <option key={film.filmTitle}>{film.filmTitle}</option>
+              <option key={`film-id-${film.id}`}>{film.filmTitle}</option>
             ))}
           </datalist>
         </div>
@@ -174,9 +180,11 @@ export default function EditProgrammes(props: Props) {
             onChange={(event) => setNewCinema(event.currentTarget.value)}
           />
           <datalist id="cinemas">
-            <option></option>
+            <option />
             {props.cinemas.map((cinema) => (
-              <option>{cinema.cinemaName}</option>
+              <option key={`cinema-id-${cinema.id}`}>
+                {cinema.cinemaName}
+              </option>
             ))}
           </datalist>
         </div>
@@ -236,7 +244,7 @@ export default function EditProgrammes(props: Props) {
           .sort((a, b) => a.time.localeCompare(b.time))
           .map((programme) => {
             return programme.programmeId === activeProgrammeId ? (
-              <Fragment key={`${programme.programmeId}`}>
+              <Fragment key={`programme-id-${programme.programmeId}`}>
                 <div>
                   <label htmlFor="film">Film:</label>
                   <input
@@ -245,9 +253,11 @@ export default function EditProgrammes(props: Props) {
                     onChange={(event) => setEditFilm(event.currentTarget.value)}
                   />
                   <datalist id="films">
-                    <option></option>
+                    <option />
                     {props.films.map((film) => (
-                      <option>{film.filmTitle}</option>
+                      <option key={`film-id-${film.id}`}>
+                        {film.filmTitle}
+                      </option>
                     ))}
                   </datalist>
                 </div>
@@ -261,9 +271,9 @@ export default function EditProgrammes(props: Props) {
                     }
                   />
                   <datalist id="cinemas">
-                    <option></option>
+                    <option />
                     {props.cinemas.map((cinema) => (
-                      <option key={cinema.cinemaName}>
+                      <option key={`cinema-id${cinema.cinemaName}`}>
                         {cinema.cinemaName}
                       </option>
                     ))}
@@ -288,7 +298,7 @@ export default function EditProgrammes(props: Props) {
                     onChange={(event) => setEditTime(event.currentTarget.value)}
                   />
                 </label>
-                <label>
+                <label className="english">
                   {' '}
                   English Friendly:
                   <input

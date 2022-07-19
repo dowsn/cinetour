@@ -362,7 +362,7 @@ export type Programme = {
 };
 
 export async function getProgrammes() {
-  const programmesWithTours = await sql<Programme[]>`
+  const programmesWithTours = await sql<[Programme[] | undefined]>`
       SELECT
       programme_id,
       film_title,
@@ -469,7 +469,7 @@ export async function createProgramme(
   time: Date | string,
   englishfriendly: boolean,
 ) {
-  const [programme] = await sql<[Programme]>`
+  const [programme] = await sql<[Programme | undefined]>`
     INSERT INTO programmes
       (film_id, cinema_id, date, time, englishfriendly)
     VALUES
@@ -480,7 +480,7 @@ export async function createProgramme(
 
   await deleteExpiredProgrammes();
 
-  return camelcaseKeys(programme);
+  return programme && camelcaseKeys(programme);
 }
 
 export async function updateProgrammeById(
@@ -491,7 +491,7 @@ export async function updateProgrammeById(
   time: Date,
   englishfriendly: boolean,
 ) {
-  const [programme] = await sql`
+  const [programme] = await sql<[Programme | undefined]>`
     UPDATE
       programmes
     SET
@@ -504,7 +504,7 @@ export async function updateProgrammeById(
       id = ${programmeId}
     RETURNING *
   `;
-  return camelcaseKeys(programme);
+  return programme && camelcaseKeys(programme);
 }
 
 export async function deleteProgrammeById(programmeId: number) {
@@ -529,8 +529,13 @@ export type TourAttendee = {
   tourId: number;
 };
 
+export type TourAttendeeSimple = {
+  attendeeId: number;
+  tourId: number;
+};
+
 export async function getAttendees() {
-  const tours = await sql<TourAttendee[]>`
+  const tour_attendees = await sql<[TourAttendee[] | undefined]>`
     SELECT
     programme_id,
     username,
@@ -543,7 +548,7 @@ export async function getAttendees() {
     users.id = attendee_id AND
     tours.id = tour_id
   `;
-  return tours && camelcaseKeys(tours);
+  return tour_attendees && camelcaseKeys(tour_attendees);
 }
 
 //
@@ -561,7 +566,7 @@ export type Cinemas = {
 };
 
 export async function getCinemas() {
-  const cinemas = await sql`
+  const cinemas = await sql<[Cinemas[] | undefined]>`
   SELECT
     *
   FROM
@@ -605,7 +610,7 @@ export type Film = {
 };
 
 export async function getFilms() {
-  const films = await sql<Film[]>`
+  const films = await sql<[Film[] | undefined]>`
     SELECT
       *
     FROM
@@ -740,7 +745,7 @@ export type Tour = {
 };
 
 export async function getTours() {
-  const tours = await sql<Tour[]>`
+  const tours = await sql<[Tour[] | undefined]>`
     SELECT
     username,
     tours.id AS tour_id,
@@ -806,7 +811,7 @@ export async function getTourByProgrammeId(programmeId: number) {
 }
 
 export async function updateTourById(tourId: number, body: string) {
-  const [tour] = await sql`
+  const [tour] = await sql<[Tour | undefined]>`
     UPDATE
       tours
     SET
@@ -815,11 +820,11 @@ export async function updateTourById(tourId: number, body: string) {
       id = ${tourId}
     RETURNING *
   `;
-  return camelcaseKeys(tour);
+  return tour && camelcaseKeys(tour);
 }
 
 export async function deleteTourById(tourId: number) {
-  const [tour] = await sql`
+  const [tour] = await sql<[Tour | undefined]>`
   DELETE FROM
     tours
   WHERE
@@ -827,11 +832,11 @@ export async function deleteTourById(tourId: number) {
   RETURNING *
 `;
 
-  return camelcaseKeys(tour);
+  return tour && camelcaseKeys(tour);
 }
 
 export async function joinTourbyUserId(tourId: number, userId: number) {
-  const [tour_attendee] = await sql<any>`
+  const [tour_attendee] = await sql<[TourAttendeeSimple | undefined]>`
   INSERT INTO tours_attendees
     (tour_id, attendee_id)
   VALUES
@@ -840,11 +845,11 @@ export async function joinTourbyUserId(tourId: number, userId: number) {
     *
   `;
 
-  return camelcaseKeys(tour_attendee);
+  return tour_attendee && camelcaseKeys(tour_attendee);
 }
 
 export async function unjoinTourbyUserId(tourId: number, attendeeId: number) {
-  const [tour_attendee] = await sql`
+  const [tour_attendee] = await sql<[TourAttendeeSimple | undefined]>`
   DELETE FROM
   tours_attendees
   WHERE
@@ -853,7 +858,7 @@ export async function unjoinTourbyUserId(tourId: number, attendeeId: number) {
   RETURNING *
   `;
 
-  return camelcaseKeys(tour_attendee);
+  return tour_attendee && camelcaseKeys(tour_attendee);
 }
 
 export async function deleteExpiredProgrammes() {
@@ -864,7 +869,7 @@ export async function deleteExpiredProgrammes() {
   RETURNING *
   `;
 
-  return programmes.map((programme) => camelcaseKeys(programme));
+  return programmes && programmes.map((programme) => camelcaseKeys(programme));
 }
 
 //
@@ -872,7 +877,7 @@ export async function deleteExpiredProgrammes() {
 //
 
 export async function getCinetourists() {
-  const users = await sql<User[]>`
+  const users = await sql<[User[] | undefined]>`
     SELECT
      id, username
     FROM

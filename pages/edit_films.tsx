@@ -165,7 +165,7 @@ export default function EditFilms(props: Props) {
 
   // uploading top film image
   // selected file
-  const [imageSelected, SetImageSelected] = useState<File | undefined>(
+  const [imageSelected, setImageSelected] = useState<File | undefined>(
     undefined,
   );
 
@@ -177,7 +177,7 @@ export default function EditFilms(props: Props) {
     // how to set the folder and name to save
     formData.append('upload_preset', 'top_film');
     formData.append('public_id]', 'top_tour/tour_film');
-    Axios.post(
+    await Axios.post(
       'https://api.cloudinary.com/v1_1/dkiienrq4/image/upload',
       formData,
     ).then((response: any) => {
@@ -304,7 +304,7 @@ export default function EditFilms(props: Props) {
           <input
             type="file"
             onChange={(event) => {
-              SetImageSelected(event.currentTarget.files?.[0]);
+              setImageSelected(event.currentTarget.files?.[0]);
             }}
           />
           <br />

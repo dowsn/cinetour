@@ -216,7 +216,6 @@ export default function Cinemas(props: Props) {
             <label className="switch">
               <input
                 type="checkbox"
-                id="english"
                 checked={english}
                 onChange={(event) => {
                   setEnglish(event.currentTarget.checked);

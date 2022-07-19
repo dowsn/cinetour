@@ -22,6 +22,7 @@ import {
   getReducedProgramme,
   getReducedSubscriber,
   getReducedTour,
+  ReducedProgramme,
   ReducedTour,
 } from '../utils/datastructures';
 
@@ -100,17 +101,16 @@ const opts: YouTubeProps['opts'] = {
 };
 
 type Props = {
-  subscriber?: Subscriber | undefined;
-  tours: ReducedTour[];
-  user: User;
-  programmes: any;
-  filmoftheweek: Film;
+  subscriber?: Subscriber;
+  tours?: ReducedTour[];
+  user?: User;
+  programmes?: ReducedProgramme[];
+  filmoftheweek?: Film;
 };
 
 export default function Home(props: Props) {
   // showing just today
   const today = new Date(Date.now()).toString().split(' ', 3).join(' ');
-  const router = useRouter();
 
   // handling tours
   const [tourList, setTourList] = useState(props.tours);
@@ -133,7 +133,7 @@ export default function Home(props: Props) {
     const tourAttendee = await response.json();
     console.log(tourAttendee);
 
-    //updating the tourList
+    // updating the tourList
     const requestTours = await fetch(`/api/tours`);
     const toursRaw = await requestTours.json();
 
@@ -164,7 +164,7 @@ export default function Home(props: Props) {
     const deletedTourAttendee = await response.json();
     console.log(deletedTourAttendee);
 
-    //updating the tourList
+    // updating the tourList
     const requestTours = await fetch(`/api/tours`);
     const toursRaw = await requestTours.json();
 
@@ -321,7 +321,7 @@ export default function Home(props: Props) {
                       <div className="description">
                         <div>
                           <h2>
-                            <Link href={`../films/${tour.filmId}`}>
+                            <Link href={`/films/${tour.filmId}`}>
                               {tour.filmTitle}
                             </Link>
                           </h2>
@@ -341,7 +341,7 @@ export default function Home(props: Props) {
                         {tour.attendees.length ? <div>Going:</div> : ''}
                         <div className="flex center">
                           {tour.attendees.map((attendee: any) => (
-                            <div>
+                            <div key={attendee}>
                               <Link
                                 href={`/cinetourists/${attendee}`}
                                 key={`username-${attendee}`}
@@ -363,7 +363,11 @@ export default function Home(props: Props) {
                           <button
                             className="relative"
                             onClick={() => {
-                              handleLeave(tour.tourId, props.user.id);
+                              handleLeave(tour.tourId, props.user?.id as number).catch(
+                                () => {
+                                  console.log('Request fails');
+                                },
+                              );
                             }}
                           >
                             Leave
@@ -372,7 +376,7 @@ export default function Home(props: Props) {
                           <button
                             className="relative"
                             onClick={() => {
-                              handleJoin(tour.tourId, props.user.id).catch(
+                              handleJoin(tour.tourId, props.user?.id as number).catch(
                                 () => {
                                   console.log('Request fails');
                                 },

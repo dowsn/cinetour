@@ -4,14 +4,8 @@ import { css } from '@emotion/react';
 import { loadStripe } from '@stripe/stripe-js';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
-import Link from 'next/link';
 import { colors } from '../styles/constants';
-import {
-  Cinemas,
-  getCinemas,
-  getUserByValidSessionToken,
-} from '../utils/database';
+import { getUserByValidSessionToken } from '../utils/database';
 
 const canceledStyles = css`
   background: ${colors.violet};

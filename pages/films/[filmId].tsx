@@ -4,7 +4,6 @@ import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import {
   Film,
@@ -142,7 +141,7 @@ export default function FilmId(props: Props) {
     <div>
       <Head>
         <title>{props.film.filmTitle}</title>
-        <meta name="description" content={`${props.film.filmTitle}`} />
+        <meta name="description" content={props.film.filmTitle} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main css={filmStyles}>

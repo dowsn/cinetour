@@ -40,9 +40,9 @@ type Props = {
   profile: Profile;
   admin?: Admin;
   publicKey: string;
-  subscriber: Subscriber;
+  subscriber?: Subscriber;
   apiKey: string;
-  cinemas: Cinemas[];
+  cinemas?: Cinemas[];
   tours?: ReducedTour[];
   friends?: Friend[];
 };
@@ -72,20 +72,17 @@ export default function UserDetails(props: Props) {
   // getting QR Code for user
   const [src, setSrc] = useState('');
 
-  if (props.subscriber) {
-    useEffect(() => {
-      QRCode.toDataURL(props.subscriber.qrCode)
+  useEffect(() => {
+    if (props.subscriber?.qrCode) {
+      QRCode.toDataURL(props.subscriber?.qrCode)
         .catch(() => {
           console.log('film request fails');
         })
         .then((data: any) => {
           setSrc(data);
         });
-    }, []);
-  }
-
-  // router
-  const router = useRouter();
+    }
+  }, []);
 
   // tours
   // handling tours
@@ -93,38 +90,7 @@ export default function UserDetails(props: Props) {
     props.tours,
   );
 
-  // handling joining and leaving tours
-
-  async function handleJoin(tourId: number, userId: number | undefined) {
-    if (!userId) {
-      return;
-    }
-    const response = await fetch(`/api/tour_attendees/${tourId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId: userId,
-      }),
-    });
-    const tourAttendee = await response.json();
-    console.log(tourAttendee);
-
-    //updating the tourList
-    const requestTours = await fetch(`/api/tours`);
-    const toursRaw = await requestTours.json();
-
-    const attendeesRaw = await fetch(`/api/tour_attendees`);
-
-    const attendees = await attendeesRaw.json();
-
-    const tours = await toursRaw.map((tour: Tour) =>
-      getReducedTour(tour, attendees),
-    );
-
-    setTourList(tours);
-  }
+  // handling leaving tours
 
   async function handleLeave(tourId: number, userId: number) {
     if (!userId) {
@@ -142,7 +108,7 @@ export default function UserDetails(props: Props) {
     const deletedTourAttendee = await response.json();
     console.log(deletedTourAttendee);
 
-    //updating the tourList
+    // updating the tourList
     const requestTours = await fetch(`/api/tours`);
     const toursRaw = await requestTours.json();
 
@@ -258,7 +224,7 @@ export default function UserDetails(props: Props) {
                 options={options}
                 mapContainerClassName="map-container"
               >
-                {props.cinemas.map((cinema) => (
+                {props.cinemas?.map((cinema) => (
                   <MarkerF
                     key={`cinema-id-${cinema.id}`}
                     position={{
@@ -327,7 +293,7 @@ export default function UserDetails(props: Props) {
                       return 0;
                     })
                     .map((tour) => (
-                      <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
+                      <li key={`tour_id-${tour.tourId}`}>
                         <div className="videocontainer">
                           <YouTube
                             videoId={getYoutubeId(tour.trailer)}
@@ -403,7 +369,7 @@ export default function UserDetails(props: Props) {
                       tour.attendees.includes(props.user.username),
                     )
                     .map((tour) => (
-                      <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
+                      <li key={`tour_id-${tour.tourId}`}>
                         <div className="videocontainer">
                           <YouTube
                             videoId={getYoutubeId(tour.trailer)}
@@ -470,7 +436,7 @@ export default function UserDetails(props: Props) {
           </section>
         </section>
         <div className="editProfile">
-          <Link href={`/profile/edit`}>
+          <Link href="/profile/edit">
             <button>Edit Profile</button>
           </Link>
           <Link href="/profile/profile_picture">

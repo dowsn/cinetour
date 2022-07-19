@@ -10,7 +10,7 @@ function getRequestParams(email: string) {
   // fe4f064432e4684878063s83121e4971-us6
   // We need the us6 part
   if (!API_KEY) {
-    throw 'Something went wrong, please contact us';
+    throw new Error('Something went wrong, please contact us');
   }
   const DATACENTER = API_KEY.split('-')[1];
 

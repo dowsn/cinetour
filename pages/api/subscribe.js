@@ -27,7 +27,7 @@ export default async function handler(request, response) {
   });
 
   // check if the session is in order
-  if (!session) {
+  if (!(await session)) {
     return response.status(400).json({ error: 'Create session failed' });
   }
 

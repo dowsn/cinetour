@@ -2,7 +2,6 @@ import { AdvancedImage } from '@cloudinary/react';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -35,10 +34,10 @@ const opts: YouTubeProps['opts'] = {
 };
 
 type Props = {
-  user: User;
-  profile: Profile;
-  loggedUser: User;
-  tours: ReducedTour[];
+  user?: User;
+  profile?: Profile;
+  loggedUser?: User;
+  tours?: ReducedTour[];
   friend?: Friend;
 };
 
@@ -52,7 +51,7 @@ export default function UserDetail(props: Props) {
   });
 
   // cld.image returns a CloudinaryImage with the configuration set.
-  const myImage = cld.image(`userlist/${props.user.id}`);
+  const myImage = cld.image(`userlist/${props.user?.id}`);
 
   // router
   const router = useRouter();
@@ -78,7 +77,7 @@ export default function UserDetail(props: Props) {
     const tourAttendee = await response.json();
     console.log(tourAttendee);
 
-    //updating the tourList
+    // updating the tourList
     const requestTours = await fetch(`/api/tours`);
     const toursRaw = await requestTours.json();
 
@@ -109,7 +108,7 @@ export default function UserDetail(props: Props) {
     const deletedTourAttendee = await response.json();
     console.log(deletedTourAttendee);
 
-    //updating the tourList
+    // updating the tourList
     const requestTours = await fetch(`/api/tours`);
     const toursRaw = await requestTours.json();
 
@@ -135,13 +134,13 @@ export default function UserDetail(props: Props) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        friendId: props.user.id,
+        friendId: props.user?.id,
       }),
     });
     const deletedFriend = await response.json();
     console.log(deletedFriend);
 
-    await router.push(`/cinetourists/${props.user.username}`);
+    await router.push(`/cinetourists/${props.user?.username}`);
   }
 
   async function handleAddFriend() {
@@ -157,14 +156,14 @@ export default function UserDetail(props: Props) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          friendId: props.user.id,
+          friendId: props.user?.id,
         }),
       },
     );
     const newFriend = await response.json();
     console.log(newFriend);
 
-    await router.push(`/cinetourists/${props.user.username}`);
+    await router.push(`/cinetourists/${props.user?.username}`);
   }
 
   if (!props.user && !props.profile) {
@@ -185,7 +184,7 @@ export default function UserDetail(props: Props) {
   return (
     <div>
       <Head>
-        <title>{props.user.username}</title>
+        <title>{props.user?.username}</title>
         <meta name="description" content="Your profile page" />
       </Head>
       <main>
@@ -198,18 +197,18 @@ export default function UserDetail(props: Props) {
         ) : (
           ''
         )}
-        <h1>CineTourist {props.user.username}</h1>
+        <h1>CineTourist {props.user?.username}</h1>
         <div className="profileImage">
           <AdvancedImage cldImg={myImage} />
         </div>
         <br />
         <section>
           <h2>First name:</h2>
-          <p>{props.profile.firstName}</p>
+          <p>{props.profile?.firstName}</p>
           <h2>Last name:</h2>
-          <p>{props.profile.lastName}</p>
+          <p>{props.profile?.lastName}</p>
           <h2>Self-description:</h2>
-          <p>{props.profile.selfDescription}</p>
+          <p>{props.profile?.selfDescription}</p>
         </section>
 
         <section>
@@ -219,7 +218,7 @@ export default function UserDetail(props: Props) {
             <ul>
               {tourList
                 ? tourList
-                    .filter((tour) => tour.hostId === props.user.id)
+                    .filter((tour) => tour.hostId === props.user?.id)
                     .sort(function (a: ReducedTour, b: ReducedTour) {
                       if (a.date > b.date) return +1;
                       if (a.date < b.date) return -1;
@@ -283,7 +282,7 @@ export default function UserDetail(props: Props) {
                               onClick={() => {
                                 handleLeave(
                                   tour.tourId,
-                                  props.loggedUser.id,
+                                  props.loggedUser?.id as number,
                                 ).catch(() => {
                                   console.log('Request fails');
                                 });
@@ -297,7 +296,7 @@ export default function UserDetail(props: Props) {
                               onClick={() => {
                                 handleJoin(
                                   tour.tourId,
-                                  props.loggedUser.id,
+                                  props.loggedUser?.id as number,
                                 ).catch(() => {
                                   console.log('Request fails');
                                 });
@@ -329,7 +328,7 @@ export default function UserDetail(props: Props) {
                       return 0;
                     })
                     .filter((tour) =>
-                      tour.attendees.includes(props.user.username),
+                      tour.attendees.includes(props.user?.username as string),
                     )
                     .map((tour) => (
                       <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
@@ -380,14 +379,14 @@ export default function UserDetail(props: Props) {
                             ''
                           )}
                         </div>
-                        {props.loggedUser ? (
+                        {props.loggedUser && props.loggedUser.id ? (
                           tour.attendees.includes(props.loggedUser.username) ? (
                             <button
                               className="relative"
                               onClick={() => {
                                 handleLeave(
                                   tour.tourId,
-                                  props.loggedUser.id,
+                                  props.loggedUser?.id as number,
                                 ).catch(() => {
                                   console.log('Request fails');
                                 });
@@ -401,7 +400,7 @@ export default function UserDetail(props: Props) {
                               onClick={() => {
                                 handleJoin(
                                   tour.tourId,
-                                  props.loggedUser.id,
+                                  props.loggedUser?.id as number,
                                 ).catch(() => {
                                   console.log('Request fails');
                                 });
