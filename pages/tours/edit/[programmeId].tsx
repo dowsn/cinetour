@@ -104,7 +104,7 @@ export default function EditTour(props: Props) {
         <form>
           <article css={tourDescription}>
             <p>{props.programme.filmTitle}</p>
-            <p>{`${props.programme.date}`}</p>
+            <p>{props.programme.date.toString()}</p>
             <p>at </p>
             <p>{props.programme.time} </p>
             <p>{props.programme.cinemaName}</p>

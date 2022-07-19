@@ -11,16 +11,10 @@ export default async function handler(
 ) {
   // if method GET
   if (req.method === 'GET') {
-    // get the films from my database
+    // get the tours from my database
     const tours = await getTours();
 
-    if (tours) {
-      return res.status(200).json(tours);
-    }
-
-    return res
-      .status(400)
-      .json({ errors: [{ message: 'Item/s do not exist' }] });
+    return res.status(200).json(tours);
   }
 
   // if method POST

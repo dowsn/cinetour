@@ -10,13 +10,12 @@ import { loadStripe } from '@stripe/stripe-js';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import QRCode from 'qrcode';
 import React, { useEffect, useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import {
   Admin,
-  Cinemas,
+  Cinema,
   Friend,
   getAdmin,
   getCinemas,
@@ -42,7 +41,7 @@ type Props = {
   publicKey: string;
   subscriber?: Subscriber;
   apiKey: string;
-  cinemas?: Cinemas[];
+  cinemas?: Cinema[];
   tours?: ReducedTour[];
   friends?: Friend[];
 };
@@ -56,7 +55,7 @@ const options = {
 
 export default function UserDetails(props: Props) {
   // states: database of cinemas and windowinf for google maps
-  const [selected, setSelected] = useState<Cinemas | null>(null);
+  const [selected, setSelected] = useState<Cinema | null>(null);
 
   // displaying profile picture
   // Create a Cloudinary instance and set your cloud name.
@@ -74,7 +73,7 @@ export default function UserDetails(props: Props) {
 
   useEffect(() => {
     if (props.subscriber?.qrCode) {
-      QRCode.toDataURL(props.subscriber?.qrCode)
+      QRCode.toDataURL(props.subscriber.qrCode)
         .catch(() => {
           console.log('film request fails');
         })
@@ -82,7 +81,7 @@ export default function UserDetails(props: Props) {
           setSrc(data);
         });
     }
-  }, []);
+  }, [props.subscriber]);
 
   // tours
   // handling tours

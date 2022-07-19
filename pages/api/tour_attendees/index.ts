@@ -7,15 +7,10 @@ export default async function handler(
 ) {
   // if method GET
   if (req.method === 'GET') {
-    const tours = await getAttendees();
+    // to get attendees from my database
+    const attendees = await getAttendees();
 
-    if (!tours) {
-      return res
-        .status(400)
-        .json({ errors: [{ message: 'Items are missing' }] });
-    }
-
-    return res.status(200).json(tours);
+    return res.status(200).json(attendees);
   }
 
   return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });

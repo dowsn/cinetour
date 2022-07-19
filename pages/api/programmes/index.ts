@@ -15,13 +15,8 @@ export default async function handler(
 ) {
   // if method GET
   if (req.method === 'GET') {
+    // get programmes from my database
     const programmes = await getProgrammes();
-
-    if (!programmes) {
-      return res
-        .status(400)
-        .json({ errors: [{ message: 'Items are missing' }] });
-    }
 
     return res.status(200).json(programmes);
   }

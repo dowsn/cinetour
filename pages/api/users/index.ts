@@ -7,11 +7,8 @@ export default async function handler(
 ) {
   // if method Get
   if (req.method === 'GET') {
+    // to get user from my database
     const users = await getCinetourists();
-
-    if (!users) {
-      return res.status(400).json({ errors: [{ message: 'Item missing' }] });
-    }
 
     return res.status(200).json(users);
   }

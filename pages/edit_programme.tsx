@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Fragment, useState } from 'react';
 import { colors } from '../styles/constants';
 import {
-  Cinemas,
+  Cinema,
   Film,
   getAdmin,
   getUserByValidSessionToken,
@@ -21,7 +21,7 @@ const editProgrammestyles = css`
   }
 `;
 
-type Props = { films: Film[]; cinemas: Cinemas[]; programmes: Programme[] };
+type Props = { films: Film[]; cinemas: Cinema[]; programmes: Programme[] };
 
 export default function EditProgrammes(props: Props) {
   // list of units

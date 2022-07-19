@@ -30,6 +30,7 @@ const headerStyles = css`
     justify-self: center;
     cursor: pointer;
     height: 60px;
+    margin-right: -7rem;
 
     :hover {
       border-bottom: solid ${colors.blue} 3px;
@@ -109,7 +110,7 @@ const headerStyles = css`
     width: 40px;
     height: 32px;
     position: absolute;
-    top: -7px;
+    top: -14px;
     left: -5px;
 
     cursor: pointer;
@@ -191,8 +192,11 @@ const headerStyles = css`
   button {
     background-color: white;
     color: ${colors.violet};
-    padding: 0;
-    margin: 0 0 auto;
+    padding: 0px;
+    margin-top: -4px;
+    border-radius: 0;
+    height: 55px;
+    box-sizing: border-box;
   }
 
   #menuToggle input:checked ~ ul {
@@ -210,16 +214,28 @@ const headerStyles = css`
       display: none;
     }
 
+    nav {
+      margin: 0 auto 0;
+    }
+
     .icon {
-      display: flex;
+      display: block;
       justify-self: center;
       cursor: pointer;
-      height: 60px;
-      margin-left: 0px;
+      padding: 0;
+      margin-top: 5px;
+      border-bottom: solid ${colors.violet} 3px;
 
       :hover {
         border-bottom: solid ${colors.blue} 3px;
       }
+    }
+
+    #menuToggle {
+      display: block;
+      position: relative;
+      top: -3rem;
+      left: 50%;
     }
   }
 `;
@@ -241,19 +257,21 @@ export default function Header(props) {
 
   return (
     <header css={headerStyles} className="container-fluid align-items-center">
-      <div className="header row" onClick={() => setSandwich(false)}>
-        <span className="logo col-auto">
-          <Link href="/">
-            <Image
-              src="/cinetour_logo.jpg"
-              width="190px"
-              height="50px"
-              layout="fixed"
-              alt="cinetour"
-            />
-          </Link>
-        </span>
-        <div
+      <div className="header row">
+        <button className="col-auto" onClick={() => setSandwich(false)}>
+          <span className="logo">
+            <Link href="/">
+              <Image
+                src="/cinetour_logo.jpg"
+                width="190px"
+                height="50px"
+                layout="fixed"
+                alt="cinetour"
+              />
+            </Link>
+          </span>
+        </button>
+        <button
           className="icon col-auto align-items-center"
           onClick={() => setSandwich(false)}
         >
@@ -266,10 +284,10 @@ export default function Header(props) {
               alt="cinetour"
             />
           </Link>
-        </div>
+        </button>
 
         <nav className="col-auto">
-          <div
+          <button
             onMouseEnter={onMouseEnter1}
             onMouseLeave={onMouseLeave1}
             className="select"
@@ -300,9 +318,9 @@ export default function Header(props) {
                 </div>
               )}
             </Link>
-          </div>
+          </button>
           <span className="and description"> & </span>
-          <div
+          <button
             onMouseEnter={onMouseEnter2}
             onMouseLeave={onMouseLeave2}
             className="select"
@@ -333,12 +351,13 @@ export default function Header(props) {
                 </div>
               )}
             </Link>
-          </div>
+          </button>
         </nav>
-        <div
+        <button
           className="col-auto"
           onMouseEnter={onMouseEnter3}
           onMouseLeave={onMouseLeave3}
+          onClick={() => setSandwich(false)}
         >
           <Link href={props.user ? '/profile' : '/login'}>
             {isProfile ? (
@@ -363,7 +382,7 @@ export default function Header(props) {
               </div>
             )}
           </Link>
-        </div>
+        </button>
         <div>
           <nav role="navigation">
             <div id="menuToggle">

@@ -10,12 +10,6 @@ export default async function handler(
     // get the films from my database
     const cinemas = await getCinemas();
 
-    if (!cinemas) {
-      return res
-        .status(400)
-        .json({ errors: [{ message: "Items don't exist" }] });
-    }
-
     return res.status(200).json(cinemas);
   }
 

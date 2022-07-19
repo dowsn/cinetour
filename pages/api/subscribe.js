@@ -26,11 +26,6 @@ export default async function handler(request, response) {
     cancel_url: cancelUrl,
   });
 
-  // check if the session is in order
-  if (!(await session)) {
-    return response.status(400).json({ error: 'Create session failed' });
-  }
-
   // authentication
   const sessionToken = request.cookies.sessionToken;
 

@@ -227,7 +227,7 @@ export default function UserDetail(props: Props) {
                       return 0;
                     })
                     .map((tour) => (
-                      <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
+                      <li key={`tour_id-${tour.tourId}`}>
                         <div className="videocontainer">
                           <YouTube
                             videoId={getYoutubeId(tour.trailer)}
@@ -331,7 +331,7 @@ export default function UserDetail(props: Props) {
                       tour.attendees.includes(props.user?.username as string),
                     )
                     .map((tour) => (
-                      <li key={`tour_id-${tour.tourId}`} id={`${tour.tourId}`}>
+                      <li key={`tour_id-${tour.tourId}`}>
                         <div className="videocontainer">
                           <YouTube
                             videoId={getYoutubeId(tour.trailer)}

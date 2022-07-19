@@ -17,12 +17,6 @@ export default async function handler(
     // get the films from my database
     const films = await getFilms();
 
-    if (!films) {
-      return res
-        .status(400)
-        .json({ errors: [{ message: 'Item is missing.' }] });
-    }
-
     return res.status(200).json(films);
   }
 

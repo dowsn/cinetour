@@ -362,7 +362,7 @@ export type Programme = {
 };
 
 export async function getProgrammes() {
-  const programmesWithTours = await sql<[Programme[] | undefined]>`
+  const programmesWithTours = await sql<[Programme[]]>`
       SELECT
       programme_id,
       film_title,
@@ -535,7 +535,7 @@ export type TourAttendeeSimple = {
 };
 
 export async function getAttendees() {
-  const tour_attendees = await sql<[TourAttendee[] | undefined]>`
+  const tour_attendees = await sql<[TourAttendee[]]>`
     SELECT
     programme_id,
     username,
@@ -555,7 +555,7 @@ export async function getAttendees() {
 // Cinemas
 //
 
-export type Cinemas = {
+export type Cinema = {
   id: number;
   cinemaName: string;
   address: string;
@@ -566,7 +566,7 @@ export type Cinemas = {
 };
 
 export async function getCinemas() {
-  const cinemas = await sql<[Cinemas[] | undefined]>`
+  const cinemas = await sql<[Cinema[]]>`
   SELECT
     *
   FROM
@@ -582,7 +582,7 @@ export async function getCinemaByName(cinemaName: string) {
   if (!cinemaName) {
     return undefined;
   }
-  const [cinema] = await sql<[Cinemas | undefined]>`
+  const [cinema] = await sql<[Cinema | undefined]>`
   SELECT
     *
   FROM
@@ -610,7 +610,7 @@ export type Film = {
 };
 
 export async function getFilms() {
-  const films = await sql<[Film[] | undefined]>`
+  const films = await sql<[Film[]]>`
     SELECT
       *
     FROM
@@ -745,7 +745,7 @@ export type Tour = {
 };
 
 export async function getTours() {
-  const tours = await sql<[Tour[] | undefined]>`
+  const tours = await sql<[Tour[]]>`
     SELECT
     username,
     tours.id AS tour_id,
@@ -877,7 +877,7 @@ export async function deleteExpiredProgrammes() {
 //
 
 export async function getCinetourists() {
-  const users = await sql<[User[] | undefined]>`
+  const users = await sql<[User[]]>`
     SELECT
      id, username
     FROM

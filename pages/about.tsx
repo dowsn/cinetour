@@ -8,7 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { colors } from '../styles/constants';
 import {
-  Cinemas,
+  Cinema,
   getProfile,
   getSubscriberByValidSubscription,
   getUserByValidSessionToken,
@@ -59,7 +59,7 @@ const aboutStyles = css`
 `;
 
 type Props = {
-  cinemas: Cinemas[];
+  cinemas: Cinema[];
   profile?: string;
   publicKey: string;
   subscriber?: Subscriber;
@@ -272,26 +272,26 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
     };
   }
-    const subscriber = await getSubscriberByValidSubscription(user.id);
-    const profile = await getProfile(user.id);
+  const subscriber = await getSubscriberByValidSubscription(user.id);
+  const profile = await getProfile(user.id);
 
-    if (subscriber) {
-      const reducedSubscriber = getReducedSubscriber(subscriber);
-
-      return {
-        props: {
-          subscriber: reducedSubscriber,
-          profile: profile,
-          cinemas: cinemas,
-        },
-      };
-    }
+  if (subscriber) {
+    const reducedSubscriber = getReducedSubscriber(subscriber);
 
     return {
       props: {
+        subscriber: reducedSubscriber,
         profile: profile,
         cinemas: cinemas,
-        publicKey: process.env.STRIPE_PUBLISHABLE_KEY,
       },
     };
   }
+
+  return {
+    props: {
+      profile: profile,
+      cinemas: cinemas,
+      publicKey: process.env.STRIPE_PUBLISHABLE_KEY,
+    },
+  };
+}
