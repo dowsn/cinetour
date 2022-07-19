@@ -1,15 +1,5 @@
-import {
-  GetServerSidePropsContext,
-  NextApiRequest,
-  NextApiResponse,
-} from 'next';
-import {
-  deleteUserById,
-  getFriends,
-  getProfile,
-  getUserByValidSessionToken,
-  updateUser,
-} from '../../../utils/database';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { getFriends } from '../../../utils/database';
 
 // get the cookie from the request
 export default async function handler(

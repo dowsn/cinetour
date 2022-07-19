@@ -79,6 +79,9 @@ export default function UserDetails(props: Props) {
         })
         .then((data: any) => {
           setSrc(data);
+        })
+        .catch(() => {
+          console.log('film request fails');
         });
     }
   }, [props.subscriber]);
