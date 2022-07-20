@@ -2,7 +2,7 @@
 
 Cinetour is a new way how to experience and explore culture in your town.
 
-![Screenshot](Screenshot.png)
+![Screenshot](/public/Screenshot.png)
 
 One platform brings a subscription card for unlimited access to your favorite venues.
 

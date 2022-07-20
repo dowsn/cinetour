@@ -417,6 +417,13 @@ export default function Header(props) {
                     <Link href="/terms">Terms</Link>
                   </button>
                 </li>
+                <li>
+                  <button onClick={() => setSandwich(false)}>
+                    <Link href="/https://github.com/Drako222/cinetour">
+                      DOCUMENTATION
+                    </Link>
+                  </button>
+                </li>
               </ul>
             </div>
           </nav>
