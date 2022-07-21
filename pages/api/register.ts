@@ -34,6 +34,7 @@ export default async function handler(
       typeof req.body.email !== 'string' ||
       typeof req.body.email !== 'string' ||
       typeof req.body.selfDescription !== 'string' ||
+      req.body.selfDescription.length > 100 ||
       !req.body.username ||
       !req.body.password ||
       !req.body.firstName ||
@@ -43,7 +44,12 @@ export default async function handler(
       !req.body.selfDescription
     ) {
       return res.status(400).json({
-        errors: [{ message: 'Please, provide all required information' }],
+        errors: [
+          {
+            message:
+              'Please, provide all required information. Is your self description only 100 characters long?',
+          },
+        ],
       });
     }
 

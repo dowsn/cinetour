@@ -10,7 +10,7 @@ You can browse daily updated programme of those venues based on your criteria.
 
 You can meet with other users (cinetourists) and watch movies together by joining Tours.
 
-Are you a cinema operator? This platform makes sure your audience stays engaged with your programme and interacts with other movie fans. You are no longer the only one creating events. Let's make culture cool, accessible and social again!
+Are you a cinema operator? This platform makes sure your audience stays engaged with your programme(cinema network) and interacts with you and other movie fans. You are no longer the only one creating events. Let's make culture cool, open, accessible and social again!
 
 # How does it work
 
@@ -20,7 +20,7 @@ Are you a cinema operator? This platform makes sure your audience stays engaged 
 
 - Click on the profile icon in upper right corner of the Header.
 - Register and login as a user with your real or fictional data.
-- In you profile you can see a map of cinetour network, change your data or profile picture, see a list of my friends and tours you are hosting or attending.
+- In you profile you can see a map of cinetour network, change your data or profile picture (WILL BE ADDED IN NEXT VERSION), see a list of my friends and tours you are hosting or attending.
 
 ### Subscription
 
@@ -63,9 +63,10 @@ The whole platform is fully responsive and works on various screens.
 ## Admin (cinema manager)
 
 - Admin is the only cinetourist that can manage database of films and programmes.
-- Login as admin (username: admin, password: 123)
+- Login as admin (username: admin, password: comics)
 - Go to your profile and try to add, delete and edit films and programmes under your Admin Tools tab.
 - You can also select (only one) Film of the week which will be displayed on the homepage. After doing so, don't forget to change the Image, also under Edit Films.
+  (WILL BE ADDED IN NEXT VERSION)
 
 ### Security
 
@@ -82,16 +83,23 @@ All content you see is manageable via number of APIs communicating with Postgres
 - Adding more than one tour to a screening
 - sharing photos from cinemas publicly or on your profile
 - rating system for users and films
-- Implementing MeetUp, Facebook Events
+- Implementing MeetUp, Facebook Events, IG, tik tok
 - Dividing tours to public and private
 - Messages (personal and within tours)
+- subscription also for shorter time and possibility to cancel
+- request friendship
+- when not subscriber - possibility to buy single tickets for screenings
+- mail check after registration and 2-factor verification
 - Cinetourist's reviews within film profiles
 - Filmquizes and other interactive elements
 - Displaying your address and cinemas close to you
 - ticket portal for nonusers
 - cinema reviews
+- filtering by genre and setting favorite genres in your profile
 - posters and profile pictures under cinetourists and films
 - naming tours and sorting them
+- history of tours films visited in a profile, TOP 10 favorite movies visited and ability to see who shares them too, my favorite cinema etc.
+- adding festival features and special events
 
 # Tech Stack
 

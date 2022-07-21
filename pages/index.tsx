@@ -72,6 +72,7 @@ const indexStyles = css`
   .watch {
     position: absolute;
     top: 50%;
+    min-height: 41px;
     left: 50%;
     transform: translate(-50%, -50%);
     -ms-transform: translate(-50%, -50%);
@@ -214,8 +215,8 @@ export default function Home(props: Props) {
                     <button>+</button>
                   </Link>
                 ) : (
-                  <Link href={`/tours#${item.tourId}`}>
-                    <button disabled>+</button>
+                  <Link href="/login?returnTo=/">
+                    <button>+</button>
                   </Link>
                 )}
               </div>
@@ -362,11 +363,12 @@ export default function Home(props: Props) {
                           <button
                             className="relative"
                             onClick={() => {
-                              handleLeave(tour.tourId, props.user?.id as number).catch(
-                                () => {
-                                  console.log('Request fails');
-                                },
-                              );
+                              handleLeave(
+                                tour.tourId,
+                                props.user?.id as number,
+                              ).catch(() => {
+                                console.log('Request fails');
+                              });
                             }}
                           >
                             Leave
@@ -375,20 +377,21 @@ export default function Home(props: Props) {
                           <button
                             className="relative"
                             onClick={() => {
-                              handleJoin(tour.tourId, props.user?.id as number).catch(
-                                () => {
-                                  console.log('Request fails');
-                                },
-                              );
+                              handleJoin(
+                                tour.tourId,
+                                props.user?.id as number,
+                              ).catch(() => {
+                                console.log('Request fails');
+                              });
                             }}
                           >
                             Join
                           </button>
                         )
                       ) : (
-                        <button className="relative" disabled>
-                          Join
-                        </button>
+                        <Link href="/login?returnTo=/">
+                          <button className="relative">Join</button>
+                        </Link>
                       )}
                     </li>
                   ))

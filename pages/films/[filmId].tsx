@@ -122,8 +122,8 @@ export default function FilmId(props: Props) {
                         <button>+</button>
                       </Link>
                     ) : (
-                      <Link href={`/tours#${item.tourId}`}>
-                        <button disabled>+</button>
+                      <Link href={`/login?returnTo=/films/${props.film.id}`}>
+                        <button>+</button>
                       </Link>
                     )}
                   </div>

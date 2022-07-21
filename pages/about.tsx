@@ -193,7 +193,7 @@ export default function About(props: Props) {
               {!props.subscriber && props.profile ? (
                 <button onClick={() => handlePurchase()}>Subscribe</button>
               ) : (
-                <button type="button" disabled>
+                <button type="button" disabled title="Login or Register">
                   Subscribe
                 </button>
               )}

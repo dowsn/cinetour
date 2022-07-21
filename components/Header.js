@@ -73,7 +73,10 @@ const headerStyles = css`
   }
 
   .profile {
-    margin-right: 40px;
+    position: absolute;
+    right: 60px;
+    top: 0px;
+    /* margin-right: 40px; */
   }
 
   // sandwich menu

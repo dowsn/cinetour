@@ -153,7 +153,7 @@ function MyApp({ Component, pageProps }) {
           button {
             font-family: 'Capriola', sans-serif;
             border-radius: 10px;
-            height: 41px;
+            min-height: 41px;
             background-color: ${colors.violet};
             color: white;
             padding: 5px;

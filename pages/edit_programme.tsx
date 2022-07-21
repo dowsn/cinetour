@@ -86,7 +86,6 @@ export default function EditProgrammes(props: Props) {
     setActiveProgrammeId(undefined);
     setNewFilm('');
     setNewCinema('');
-    setNewDate(null);
     setNewTime('');
     setNewEnglish(false);
   }

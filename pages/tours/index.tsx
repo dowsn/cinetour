@@ -19,11 +19,18 @@ const toursStyles = css`
     display: flex;
     justify-content: center;
     justify-self: center;
+    padding: 0;
+    border-bottom: 3px solid white;
+    margin-bottom: 10px;
   }
 
   h2 {
     padding-top: 0;
-    padding-bottom: 3rem;
+    padding-bottom: 1rem;
+  }
+
+  .noline {
+    border-top: none;
   }
 `;
 
@@ -206,9 +213,9 @@ export default function Tours(props: Props) {
                 </button>
               )
             ) : (
-              <button className="relative" disabled>
-                Join
-              </button>
+              <Link href={'/login?returnTo=/tours'}>
+                <button className="relative">Join</button>
+              </Link>
             )}
           </li>
         ))}
@@ -283,7 +290,7 @@ export default function Tours(props: Props) {
         ) : (
           ''
         )}
-        <section className="full tours">
+        <section className="full tours noline">
           {!!filteredData.length ? (
             renderData(filteredData)
           ) : (

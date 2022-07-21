@@ -20,6 +20,9 @@ export default async function handler(
     return res.status(200).json(films);
   }
 
+  const synopsis = req.body.synopsis;
+  const country = req.body.country;
+
   // if method POST
   if (req.method === 'POST') {
     if (
@@ -27,13 +30,20 @@ export default async function handler(
       !req.body.genre ||
       !req.body.director ||
       !req.body.synopsis ||
+      synopsis.length > 200 ||
+      country.length > 2 ||
       !req.body.year ||
       !req.body.country ||
       !req.body.trailer
     ) {
-      return res
-        .status(400)
-        .json({ errors: [{ message: 'Please, provide all required data' }] });
+      return res.status(400).json({
+        errors: [
+          {
+            message:
+              'Please, provide all required data.  Check also the length. Synopsis 200 characters, state with two symbol shortcut, year in format 2022.',
+          },
+        ],
+      });
     }
 
     // check for csrf token

@@ -29,7 +29,7 @@ export default async function handler(
     const session = await getSessionByValidToken(sessionToken);
 
     if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
     }
 
     // the action
@@ -51,7 +51,7 @@ export default async function handler(
     const session = await getSessionByValidToken(sessionToken);
 
     if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
     }
 
     // the action

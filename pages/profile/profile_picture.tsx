@@ -1,6 +1,7 @@
 import Axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { getUserByValidSessionToken, User } from '../../utils/database';
@@ -52,6 +53,9 @@ export default function ProfileImage(props: Props) {
           }}
         />
         <button onClick={() => uploadImage()}>Upload Profile Photo</button>
+        <Link href="/profile">
+          <button>Cancel</button>
+        </Link>
       </main>
     </>
   );

@@ -19,9 +19,19 @@ export default async function handler(
 
   // if method POST
   if (req.method === 'POST') {
-    if (!req.body.body || !req.body.programmeId || !req.body.hostId) {
+    if (
+      !req.body.body ||
+      req.body.body.length > 100 ||
+      !req.body.programmeId ||
+      !req.body.hostId
+    ) {
       return res.status(400).json({
-        error: [{ message: 'Please, provide all required information' }],
+        error: [
+          {
+            message:
+              'Please, provide all required information. Check also a length of input.',
+          },
+        ],
       });
     }
 

@@ -306,9 +306,11 @@ export default function UserDetail(props: Props) {
                             </button>
                           )
                         ) : (
-                          <button disabled className="relative">
-                            Join
-                          </button>
+                          <Link
+                            href={`/login?returnTo=/cinetourists/${props.user?.username}`}
+                          >
+                            <button className="relative">Join</button>
+                          </Link>
                         )}
                       </li>
                     ))
@@ -410,9 +412,11 @@ export default function UserDetail(props: Props) {
                             </button>
                           )
                         ) : (
-                          <button disabled className="relative">
-                            Join
-                          </button>
+                          <Link
+                            href={`/login?returnTo=/cinetourists/${props.user?.username}`}
+                          >
+                            <button className="relative">Join</button>
+                          </Link>
                         )}
                       </li>
                     ))

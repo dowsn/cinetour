@@ -3,6 +3,7 @@
 import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import {
@@ -156,6 +157,9 @@ export default function Register(props: Props) {
         <br />
         <button onClick={() => updateHandler()}>Update</button>
         <button onClick={() => deleteHandler()}>Delete Profile</button>
+        <Link href="/profile">
+          <button>Cancel</button>
+        </Link>
         {errors.map((error) => (
           <div css={errorStyles} key={`error-${error.message}`}>
             {error.message}

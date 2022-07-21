@@ -46,15 +46,6 @@ export default async function name(req: NextApiRequest, res: NextApiResponse) {
     });
   }
 
-  // authentication
-  const sessionToken = req.cookies.sessionToken;
-
-  const session = await getSessionByValidToken(sessionToken);
-
-  if (!session) {
-    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
-  }
-
   // the action
 
   try {

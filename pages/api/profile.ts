@@ -52,6 +52,7 @@ export default async function handler(
           typeof req.body.lastName !== 'string' ||
           typeof req.body.email !== 'string' ||
           typeof req.body.selfDescription !== 'string' ||
+          req.body.selfDescription.length > 100 ||
           !req.body.username ||
           !req.body.firstName ||
           !req.body.lastName ||
@@ -59,11 +60,14 @@ export default async function handler(
           !req.body.selfDescription
         ) {
           return res.status(400).json({
-            errors: [{ message: 'Please, provide all required data' }],
+            errors: [
+              {
+                message:
+                  'Please, provide all required data. Is your self description only 100 characters?',
+              },
+            ],
           });
         }
-
-        console.log('ahoj');
 
         // authentication
         const sessionToken = req.cookies.sessionToken;
@@ -71,7 +75,9 @@ export default async function handler(
         const session = await getSessionByValidToken(sessionToken);
 
         if (!session) {
-          return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+          return res
+            .status(403)
+            .json({ errors: [{ message: 'Unauthorized' }] });
         }
 
         // the action
@@ -84,7 +90,11 @@ export default async function handler(
         const email = request.email;
         const selfDescription = request.selfDescription;
 
-        if (await getUserByUsername(username)) {
+        const userTaken = await getUserByUsername(username);
+        console.log(userTaken);
+        console.log(user);
+
+        if (userTaken && !(user.id === userTaken.id)) {
           return res
             .status(401)
             .json({ errors: [{ message: 'This username is already taken' }] });

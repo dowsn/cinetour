@@ -186,7 +186,6 @@ export async function getUserByValidSessionToken(token: string) {
   SELECT
     users.id,
     users.username
-
     -- selecting only from table users in this query, it is going to be just two columns
   FROM
     users,

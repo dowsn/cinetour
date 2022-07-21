@@ -45,7 +45,7 @@ export default function EditFilms(props: Props) {
   const [newFilm, setNewFilm] = useState('');
   const [newGenre, setNewGenre] = useState('');
   const [newDirector, setNewDirector] = useState('');
-  const [newSynopsis, setNewSynopsis] = useState('');
+  const [newSynopsis, setNewSynopsis] = useState<string | undefined>('');
   const [newTrailer, setNewTrailer] = useState('');
   const [newYear, setNewYear] = useState<number | undefined>(undefined);
   const [newCountry, setNewCountry] = useState('');
@@ -294,6 +294,11 @@ export default function EditFilms(props: Props) {
           Add
         </button>
         <br />
+        {errors.map((error) => (
+                  <div css={errorStyles} key={`error-${error.message}`}>
+                    {error.message}
+                  </div>
+                ))}
         <br />
         <div className="whiteLine" />
         <div className="inputFile">

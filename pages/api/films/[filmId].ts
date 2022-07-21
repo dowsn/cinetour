@@ -39,8 +39,10 @@ export default async function handler(
       !req.body.genre ||
       !req.body.director ||
       !req.body.synopsis ||
+      req.body.synopsis.length > 200 ||
       !req.body.year ||
       !req.body.country ||
+      req.body.country.length > 2 ||
       !req.body.trailer
     ) {
       return res

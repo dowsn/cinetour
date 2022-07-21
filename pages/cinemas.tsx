@@ -128,8 +128,8 @@ export default function Cinemas(props: Props) {
                         <button>+</button>
                       </Link>
                     ) : (
-                      <Link href={`/tours#${item.tourId}`}>
-                        <button disabled>+</button>
+                      <Link href="/login?returnTo=/cinemas">
+                        <button>+</button>
                       </Link>
                     )}
                   </div>

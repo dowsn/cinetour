@@ -18,26 +18,21 @@ const footerStyles = css`
   justify-content: center;
   flex-direction: column;
   gap: 30px;
-
   a {
     color: ${colors.violet};
     text-decoration: none;
     cursor: pointer;
-
     :hover {
       color: ${colors.blue};
     }
   }
-
   p {
     color: ${colors.dark};
     text-align: center;
   }
-
   img {
     cursor: pointer;
   }
-
   .newsletter {
     padding: 10px;
     display: flex;
@@ -46,11 +41,9 @@ const footerStyles = css`
     gap: 0;
     line-height: 0rem;
   }
-
   label {
     color: ${colors.dark};
   }
-
   input {
     width: 10rem;
     margin: 0;
@@ -59,16 +52,15 @@ const footerStyles = css`
     border-bottom-right-radius: 0;
   }
 
-  .button {
+  button {
     border: solid ${colors.dark} 2px;
     margin: 0;
     margin-bottom: 2px;
-    height: 36px;
+    min-height: 36px;
     max-width: 300px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
   }
-
   nav {
     margin-top: 1rem;
     display: flex;
