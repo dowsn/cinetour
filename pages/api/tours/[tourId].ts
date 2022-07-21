@@ -80,5 +80,5 @@ export default async function handler(
     return res.status(200).json(deletedTour);
   }
 
-  res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
+  return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
 }

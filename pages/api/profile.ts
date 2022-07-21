@@ -23,14 +23,16 @@ export default async function handler(
   const user = await getUserByValidSessionToken(sessionToken);
 
   if (!user) {
-    res.status(400).json({ errors: [{ message: 'No session token passed' }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: 'No session token passed' }] });
   }
 
   if (user) {
     const profile = await getProfile(user.id);
 
     if (!profile) {
-      res
+      return res
         .status(400)
         .json({ errors: [{ message: 'No session token passed' }] });
     }
@@ -38,7 +40,7 @@ export default async function handler(
       // checking the method
       if (req.method === 'GET') {
         // 3. return the user
-        res.status(200).json({ user: user, profile: profile });
+        return res.status(200).json({ user: user, profile: profile });
       }
 
       // if method PUT
@@ -83,10 +85,9 @@ export default async function handler(
         const selfDescription = request.selfDescription;
 
         if (await getUserByUsername(username)) {
-          res
+          return res
             .status(401)
             .json({ errors: [{ message: 'This username is already taken' }] });
-          return;
         }
 
         const updatedUser = await updateUser(
@@ -98,7 +99,7 @@ export default async function handler(
           selfDescription,
         );
 
-        res.status(200).json({ user: updatedUser });
+        return res.status(200).json({ user: updatedUser });
       }
 
       // if the method delete
@@ -114,7 +115,9 @@ export default async function handler(
         return res.status(200).json({ user: deletedUser });
       }
 
-      res.status(405).json({ errors: [{ message: 'Method is not allowed' }] });
+      return res
+        .status(405)
+        .json({ errors: [{ message: 'Method is not allowed' }] });
     }
   }
 }

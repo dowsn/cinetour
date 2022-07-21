@@ -37,5 +37,5 @@ export default async function handler(request, response) {
 
   // response the client with the new session or an error if no session
 
-  response.status(200).json({ session: session });
+  return response.status(200).json({ session: session });
 }

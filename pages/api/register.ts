@@ -42,18 +42,16 @@ export default async function handler(
       !req.body.email ||
       !req.body.selfDescription
     ) {
-      res.status(400).json({
+      return res.status(400).json({
         errors: [{ message: 'Please, provide all required information' }],
       });
-      return;
     }
 
     // checking if the user already exist
     if (await getUserByUsername(req.body.username)) {
-      res
+      return res
         .status(401)
         .json({ errors: [{ message: 'This username is already taken' }] });
-      return;
     }
     // get the user name
     const user = req.body;
@@ -95,11 +93,13 @@ export default async function handler(
       session.token,
     );
 
-    res
+    return res
       .status(200)
       .setHeader('set-Cookie', serializedCookie)
       .json({ user: { id: newUser.id, username: newUser.username } });
   } else {
-    res.status(405).json({ errors: [{ message: 'method not allowed' }] });
+    return res
+      .status(405)
+      .json({ errors: [{ message: 'method not allowed' }] });
   }
 }

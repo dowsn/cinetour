@@ -27,10 +27,9 @@ export default async function handler(
       !req.body.username ||
       !req.body.password
     ) {
-      res
+      return res
         .status(400)
         .json({ errors: [{ message: 'Username or password not provided' }] });
-      return;
     }
 
     // Make sure you don't expose this variable, thi takes the user from our database based on username
@@ -39,10 +38,9 @@ export default async function handler(
 
     // if the user isn't found throw an error
     if (!userWithPasswordHashUseWithCaution) {
-      res
+      return res
         .status(401)
         .json({ errors: [{ message: "Username or password doesn't match" }] });
-      return;
     }
 
     // compare password with hash
@@ -53,10 +51,9 @@ export default async function handler(
 
     // for case the password is wrong
     if (!passwordMatches) {
-      res
+      return res
         .status(401)
         .json({ errors: [{ message: 'Username or password does not match' }] });
-      return;
     }
     const userId = userWithPasswordHashUseWithCaution.id;
     const username = userWithPasswordHashUseWithCaution.username;
@@ -76,11 +73,13 @@ export default async function handler(
       session.token,
     );
 
-    res
+    return res
       .status(200)
       .setHeader('set-Cookie', serializedCookie)
       .json({ user: { id: userId, username: username } });
   } else {
-    res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
+    return res
+      .status(405)
+      .json({ errors: [{ message: 'Method not allowed' }] });
   }
 }

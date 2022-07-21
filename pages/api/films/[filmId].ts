@@ -176,5 +176,7 @@ export default async function handler(
     return res.status(200).json(deletedFilm);
   }
 
-  res.status(405).json({ errors: [{ message: 'Method is not allowed' }] });
+  return res
+    .status(405)
+    .json({ errors: [{ message: 'Method is not allowed' }] });
 }

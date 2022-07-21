@@ -6,7 +6,7 @@ export default async function handler(
 ) {
   const baseUrl = await process.env.BASE_URL;
 
-  res.status(200).json({
+  return res.status(200).json({
     programmes: `${baseUrl}/api/programmes`,
     films: `${baseUrl}/api/films`,
     tours: `${baseUrl}/api/tours`,

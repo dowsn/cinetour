@@ -20,13 +20,15 @@ export default async function handler(
   const friends = await getFriends(Number(user));
 
   if (!friends) {
-    res.status(400).json({ errors: [{ message: 'No session token passed' }] });
+    return res
+      .status(400)
+      .json({ errors: [{ message: 'No session token passed' }] });
   }
   if (friends) {
     // checking the method
     if (req.method === 'GET') {
       // 3. return the user
-      res.status(200).json(friends);
+      return res.status(200).json(friends);
     }
   }
 
@@ -83,5 +85,7 @@ export default async function handler(
   //   return res.status(200).json({ user: deletedUser });
   // }
 
-  res.status(405).json({ errors: [{ message: 'Method is not allowed' }] });
+  return res
+    .status(405)
+    .json({ errors: [{ message: 'Method is not allowed' }] });
 }
