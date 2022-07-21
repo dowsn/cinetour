@@ -457,7 +457,9 @@ export async function getProgrammeById(id: number | undefined) {
       films,
       cinemas
     WHERE
-      programmes.id = ${id}
+      programmes.id = ${id} AND
+      programmes.film_id = films.id AND
+      programmes.cinema_id = cinemas.id
   `;
   return programme && camelcaseKeys(programme);
 }

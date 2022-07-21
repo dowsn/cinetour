@@ -136,6 +136,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const reducedProgramme = getReducedProgramme(programme);
 
+  console.log(reducedProgramme);
+
   if (!user) {
     return {
       redirect: {

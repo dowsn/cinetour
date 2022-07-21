@@ -23,18 +23,20 @@ export default async function handler(
     const friends = await getFriends(userId);
 
     if (!friends) {
-      res
+      return res
         .status(400)
         .json({ errors: [{ message: 'No session token passed' }] });
     }
 
-    res.status(200).json(friends);
+    return res.status(200).json(friends);
   }
 
   //  if method POST
   if (req.method === 'POST') {
     if (typeof req.body.friendId !== 'number' || !req.body.friendId) {
-      res.status(400).json({ errors: [{ message: 'No user available' }] });
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'No user available' }] });
     }
 
     // authentication
@@ -50,12 +52,12 @@ export default async function handler(
 
     const friendship = await createFriend(userId, req.body.friendId);
     if (!friendship) {
-      res
+      return res
         .status(400)
         .json({ errors: [{ message: 'No session token passed' }] });
     }
 
-    res.status(200).json(friendship);
+    return res.status(200).json(friendship);
   }
 
   if (req.method === 'DELETE') {
@@ -79,9 +81,11 @@ export default async function handler(
     const deletedFriend = await deleteFriendById(userId, req.body.friendId);
 
     if (deletedFriend) {
-      res.status(200).json(deletedFriend);
+      return res.status(200).json(deletedFriend);
     }
   }
 
-  res.status(405).json({ errors: [{ message: 'Method is not allowed' }] });
+  return res
+    .status(405)
+    .json({ errors: [{ message: 'Method is not allowed' }] });
 }

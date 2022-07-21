@@ -16,13 +16,11 @@ import {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
-  context: GetServerSidePropsContext,
 ) {
   // getting the user from context
+  const sessionToken = req.cookies.sessionToken;
 
-  const user = await getUserByValidSessionToken(
-    context.req.cookies.sessionToken,
-  );
+  const user = await getUserByValidSessionToken(sessionToken);
 
   if (!user) {
     res.status(400).json({ errors: [{ message: 'No session token passed' }] });
@@ -62,6 +60,8 @@ export default async function handler(
             errors: [{ message: 'Please, provide all required data' }],
           });
         }
+
+        console.log('ahoj');
 
         // authentication
         const sessionToken = req.cookies.sessionToken;
