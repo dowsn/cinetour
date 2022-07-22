@@ -91,8 +91,6 @@ export default async function handler(
         const selfDescription = request.selfDescription;
 
         const userTaken = await getUserByUsername(username);
-        console.log(userTaken);
-        console.log(user);
 
         if (userTaken && !(user.id === userTaken.id)) {
           return res

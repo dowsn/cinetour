@@ -217,12 +217,17 @@ const headerStyles = css`
       display: none;
     }
 
+    .filler {
+      width: 4rem;
+    }
+
     nav {
       margin: 0 auto 0;
     }
 
     .icon {
       display: block;
+      margin-right: 0;
       justify-self: center;
       cursor: pointer;
       padding: 0;
@@ -294,7 +299,9 @@ export default function Header(props) {
             onMouseEnter={onMouseEnter1}
             onMouseLeave={onMouseLeave1}
             className="select"
-            onClick={() => setSandwich(false)}
+            onClick={() => {
+              setSandwich(false);
+            }}
           >
             <Link href="/cinemas">
               {isExplore ? (
@@ -386,6 +393,7 @@ export default function Header(props) {
             )}
           </Link>
         </button>
+        <div className="filler" />
         <div>
           <nav role="navigation">
             <div id="menuToggle">

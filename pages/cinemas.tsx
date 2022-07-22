@@ -12,7 +12,9 @@ import { getReducedProgramme } from '../utils/datastructures';
 const cinemasStyles = css`
   .filter {
     padding: 10px;
-    padding-bottom: 2rem;
+    padding-top: 0px;
+    margin-top: -1rem;
+    padding-bottom: 1.5rem;
     display: flex;
     justify-content: space-around;
     border-bottom: 3px solid white;
@@ -46,10 +48,19 @@ const cinemasStyles = css`
     margin: 0;
   }
 
-  .englishswitc {
+  .englishswitch {
     margin-bottom: 10px;
     padding: 10px;
     align-self: center;
+  }
+
+  @media only screen and (max-width: 800px) {
+    .filter {
+      flex-direction: column;
+      label {
+        display: block;
+      }
+    }
   }
 `;
 

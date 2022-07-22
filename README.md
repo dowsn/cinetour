@@ -95,6 +95,8 @@ All content you see is manageable via number of APIs communicating with Postgres
 - Displaying your address and cinemas close to you
 - ticket portal for nonusers
 - cinema reviews
+- allow admin to add new cinemas that just joined the network
+- dark mode
 - filtering by genre and setting favorite genres in your profile
 - posters and profile pictures under cinetourists and films
 - naming tours and sorting them

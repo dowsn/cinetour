@@ -20,13 +20,23 @@ const toursStyles = css`
     justify-content: center;
     justify-self: center;
     padding: 0;
+    padding-top: 20px;
     border-bottom: 3px solid white;
     margin-bottom: 10px;
   }
 
   h2 {
     padding-top: 0;
+    margin-top: -30px;
     padding-bottom: 1rem;
+  }
+
+  label {
+    display: flex;
+  }
+
+  .switch {
+    margin-top: -25px;
   }
 
   .noline {
@@ -273,9 +283,9 @@ export default function Tours(props: Props) {
       <main css={toursStyles}>
         {props.friends ? (
           <div className="switcherFriends">
-            <h2>Friends</h2>
-            <div>
-              <label className="switch">
+            <label>
+              <h2>Friends</h2>
+              <div className="switch">
                 <input
                   type="checkbox"
                   checked={friends}
@@ -284,8 +294,8 @@ export default function Tours(props: Props) {
                   }}
                 />
                 <span className="slider round" />
-              </label>
-            </div>
+              </div>
+            </label>
           </div>
         ) : (
           ''
