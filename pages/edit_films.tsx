@@ -236,9 +236,10 @@ export default function EditFilms(props: Props) {
           <br />
           <textarea
             placeholder="This movie is about..."
-            rows={4}
-            cols={50}
+            rows={8}
+            cols={25}
             value={newSynopsis}
+            maxLength={200}
             onChange={(event) => setNewSynopsis(event.currentTarget.value)}
           />
         </label>
@@ -257,6 +258,7 @@ export default function EditFilms(props: Props) {
           Year:
           <input
             placeholder="2022"
+            maxLength={4}
             value={newYear}
             onChange={(event) => setNewYear(Number(event.currentTarget.value))}
           />
@@ -266,6 +268,7 @@ export default function EditFilms(props: Props) {
           Country:
           <input
             placeholder="US"
+            maxLength={2}
             value={newCountry}
             onChange={(event) => setNewCountry(event.currentTarget.value)}
           />
@@ -295,10 +298,10 @@ export default function EditFilms(props: Props) {
         </button>
         <br />
         {errors.map((error) => (
-                  <div css={errorStyles} key={`error-${error.message}`}>
-                    {error.message}
-                  </div>
-                ))}
+          <div css={errorStyles} key={`error-${error.message}`}>
+            {error.message}
+          </div>
+        ))}
         <br />
         <div className="whiteLine" />
         <div className="inputFile">
@@ -358,8 +361,9 @@ export default function EditFilms(props: Props) {
                   Synopsis:
                   <br />
                   <textarea
-                    rows={4}
-                    cols={50}
+                    rows={8}
+                    cols={25}
+                    maxLength={200}
                     value={editSynopsis}
                     onChange={(event) =>
                       setEditSynopsis(event.currentTarget.value)
@@ -382,6 +386,7 @@ export default function EditFilms(props: Props) {
                   Year:
                   <input
                     value={editYear}
+                    maxLength={4}
                     onChange={(event) =>
                       setEditYear(Number(event.currentTarget.value))
                     }
@@ -392,6 +397,7 @@ export default function EditFilms(props: Props) {
                   Country:
                   <input
                     value={editCountry}
+                    maxLength={2}
                     onChange={(event) =>
                       setEditCountry(event.currentTarget.value)
                     }
@@ -468,7 +474,13 @@ export default function EditFilms(props: Props) {
                   {' '}
                   Synopsis:
                   <br />
-                  <textarea rows={4} cols={50} value={film.synopsis} disabled />
+                  <textarea
+                    rows={8}
+                    cols={25}
+                    value={film.synopsis}
+                    maxLength={200}
+                    disabled
+                  />
                 </label>
                 <br />
                 <label>
@@ -479,12 +491,12 @@ export default function EditFilms(props: Props) {
                 <label>
                   {' '}
                   Year:
-                  <input value={film.year} disabled />
+                  <input value={film.year} disabled maxLength={4} />
                 </label>
                 <label>
                   {' '}
                   Country:
-                  <input value={film.country} disabled />
+                  <input value={film.country} disabled maxLength={2} />
                 </label>
                 <label>
                   {film.topFilm ? (

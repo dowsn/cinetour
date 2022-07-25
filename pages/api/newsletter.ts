@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getSessionByValidToken } from '../../utils/database';
 
 function getRequestParams(email: string) {
   // get env variables

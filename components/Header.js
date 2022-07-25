@@ -433,6 +433,7 @@ export default function Header(props) {
                     <a
                       href="https://github.com/Drako222/cinetour"
                       target="_blank"
+                      rel="noreferrer"
                     >
                       DOCUMENTATION
                     </a>

@@ -31,6 +31,9 @@ export default async function handler(
     return res.status(200).json(film);
   }
 
+  const synopsis = req.body.synopsis;
+  const country = req.body.country;
+
   // if method PUT
   if (req.method === 'PUT') {
     if (
@@ -39,10 +42,10 @@ export default async function handler(
       !req.body.genre ||
       !req.body.director ||
       !req.body.synopsis ||
-      req.body.synopsis.length > 200 ||
+      synopsis.length > 200 ||
       !req.body.year ||
       !req.body.country ||
-      req.body.country.length > 2 ||
+      country.length > 2 ||
       !req.body.trailer
     ) {
       return res

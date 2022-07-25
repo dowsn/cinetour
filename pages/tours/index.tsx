@@ -223,7 +223,7 @@ export default function Tours(props: Props) {
                 </button>
               )
             ) : (
-              <Link href={'/login?returnTo=/tours'}>
+              <Link href="/login?returnTo=/tours">
                 <button className="relative">Join</button>
               </Link>
             )}

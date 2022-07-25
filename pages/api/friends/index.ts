@@ -24,12 +24,11 @@ export default async function handler(
       .status(400)
       .json({ errors: [{ message: 'No session token passed' }] });
   }
-  if (friends) {
-    // checking the method
-    if (req.method === 'GET') {
-      // 3. return the user
-      return res.status(200).json(friends);
-    }
+
+  // checking the method
+  if (req.method === 'GET') {
+    // 3. return the user
+    return res.status(200).json(friends);
   }
 
   // // if method PUT
