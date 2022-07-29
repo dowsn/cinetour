@@ -4,7 +4,7 @@ Cinetour is a new way how to experience and explore culture in your town.
 
 Watch the walkthrough:
 
-<a href="https://www.youtube.com/watch?v=8A8Q27UnYv4"><img src="/public/youtube.png" align="left" height="48" width="48" ></a>
+<a href="https://www.youtube.com/watch?v=8A8Q27UnYv4" target="_blank"><img src="/public/youtube.png" align="center" width="500" ></a>
 
 
 <!-- [![Cinetour walktrhough](./public/youtube.png = 250x)](https://www.youtube.com/watch?v=8A8Q27UnYv4)
