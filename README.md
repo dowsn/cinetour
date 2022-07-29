@@ -1,8 +1,6 @@
 ## Cinetour
 
-Cinetour is a new way how to experience and explore culture in your town. 
-
-Watch the walkthrough:
+Cinetour is a new way how to experience and explore culture in your town.
 
 <a href="https://www.youtube.com/watch?v=8A8Q27UnYv4" target="_blank"><img src="/public/youtube.png" align="center" width="600" ></a>
 
