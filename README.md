@@ -81,6 +81,7 @@ All content you see is manageable via number of APIs communicating with Postgres
 # Ideas for future
 
 - Adding more than one tour to a screening
+- Bookmarking films of which programme user wants to follow
 - sharing photos from cinemas publicly or on your profile
 - rating system for users and films
 - Implementing MeetUp, Facebook Events, IG, tik tok
