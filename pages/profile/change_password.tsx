@@ -33,12 +33,7 @@ const registerStyles = css`
   }
 `;
 
-type Props = {
-  user: User;
-  profile: Profile;
-};
-
-export default function Register(props: Props) {
+export default function Register() {
   const [newPassword, setNewPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [errors, setErrors] = useState<{ message: string }[]>([]);
@@ -115,20 +110,16 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     context.req.cookies.sessionToken,
   );
 
-  if (user) {
-    const profile = await getProfile(user.id);
+  if (!user) {
     return {
-      props: {
-        user: user,
-        profile: profile,
+      redirect: {
+        destination: `/login?returnTo=/profile`,
+        permanent: false,
       },
     };
   }
 
   return {
-    redirect: {
-      destination: `/login?returnTo=/profile`,
-      permanent: false,
-    },
+    props: {},
   };
 }

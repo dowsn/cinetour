@@ -49,7 +49,6 @@ export default async function handler(
     ) {
       // check hash for current password
 
-      getUserByValidSessionToken;
       // Make sure you don't expose this variable, thi takes the user from our database based on username
       const userWithPasswordHashUseWithCaution =
         await getUserWithPasswordHashByUsername(user.username);
