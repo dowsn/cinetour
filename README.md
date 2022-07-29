@@ -4,8 +4,11 @@ Cinetour is a new way how to experience and explore culture in your town.
 
 Watch the walkthrough:
 
-[![Cinetour walktrhough](./public/youtube.png = 250x)](https://www.youtube.com/watch?v=8A8Q27UnYv4)
+<a href="https://www.youtube.com/watch?v=8A8Q27UnYv4"><img src="/public/youtube.png" align="left" height="48" width="48" ></a>
 
+
+<!-- [![Cinetour walktrhough](./public/youtube.png = 250x)](https://www.youtube.com/watch?v=8A8Q27UnYv4)
+ -->
 One platform brings a subscription card for unlimited access to your favorite venues.
 
 You can browse daily updated programme of those venues based on your criteria.
