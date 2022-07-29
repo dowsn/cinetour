@@ -3,11 +3,8 @@
 Cinetour is a new way how to experience and explore culture in your town.
 
 - One platform brings a subscription card for unlimited access to your favorite venues.
-
 - You can browse daily updated programme of those venues based on your criteria.
-
 - You can meet with other users (cinetourists) and watch movies together by joining Tours.
-
 - Are you a cinema operator? This platform makes sure your audience stays engaged with your programme(cinema network) and interacts with you and other movie fans. You are no longer the only one creating events. Let's make culture cool, open, accessible and social again!
 
 ## Video Walktrough
