@@ -1,11 +1,18 @@
+import crypto from 'node:crypto';
+import bcrypt from 'bcrypt';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { createCSRFSecret } from '../../utils/auth';
+import { createSerializedRegisterSessionTokenCookie } from '../../utils/cookies';
 import {
+  createSession,
   deleteUserById,
   getProfile,
   getSessionByValidToken,
   getUserByUsername,
   getUserByValidSessionToken,
+  getUserWithPasswordHashByUsername,
   updateUser,
+  updateUserPasswordHash,
 } from '../../utils/database';
 
 // get the cookie from the request
@@ -35,6 +42,70 @@ export default async function handler(
   // if method PUT
   if (req.method === 'PUT') {
     if (
+      req.body.currentPassword &&
+      req.body.newPassword &&
+      typeof req.body.newPassword === 'string' &&
+      typeof req.body.currentPassword === 'string'
+    ) {
+      // check hash for current password
+
+      getUserByValidSessionToken;
+      // Make sure you don't expose this variable, thi takes the user from our database based on username
+      const userWithPasswordHashUseWithCaution =
+        await getUserWithPasswordHashByUsername(user.username);
+
+      // if the user isn't found throw an error
+      if (!userWithPasswordHashUseWithCaution) {
+        return res.status(401).json({
+          errors: [{ message: "Username or password doesn't match" }],
+        });
+      }
+
+      // compare password with hash
+      const passwordMatches = await bcrypt.compare(
+        req.body.currentPassword,
+        userWithPasswordHashUseWithCaution.passwordHash,
+      );
+
+      // for case the password is wrong
+      if (!passwordMatches) {
+        return res.status(401).json({
+          errors: [{ message: 'Username or password does not match' }],
+        });
+      }
+
+      // set a new password
+
+      // 1. hash the password
+
+      const passwordHash = await bcrypt.hash(req.body.newPassword, 12);
+
+      // 2. update passwordhash for the user
+      const updatedUserPasword = await updateUserPasswordHash(
+        user.id,
+        passwordHash,
+      );
+
+      // creating a token
+      const token = crypto.randomBytes(80).toString('base64');
+
+      // csrf
+      // 1. create a secret
+      const csrfSecret = createCSRFSecret();
+
+      // then creating a new session with user id, secret and the token
+      const newSession = await createSession(token, user.id, csrfSecret);
+
+      // creating serialized cookie that will be passed to header, tells the browser to create a new cookie for us
+      const serializedCookie = await createSerializedRegisterSessionTokenCookie(
+        newSession.token,
+      );
+
+      return res
+        .status(200)
+        .setHeader('set-Cookie', serializedCookie)
+        .json({ user: { id: user.id, username: user.username } });
+    } else if (
       !user.id ||
       typeof req.body.username !== 'string' ||
       typeof req.body.firstName !== 'string' ||
@@ -51,8 +122,7 @@ export default async function handler(
       return res.status(400).json({
         errors: [
           {
-            message:
-              'Please, provide all required data. Is your self description only 100 characters?',
+            message: 'Please, provide all required data.',
           },
         ],
       });

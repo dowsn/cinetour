@@ -3,6 +3,7 @@ import {
   createTour,
   getSessionByValidToken,
   getTours,
+  getUserByValidSessionToken,
 } from '../../../utils/database';
 
 export default async function handler(
@@ -17,11 +18,27 @@ export default async function handler(
     return res.status(200).json(tours);
   }
 
+  // authentication for POST method
+  const sessionToken = req.cookies.sessionToken;
+
+  const session = await getSessionByValidToken(sessionToken);
+
+  if (!session) {
+    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+  }
+
+  const user = await getUserByValidSessionToken(sessionToken);
+  if (user?.id !== Number(req.body.hostId)) {
+    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+  }
+
   // if method POST
   if (req.method === 'POST') {
+    const body = req.body.body;
+
     if (
       !req.body.body ||
-      req.body.body.length > 100 ||
+      body.length > 100 ||
       !req.body.programmeId ||
       !req.body.hostId
     ) {

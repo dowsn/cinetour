@@ -1,11 +1,9 @@
-/** @jsxImportSource @emotion/react */
-
-import { css } from '@emotion/react';
+import 'react-toastify/dist/ReactToastify.css';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Fragment, useState } from 'react';
-import { colors } from '../styles/constants';
+import { toast, ToastContainer } from 'react-toastify';
 import {
   Cinema,
   Film,
@@ -13,13 +11,6 @@ import {
   getUserByValidSessionToken,
   Programme,
 } from '../utils/database';
-import { errorStyles } from './register';
-
-const editProgrammestyles = css`
-  .english {
-    background-color: ${colors.blue};
-  }
-`;
 
 type Props = { films: Film[]; cinemas: Cinema[]; programmes: Programme[] };
 
@@ -29,7 +20,16 @@ export default function EditProgrammes(props: Props) {
     props.programmes,
   );
 
+  // confirm success
+  const confirm = () => toast('Success!');
+
   // possible errors
+
+  const notify = () =>
+    errors.map((error) => {
+      toast.error(error.message);
+    });
+
   const [errors, setErrors] = useState<
     {
       message: string;
@@ -73,6 +73,7 @@ export default function EditProgrammes(props: Props) {
 
     if ('errors' in createdProgramme) {
       setErrors(createdProgramme.errors);
+      notify();
       return;
     }
 
@@ -88,6 +89,9 @@ export default function EditProgrammes(props: Props) {
     setNewCinema('');
     setNewTime('');
     setNewEnglish(false);
+
+    // confirm success
+    confirm();
   }
 
   async function deleteProgrammeHandler(id: number) {
@@ -101,6 +105,7 @@ export default function EditProgrammes(props: Props) {
 
     if ('errors' in deletedProgramme) {
       setErrors(deletedProgramme.errors);
+      notify();
       return;
     }
 
@@ -111,6 +116,9 @@ export default function EditProgrammes(props: Props) {
     // use setState func
     setProgrammeList(programmes);
     setActiveProgrammeId(0);
+
+    // confirm success
+    confirm();
   }
 
   async function updateProgrammeHandler(id: number) {
@@ -131,6 +139,7 @@ export default function EditProgrammes(props: Props) {
 
     if ('errors' in updatedProgramme) {
       setErrors(updatedProgramme.errors);
+      notify();
       return;
     }
 
@@ -142,6 +151,9 @@ export default function EditProgrammes(props: Props) {
     // use setState func
     setProgrammeList(programmes);
     setActiveProgrammeId(0);
+
+    // confirm success
+    confirm();
   }
 
   return (
@@ -151,10 +163,21 @@ export default function EditProgrammes(props: Props) {
         <meta name="description" content="Edit Films" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main css={editProgrammestyles}>
+      <main>
         <Link href="/../profile">
           <button>Back</button>
         </Link>
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <br />
         <br />
         <div>
@@ -226,11 +249,6 @@ export default function EditProgrammes(props: Props) {
         >
           Add
         </button>
-        {errors.map((error) => (
-          <div css={errorStyles} key={`error-${error.message}`}>
-            {error.message}
-          </div>
-        ))}
         <br />
         <div className="whiteLine" />
         <br />
@@ -297,21 +315,20 @@ export default function EditProgrammes(props: Props) {
                     onChange={(event) => setEditTime(event.currentTarget.value)}
                   />
                 </label>
-                <label className="english">
+                <label>
                   {' '}
                   English Friendly:
                   <input
                     type="checkbox"
-                    checked={newEnglish}
+                    checked={editEnglish}
                     onChange={(event) =>
-                      setNewEnglish(event.currentTarget.checked)
+                      setEditEnglish(event.currentTarget.checked)
                     }
                   />
                 </label>
                 <br />
                 <button
                   onClick={() => {
-                    setActiveProgrammeId(undefined);
                     updateProgrammeHandler(programme.programmeId).catch(() => {
                       console.log('programme request fails');
                     });
@@ -319,11 +336,6 @@ export default function EditProgrammes(props: Props) {
                 >
                   Save
                 </button>
-                {errors.map((error) => (
-                  <div css={errorStyles} key={`error-${error.message}`}>
-                    {error.message}
-                  </div>
-                ))}
                 <button
                   onClick={() =>
                     deleteProgrammeHandler(programme.programmeId).catch(() => {
@@ -333,11 +345,6 @@ export default function EditProgrammes(props: Props) {
                 >
                   X
                 </button>
-                {errors.map((error) => (
-                  <div css={errorStyles} key={`error-${error.message}`}>
-                    {error.message}
-                  </div>
-                ))}
                 <br />
                 <div className="whiteLine" />
                 <br />
@@ -395,11 +402,6 @@ export default function EditProgrammes(props: Props) {
                 >
                   X
                 </button>
-                {errors.map((error) => (
-                  <div css={errorStyles} key={`error-${error.message}`}>
-                    {error.message}
-                  </div>
-                ))}
                 <br />
                 <div className="whiteLine" />
                 <br />

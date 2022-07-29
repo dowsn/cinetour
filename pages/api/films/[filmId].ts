@@ -42,7 +42,7 @@ export default async function handler(
       !req.body.genre ||
       !req.body.director ||
       !req.body.synopsis ||
-      synopsis.length > 200 ||
+      synopsis.length > 300 ||
       !req.body.year ||
       !req.body.country ||
       country.length > 2 ||
@@ -61,7 +61,13 @@ export default async function handler(
         .json({ errors: [{ message: 'Item is missing.' }] });
     }
 
-    if (req.body.topFilm && films.some((e: any) => e.topFilm === true)) {
+    const film = await getFilmById(filmId);
+
+    if (
+      req.body.topFilm &&
+      films.some((e: any) => e.topFilm === true) &&
+      film?.topFilm === false
+    ) {
       return res.status(400).json({
         errors: [
           {

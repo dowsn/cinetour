@@ -4,6 +4,7 @@ import {
   deleteFriendById,
   getFriends,
   getSessionByValidToken,
+  getUserByValidSessionToken,
 } from '../../../utils/database';
 
 // get the cookie from the request
@@ -31,6 +32,20 @@ export default async function handler(
     return res.status(200).json(friends);
   }
 
+  // authentication for POST and DELETE methods
+  const sessionToken = req.cookies.sessionToken;
+
+  const session = await getSessionByValidToken(sessionToken);
+
+  if (!session) {
+    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+  }
+
+  const user = await getUserByValidSessionToken(sessionToken);
+  if (user?.id !== Number(req.query.userId)) {
+    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+  }
+
   //  if method POST
   if (req.method === 'POST') {
     if (typeof req.body.friendId !== 'number' || !req.body.friendId) {
@@ -38,17 +53,6 @@ export default async function handler(
         .status(400)
         .json({ errors: [{ message: 'No user available' }] });
     }
-
-    // authentication
-    const sessionToken = req.cookies.sessionToken;
-
-    const session = await getSessionByValidToken(sessionToken);
-
-    if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
-    }
-
-    // the action
 
     const friendship = await createFriend(userId, req.body.friendId);
     if (!friendship) {
@@ -66,17 +70,6 @@ export default async function handler(
         errors: [{ message: 'Please, provide all required data' }],
       });
     }
-
-    // authentication
-    const sessionToken = req.cookies.sessionToken;
-
-    const session = await getSessionByValidToken(sessionToken);
-
-    if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
-    }
-
-    // the action
 
     const deletedFriend = await deleteFriendById(userId, req.body.friendId);
 

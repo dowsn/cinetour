@@ -26,8 +26,8 @@ const toursStyles = css`
   }
 
   h2 {
-    padding-top: 0;
     margin-top: -30px;
+    padding-top: 0;
     padding-bottom: 1rem;
   }
 
@@ -41,6 +41,14 @@ const toursStyles = css`
 
   .noline {
     border-top: none;
+  }
+
+  .description {
+    h2 {
+      margin-top: 0;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
   }
 `;
 

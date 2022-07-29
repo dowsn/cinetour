@@ -148,6 +148,24 @@ export async function getUserWithPasswordHashByUsername(username: string) {
   return user && camelcaseKeys(user);
 }
 
+export async function updateUserPasswordHash(
+  userId: number,
+  passwordHash: string,
+) {
+  if (!userId || !passwordHash) return undefined;
+
+  const [user] = await sql<[UserWithPasswordHash | undefined]>`
+    UPDATE
+      users
+    SET
+      password_hash = ${passwordHash}
+    WHERE
+      id = ${userId}
+    RETURNING *
+  `;
+  return user && camelcaseKeys(user);
+}
+
 // login api, registration api - creating session for specific user with his/her id, which is created during registration (api)
 
 type Session = {
@@ -320,27 +338,6 @@ export async function getSessionByValidToken(token: string) {
 
   return session && camelcaseKeys(session);
 }
-
-// if ("errors" in props) {
-//   return <h1>no animals for you</h1>;
-// }
-
-// const sessionToke = await getValidSessionByToken(sessionToken)
-
-// const sessionToken =
-
-// if(!sessionId) {
-//   return {
-//     props: {errors: 'not authenticated'}
-//   }
-// }
-
-// const CSRFtoken = await createCsrfToken(session.csrfSecret)
-// // return {
-//   props: {CSRFToken: CSRFtoken}
-// }
-
-// for checking the admin
 
 //
 // Programmes
@@ -801,11 +798,28 @@ export async function getTourByProgrammeId(programmeId: number) {
   SELECT
     tours.id AS tour_id,
     body,
-    programme_id
+    programme_id,
+    host_id
   FROM
     tours
   WHERE
     programme_id = ${programmeId}
+  `;
+
+  return camelcaseKeys(tour);
+}
+
+export async function getTourByTourId(tourId: number) {
+  const [tour] = await sql<[any]>`
+  SELECT
+    tours.id AS tour_id,
+    body,
+    programme_id,
+    host_id
+  FROM
+    tours
+  WHERE
+    id = ${tourId}
   `;
 
   return camelcaseKeys(tour);

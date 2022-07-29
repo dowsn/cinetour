@@ -441,6 +441,9 @@ export default function UserDetails(props: Props) {
           <Link href="/profile/edit">
             <button>Edit Profile</button>
           </Link>
+          <Link href="/profile/change_password">
+            <button>Change Password</button>
+          </Link>
           <Link href="/profile/profile_picture">
             <button>Change Picture</button>
           </Link>

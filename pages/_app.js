@@ -382,7 +382,6 @@ function MyApp({ Component, pageProps }) {
               height: 240px;
             }
             .description {
-              padding: 1rem;
               width: 21.88rem;
               height: 32rem;
               background-color: black;

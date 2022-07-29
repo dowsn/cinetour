@@ -31,6 +31,8 @@ export default function Login() {
   >([]);
   const router = useRouter();
 
+  const returnTo = router.query.returnTo;
+
   async function loginHandler() {
     const loginResponse = await fetch('/api/login', {
       method: 'POST',
@@ -50,8 +52,6 @@ export default function Login() {
       setErrors(loginResponseBody.errors);
       return;
     }
-
-    const returnTo = router.query.returnTo;
 
     if (
       returnTo &&
@@ -110,7 +110,12 @@ export default function Login() {
             </div>
           ))}
           <p>
-            Not having an account yet? <Link href="/register">Register</Link>
+            Not having an account yet?{' '}
+            {returnTo ? (
+              <Link href={`/register/?returnTo=${returnTo}`}>Register</Link>
+            ) : (
+              <Link href="/register">Register</Link>
+            )}
           </p>
         </div>
       </main>

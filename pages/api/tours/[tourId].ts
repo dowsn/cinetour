@@ -3,8 +3,11 @@ import {
   deleteTourById,
   getSessionByValidToken,
   getTourByProgrammeId,
+  getTourByTourId,
+  getUserByValidSessionToken,
   updateTourById,
 } from '../../../utils/database';
+import Tours from '../../tours';
 
 export default async function handler(
   req: NextApiRequest,
@@ -30,9 +33,27 @@ export default async function handler(
       .json({ errors: [{ message: 'Item/s do not exist' }] });
   }
 
+  // authentication for PUT and DELETE methods
+  const sessionToken = req.cookies.sessionToken;
+
+  const session = await getSessionByValidToken(sessionToken);
+
+  if (!session) {
+    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+  }
+
+  const tour = await getTourByTourId(tourId);
+  const user = await getUserByValidSessionToken(sessionToken);
+
+  if (user?.id !== tour.hostId) {
+    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+  }
+
   // if method PUT
   if (req.method === 'PUT') {
-    if (!req.body.body || req.body.body.length > 100) {
+    const body = req.body.body;
+
+    if (!req.body.body || body.length > 100) {
       return res.status(400).json({
         error: [
           {
@@ -42,17 +63,6 @@ export default async function handler(
         ],
       });
     }
-
-    // authentication
-    const sessionToken = req.cookies.sessionToken;
-
-    const session = await getSessionByValidToken(sessionToken);
-
-    if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
-    }
-
-    // the action
 
     const updatedTour = await updateTourById(tourId, req.body.body);
 

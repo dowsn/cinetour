@@ -1,11 +1,13 @@
 /** @jsxImportSource @emotion/react */
 
+import 'react-toastify/dist/ReactToastify.css';
 import { css } from '@emotion/react';
 import Axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Fragment, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 import { colors } from '../styles/constants';
 import { createCsrfToken } from '../utils/auth';
 import {
@@ -15,7 +17,6 @@ import {
   getUserByValidSessionToken,
   SessionWithCSRF,
 } from '../utils/database';
-import { errorStyles } from './register';
 
 const editFilmsstyles = css`
   .top {
@@ -29,7 +30,15 @@ export default function EditFilms(props: Props) {
   // list of units
   const [filmList, setFilmList] = useState<Film[]>(props.films);
 
+  // confirm success
+  const confirm = () => toast('Success!');
+
   // possible errors
+  const notify = () =>
+    errors.map((error) => {
+      toast.error(error.message);
+    });
+
   const [errors, setErrors] = useState<
     {
       message: string;
@@ -84,6 +93,7 @@ export default function EditFilms(props: Props) {
 
     if ('errors' in createdFilm) {
       setErrors(createdFilm.errors);
+      notify();
       return;
     }
     // new state
@@ -102,6 +112,9 @@ export default function EditFilms(props: Props) {
     setNewYear(2022);
     setNewCountry('');
     setNewTopFilm(false);
+
+    // confirm success
+    confirm();
   }
 
   async function deleteFilmHandler(id: number) {
@@ -118,6 +131,7 @@ export default function EditFilms(props: Props) {
 
     if ('errors' in deletedFilm) {
       setErrors(deletedFilm.errors);
+      notify();
       return;
     }
 
@@ -127,6 +141,9 @@ export default function EditFilms(props: Props) {
 
     // use setState func
     setFilmList(films);
+
+    // confirm success
+    confirm();
   }
 
   async function updateFilmHandler(id: number) {
@@ -151,6 +168,7 @@ export default function EditFilms(props: Props) {
 
     if ('errors' in updatedFilm) {
       setErrors(updatedFilm.errors);
+      notify();
       return;
     }
 
@@ -161,6 +179,9 @@ export default function EditFilms(props: Props) {
     // use setState func
     setFilmList(films);
     setActiveFilmId(undefined);
+
+    // confirm success
+    confirm();
   }
 
   // uploading top film image
@@ -185,6 +206,9 @@ export default function EditFilms(props: Props) {
     });
 
     setSuccess('Success');
+
+    // confirm success
+    confirm();
   };
 
   const [success, setSuccess] = useState('');
@@ -200,6 +224,17 @@ export default function EditFilms(props: Props) {
         <Link href="/../profile">
           <button>Back</button>
         </Link>
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <br />
         <br />
         <label>
@@ -239,7 +274,7 @@ export default function EditFilms(props: Props) {
             rows={8}
             cols={25}
             value={newSynopsis}
-            maxLength={200}
+            maxLength={300}
             onChange={(event) => setNewSynopsis(event.currentTarget.value)}
           />
         </label>
@@ -297,11 +332,6 @@ export default function EditFilms(props: Props) {
           Add
         </button>
         <br />
-        {errors.map((error) => (
-          <div css={errorStyles} key={`error-${error.message}`}>
-            {error.message}
-          </div>
-        ))}
         <br />
         <div className="whiteLine" />
         <div className="inputFile">
@@ -363,7 +393,7 @@ export default function EditFilms(props: Props) {
                   <textarea
                     rows={8}
                     cols={25}
-                    maxLength={200}
+                    maxLength={300}
                     value={editSynopsis}
                     onChange={(event) =>
                       setEditSynopsis(event.currentTarget.value)
@@ -421,7 +451,6 @@ export default function EditFilms(props: Props) {
                 <br />
                 <button
                   onClick={() => {
-                    setActiveFilmId(undefined);
                     updateFilmHandler(film.id).catch(() => {
                       console.log('film request fails');
                     });
@@ -429,11 +458,6 @@ export default function EditFilms(props: Props) {
                 >
                   Save
                 </button>
-                {errors.map((error) => (
-                  <div css={errorStyles} key={`error-${error.message}`}>
-                    {error.message}
-                  </div>
-                ))}
                 <button
                   onClick={() =>
                     deleteFilmHandler(film.id).catch(() => {
@@ -443,11 +467,6 @@ export default function EditFilms(props: Props) {
                 >
                   X
                 </button>
-                {errors.map((error) => (
-                  <div css={errorStyles} key={`error-${error.message}`}>
-                    {error.message}
-                  </div>
-                ))}
                 <br />
                 <div className="whiteLine" />
                 <br />
@@ -478,7 +497,7 @@ export default function EditFilms(props: Props) {
                     rows={8}
                     cols={25}
                     value={film.synopsis}
-                    maxLength={200}
+                    maxLength={300}
                     disabled
                   />
                 </label>
@@ -523,11 +542,6 @@ export default function EditFilms(props: Props) {
                 >
                   Edit
                 </button>
-                {errors.map((error) => (
-                  <div css={errorStyles} key={`error-${error.message}`}>
-                    {error.message}
-                  </div>
-                ))}
                 <button
                   onClick={() =>
                     deleteFilmHandler(film.id).catch(() => {
@@ -537,11 +551,6 @@ export default function EditFilms(props: Props) {
                 >
                   X
                 </button>
-                {errors.map((error) => (
-                  <div css={errorStyles} key={`error-${error.message}`}>
-                    {error.message}
-                  </div>
-                ))}
                 <br />
                 <div className="whiteLine" />
                 <br />
