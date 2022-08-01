@@ -25,10 +25,7 @@ export default function EditProgrammes(props: Props) {
 
   // possible errors
 
-  const notify = () =>
-    errors.map((error) => {
-      toast.error(error.message);
-    });
+  const notify = () => errors.map((error) => toast.error(error.message));
 
   const [errors, setErrors] = useState<
     {
@@ -71,19 +68,20 @@ export default function EditProgrammes(props: Props) {
     });
     const createdProgramme = await response.json();
 
+    // notify, if there are errors
     if ('errors' in createdProgramme) {
       setErrors(createdProgramme.errors);
       notify();
       return;
     }
 
+    // get the new programme list
     const programmesRequest = await fetch(`/api/programmes`);
     const programmes = await programmesRequest.json();
-    // copy state
-    // update copy of the state
-    // use setState func
 
+    // update the state of the programme list
     setProgrammeList(programmes);
+    // update input fields
     setActiveProgrammeId(undefined);
     setNewFilm('');
     setNewCinema('');
@@ -103,18 +101,21 @@ export default function EditProgrammes(props: Props) {
     });
     const deletedProgramme = await response.json();
 
+    // notify, if there are errors
     if ('errors' in deletedProgramme) {
       setErrors(deletedProgramme.errors);
       notify();
       return;
     }
 
-    // copy state
-    // update copy of the state
+    // get the new programme list
     const programmesRequest = await fetch(`/api/programmes`);
     const programmes = await programmesRequest.json();
-    // use setState func
+
+    // update the state of the programme list
     setProgrammeList(programmes);
+
+    // deactivate current programme
     setActiveProgrammeId(0);
 
     // confirm success
@@ -137,19 +138,21 @@ export default function EditProgrammes(props: Props) {
     });
     const updatedProgramme = await response.json();
 
+    // notify, if there are errors
     if ('errors' in updatedProgramme) {
       setErrors(updatedProgramme.errors);
       notify();
       return;
     }
 
-    // copy state
-    // update copy of the state
-
+    // get the new programme list
     const programmesRequest = await fetch(`/api/programmes`);
     const programmes = await programmesRequest.json();
-    // use setState func
+
+    // update the state of the programme list
     setProgrammeList(programmes);
+
+    // deactivate current programme
     setActiveProgrammeId(0);
 
     // confirm success
@@ -164,7 +167,7 @@ export default function EditProgrammes(props: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Link href="/../profile">
+        <Link href="/profile">
           <button>Back</button>
         </Link>
         <ToastContainer
@@ -327,24 +330,30 @@ export default function EditProgrammes(props: Props) {
                   />
                 </label>
                 <br />
-                <button
-                  onClick={() => {
-                    updateProgrammeHandler(programme.programmeId).catch(() => {
-                      console.log('programme request fails');
-                    });
-                  }}
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() =>
-                    deleteProgrammeHandler(programme.programmeId).catch(() => {
-                      console.log('programme request fails');
-                    })
-                  }
-                >
-                  X
-                </button>
+                <div className="editProfile">
+                  <button
+                    onClick={() => {
+                      updateProgrammeHandler(programme.programmeId).catch(
+                        () => {
+                          console.log('programme request fails');
+                        },
+                      );
+                    }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() =>
+                      deleteProgrammeHandler(programme.programmeId).catch(
+                        () => {
+                          console.log('programme request fails');
+                        },
+                      )
+                    }
+                  >
+                    X
+                  </button>
+                </div>
                 <br />
                 <div className="whiteLine" />
                 <br />
@@ -381,27 +390,31 @@ export default function EditProgrammes(props: Props) {
                   />
                 </label>
                 <br />
-                <button
-                  onClick={() => {
-                    setActiveProgrammeId(programme.programmeId);
-                    setEditFilm(programme.filmTitle);
-                    setEditCinema(programme.cinemaName);
-                    setEditDate(new Date(programme.date));
-                    setEditTime(programme.time);
-                    setEditEnglish(programme.englishfriendly);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() =>
-                    deleteProgrammeHandler(programme.programmeId).catch(() => {
-                      console.log('programme request fails');
-                    })
-                  }
-                >
-                  X
-                </button>
+                <div className="editProfile">
+                  <button
+                    onClick={() => {
+                      setActiveProgrammeId(programme.programmeId);
+                      setEditFilm(programme.filmTitle);
+                      setEditCinema(programme.cinemaName);
+                      setEditDate(new Date(programme.date));
+                      setEditTime(programme.time);
+                      setEditEnglish(programme.englishfriendly);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() =>
+                      deleteProgrammeHandler(programme.programmeId).catch(
+                        () => {
+                          console.log('programme request fails');
+                        },
+                      )
+                    }
+                  >
+                    X
+                  </button>
+                </div>
                 <br />
                 <div className="whiteLine" />
                 <br />

@@ -79,6 +79,8 @@ export default function Footer() {
   const [facebook, setFacebook] = useState(false);
   const [instagram, setInstagram] = useState(false);
 
+  // hovering over navigation icons, changes the icon into color
+
   const onMouseEnter1 = () => setFacebook(true);
   const onMouseLeave1 = () => setFacebook(false);
 
@@ -87,6 +89,8 @@ export default function Footer() {
 
   const onMouseEnter3 = () => setMail(true);
   const onMouseLeave3 = () => setMail(false);
+
+  // processing feedback after subscribing for mailchimp newsletter
 
   const subscribe = async () => {
     setError('');

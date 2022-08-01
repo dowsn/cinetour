@@ -12,13 +12,13 @@ export default async function handler(
 ) {
   // if method GET
   if (req.method === 'GET') {
-    // get the tours from my database
+    // get all tours from database
     const tours = await getTours();
 
     return res.status(200).json(tours);
   }
 
-  // authentication for POST method
+  // authentication by concrete user by session token for POST method
   const sessionToken = req.cookies.sessionToken;
 
   const session = await getSessionByValidToken(sessionToken);
@@ -34,6 +34,7 @@ export default async function handler(
 
   // if method POST
   if (req.method === 'POST') {
+    // adding description to current tour
     const body = req.body.body;
 
     if (
@@ -46,22 +47,11 @@ export default async function handler(
         error: [
           {
             message:
-              'Please, provide all required information. Check also a length of input.',
+              'Please, provide all required information. Check also the length of description.',
           },
         ],
       });
     }
-
-    // authentication
-    const sessionToken = req.cookies.sessionToken;
-
-    const session = await getSessionByValidToken(sessionToken);
-
-    if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
-    }
-
-    // the action
 
     const newTour = await createTour(
       req.body.programmeId,
@@ -72,6 +62,5 @@ export default async function handler(
     return res.status(200).json(newTour);
   }
 
-  // If we are using any method that is not allowed
-  return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
+  return res.status(405).json({ errors: [{ message: 'Method not allowed.' }] });
 }

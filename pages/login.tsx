@@ -103,6 +103,7 @@ export default function Login() {
             />
           </label>
           <br />
+          <br />
           <button onClick={() => loginHandler()}>Login</button>
           {errors.map((error) => (
             <div css={errorStyles} key={`error-${error.message}`}>
@@ -138,6 +139,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
+  // checkin if the user is already logged and if so, then redirecting to profile
   const loggedUser = await getUserByValidSessionToken(
     context.req.cookies.sessionToken,
   );

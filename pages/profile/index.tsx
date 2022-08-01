@@ -175,6 +175,12 @@ export default function UserDetails(props: Props) {
     stripeClient.redirectToCheckout({ sessionId: session.id });
   }
 
+  // feature of changing profile image will be added with next update
+  const [isChange, setIsChange] = useState(false);
+
+  const onMouseEnter = () => setIsChange(true);
+  const onMouseLeave = () => setIsChange(false);
+
   return (
     <div>
       <Head>
@@ -189,6 +195,9 @@ export default function UserDetails(props: Props) {
         <div className="profileImage">
           <AdvancedImage cldImg={myImage} />
         </div>
+        <button onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+          {isChange ? 'In Making' : 'Change Picture'}
+        </button>
         <br />
         <section>
           {props.admin ? (
@@ -443,9 +452,6 @@ export default function UserDetails(props: Props) {
           </Link>
           <Link href="/profile/change_password">
             <button>Change Password</button>
-          </Link>
-          <Link href="/profile/profile_picture">
-            <button>Change Picture</button>
           </Link>
         </div>
         <br />

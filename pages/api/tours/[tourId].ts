@@ -7,7 +7,6 @@ import {
   getUserByValidSessionToken,
   updateTourById,
 } from '../../../utils/database';
-import Tours from '../../tours';
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,12 +16,12 @@ export default async function handler(
   const programmeId = Number(req.query.tourId);
 
   if (!tourId || !programmeId) {
-    return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
+    return res.status(400).json({ errors: [{ message: 'Id is not valid.' }] });
   }
 
   // if method GET
   if (req.method === 'GET') {
-    // get the films from my database
+    // get a tour for this programme from database
     const tour = await getTourByProgrammeId(programmeId);
     if (tour) {
       return res.status(200).json(tour);
@@ -33,7 +32,7 @@ export default async function handler(
       .json({ errors: [{ message: 'Item/s do not exist' }] });
   }
 
-  // authentication for PUT and DELETE methods
+  // authentication by concrete user by session token for POST and DELETE methods
   const sessionToken = req.cookies.sessionToken;
 
   const session = await getSessionByValidToken(sessionToken);
@@ -45,29 +44,36 @@ export default async function handler(
   const tour = await getTourByTourId(tourId);
   const user = await getUserByValidSessionToken(sessionToken);
 
+  // checkin if the current user is not already a host of this tour
   if (user?.id !== tour.hostId) {
-    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+    return res
+      .status(403)
+      .json({ errors: [{ message: 'You are already hosting this event.' }] });
   }
 
   // if method PUT
   if (req.method === 'PUT') {
     const body = req.body.body;
 
+    // checking if description is present and not too long
     if (!req.body.body || body.length > 100) {
       return res.status(400).json({
         error: [
           {
             message:
-              'Please, provide all required information. Check also a length of input.',
+              'Please, provide all required information. Check also the length of your description.',
           },
         ],
       });
     }
 
+    // updating the description of current tour
     const updatedTour = await updateTourById(tourId, req.body.body);
 
     if (!updatedTour) {
-      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'Something went wrong.' }] });
     }
 
     return res.status(200).json(updatedTour);
@@ -75,25 +81,17 @@ export default async function handler(
 
   // if the method delete
   if (req.method === 'DELETE') {
-    // authentication
-    const sessionToken = req.cookies.sessionToken;
-
-    const session = await getSessionByValidToken(sessionToken);
-
-    if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
-    }
-
-    // the action
-
+    // deleting current tour
     const deletedTour = await deleteTourById(tourId);
 
     if (!deletedTour) {
-      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'Something went wrong.' }] });
     }
 
     return res.status(200).json(deletedTour);
   }
 
-  return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
+  return res.status(405).json({ errors: [{ message: 'Method not allowed.' }] });
 }

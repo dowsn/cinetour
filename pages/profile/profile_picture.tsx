@@ -1,4 +1,5 @@
 import Axios from 'axios';
+// import cloudinary from 'cloudinary';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -21,6 +22,19 @@ export default function ProfileImage(props: Props) {
 
   // uploading profile image
   const uploadImage = async () => {
+    if (!imageSelected) {
+      return;
+    }
+
+    // in progress:
+
+    // cloudinary.uploader.destroy(
+    //   `userlist/${props.user.id}`,
+    //   function (result: any) {
+    //     console.log(result);
+    //   },
+    // );
+
     const formData: any = new FormData();
     formData.append('file', imageSelected);
 
@@ -48,11 +62,14 @@ export default function ProfileImage(props: Props) {
         <h1>Change your Profile Picture</h1>
         <input
           type="file"
+          accept=".jpg, .png, .tiff, .jpeg"
           onChange={(event) => {
             setImageSelected(event.currentTarget.files?.[0]);
           }}
         />
-        <button onClick={() => uploadImage()}>Upload Profile Photo</button>
+        <button disabled={!imageSelected} onClick={() => uploadImage()}>
+          Upload Profile Photo
+        </button>
         <Link href="/profile">
           <button>Cancel</button>
         </Link>

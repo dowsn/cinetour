@@ -173,29 +173,6 @@ function MyApp({ Component, pageProps }) {
             }
           }
 
-          /* .button {
-            a {
-              font-family: 'Capriola', sans-serif;
-              border-radius: 10px;
-              height: 41px;
-              background-color: ${colors.violet};
-              color: white;
-              border: solid white 4px;
-              text-decoration: none;
-              margin: 10px;
-              margin-bottom: 20px;
-              padding: 5px;
-              padding-right: 10px;
-              padding-left: 10px;
-
-              :hover {
-                background-color: ${colors.blue};
-                color: white;
-                cursor: pointer;
-              }
-            }
-          } */
-
           .full {
             max-width: 100vw;
             margin: 0;
@@ -326,51 +303,12 @@ function MyApp({ Component, pageProps }) {
             justify-content: center;
           }
 
-          // responsiveness
-
-          @media only screen and (max-width: 800px) {
-            section {
-              max-width: 100vw;
-              margin: 1rem;
-            }
-
-            ul {
-              flex-direction: column;
-              align-items: center;
-              margin: auto;
-            }
-
-            .twocolumns {
-              flex-direction: column;
-              gap: 20px;
-            }
-
-            .filter {
-              flex-direction: column;
-              align-items: center;
-              gap: 2px;
-              margin: auto;
-              padding: 0;
-
-              input,
-              select {
-                width: 15rem;
-                align-self: center;
-              }
-
-              .switch {
-                margin-top: 10px;
-                margin-left: 45%;
-              }
-            }
-          }
-
           //tours
 
           .tours {
             color: white;
             text-align: center;
-            margin-top: -20px;
+            margin-top: -15px;
             margin-bottom: 0;
             border-top: 3px solid white;
             width: 100%;
@@ -436,6 +374,55 @@ function MyApp({ Component, pageProps }) {
           .longList {
             columns: 100px 3;
             ul {
+            }
+          }
+
+          // responsiveness
+
+          @media only screen and (max-width: 800px) {
+            section {
+              max-width: 100vw;
+              margin: 1rem;
+            }
+
+            ul {
+              flex-direction: column;
+              align-items: center;
+              margin: auto;
+            }
+
+            // second line of flex
+            .second {
+              flex-direction: column;
+              gap: 10px;
+            }
+
+            .twocolumns {
+              flex-direction: column;
+              gap: 20px;
+            }
+
+            .filter {
+              flex-direction: column;
+              align-items: center;
+              gap: 2px;
+              margin: auto;
+              padding: 0;
+
+              input,
+              select {
+                width: 15rem;
+                align-self: center;
+              }
+
+              .switch {
+                margin-top: 10px;
+                margin-left: 45%;
+              }
+            }
+
+            .tours {
+              margin-top: 0;
             }
           }
         `}

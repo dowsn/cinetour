@@ -6,31 +6,13 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import {
-  getProfile,
-  getUserByValidSessionToken,
-  Profile,
-  User,
-} from '../../utils/database';
+import { getUserByValidSessionToken } from '../../utils/database';
 
 export const errorStyles = css`
   background-color: #c24b4b;
   color: white;
   padding: 5px;
   margin-top: 5px;
-`;
-
-const registerStyles = css`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  label {
-    width: 300px;
-    display: flex;
-    justify-content: space-between;
-    align-content: center;
-  }
 `;
 
 export default function Register() {
@@ -71,10 +53,11 @@ export default function Register() {
       </Head>
       <main>
         <h1>Edit Profile</h1>
-        <div css={registerStyles}>
+        <div>
           <label>
             Current Password:
             <input
+              type="password"
               value={currentPassword}
               onChange={(event) => {
                 setCurrentPassword(event.currentTarget.value);
@@ -84,6 +67,7 @@ export default function Register() {
           <label>
             New Password:
             <input
+              type="password"
               value={newPassword}
               onChange={(event) => {
                 setNewPassword(event.currentTarget.value);
@@ -91,10 +75,12 @@ export default function Register() {
             />
           </label>
         </div>
-        <button onClick={() => updateHandler()}>Create New Password</button>
-        <Link href="/profile">
-          <button>Cancel</button>
-        </Link>
+        <div className="editProfile">
+          <button onClick={() => updateHandler()}>Create New Password</button>
+          <Link href="/profile">
+            <button>Cancel</button>
+          </Link>
+        </div>
         {errors.map((error) => (
           <div css={errorStyles} key={`error-${error.message}`}>
             {error.message}

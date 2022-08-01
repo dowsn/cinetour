@@ -34,10 +34,7 @@ export default function EditFilms(props: Props) {
   const confirm = () => toast('Success!');
 
   // possible errors
-  const notify = () =>
-    errors.map((error) => {
-      toast.error(error.message);
-    });
+  const notify = () => errors.map((error) => toast.error(error.message));
 
   const [errors, setErrors] = useState<
     {
@@ -91,18 +88,20 @@ export default function EditFilms(props: Props) {
     });
     const createdFilm = await response.json();
 
+    // notify, if there are errors
     if ('errors' in createdFilm) {
       setErrors(createdFilm.errors);
       notify();
       return;
     }
-    // new state
+
+    // get the new film list
     const filmsRequest = await fetch(`/api/films`);
     const films = await filmsRequest.json();
 
-    // use setState func
-
+    // update the state of the film list
     setFilmList(films);
+    // update input fields
     setActiveFilmId(undefined);
     setNewFilm('');
     setNewGenre('');
@@ -129,17 +128,18 @@ export default function EditFilms(props: Props) {
     });
     const deletedFilm = await response.json();
 
+    // notify, if there are errors
     if ('errors' in deletedFilm) {
       setErrors(deletedFilm.errors);
       notify();
       return;
     }
 
-    // new state
+    // get the new film list
     const filmsRequest = await fetch(`/api/films`);
     const films = await filmsRequest.json();
 
-    // use setState func
+    // update the state of the film list
     setFilmList(films);
 
     // confirm success
@@ -166,17 +166,18 @@ export default function EditFilms(props: Props) {
     });
     const updatedFilm = await response.json();
 
+    // notify, if there are errors
     if ('errors' in updatedFilm) {
       setErrors(updatedFilm.errors);
       notify();
       return;
     }
 
-    // new state
+    // get the new film list
     const filmsRequest = await fetch(`/api/films`);
     const films = await filmsRequest.json();
 
-    // use setState func
+    // update the state of the film list
     setFilmList(films);
     setActiveFilmId(undefined);
 
@@ -190,14 +191,16 @@ export default function EditFilms(props: Props) {
     undefined,
   );
 
-  // uploading profile image
+  // in progress: uploading profile image
+
   const uploadImage = async () => {
     const formData: any = new FormData();
     formData.append('file', imageSelected);
+    setImageSelected(undefined);
 
     // how to set the folder and name to save
-    formData.append('upload_preset', 'top_film');
-    formData.append('public_id]', 'top_tour/tour_film');
+    formData.append('upload_preset', 'top_image');
+    formData.append('public_id', 'top_image');
     await Axios.post(
       'https://api.cloudinary.com/v1_1/dkiienrq4/image/upload',
       formData,
@@ -205,13 +208,15 @@ export default function EditFilms(props: Props) {
       console.log(response);
     });
 
-    setSuccess('Success');
-
     // confirm success
     confirm();
   };
 
-  const [success, setSuccess] = useState('');
+  // changing top film image will be added with next update
+  const [isChange, setIsChange] = useState(false);
+
+  const onMouseEnter = () => setIsChange(true);
+  const onMouseLeave = () => setIsChange(false);
 
   return (
     <>
@@ -221,7 +226,7 @@ export default function EditFilms(props: Props) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main css={editFilmsstyles}>
-        <Link href="/../profile">
+        <Link href="/profile">
           <button>Back</button>
         </Link>
         <ToastContainer
@@ -336,18 +341,21 @@ export default function EditFilms(props: Props) {
         <div className="whiteLine" />
         <div className="inputFile">
           <div>
-            <h2>Change Top Film Image</h2>
-            <p>* best result with resolution 1920x1080</p>
+            <h2>Update Top Film Image</h2>
+            <p>* best result with resolution 1920x720</p>
           </div>
           <input
             type="file"
+            accept=".jpg, .png, .tiff, .jpeg"
             onChange={(event) => {
               setImageSelected(event.currentTarget.files?.[0]);
             }}
           />
           <br />
-          <button onClick={() => uploadImage()}>Upload Top Film Image</button>
-          {success ? <h3>{success}</h3> : ''}
+          <button onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+            {isChange ? 'In Making' : 'Upload'}
+          </button>
+          ;
         </div>
         <br />
         <div className="whiteLine" />
@@ -449,24 +457,26 @@ export default function EditFilms(props: Props) {
                   />
                 </label>
                 <br />
-                <button
-                  onClick={() => {
-                    updateFilmHandler(film.id).catch(() => {
-                      console.log('film request fails');
-                    });
-                  }}
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() =>
-                    deleteFilmHandler(film.id).catch(() => {
-                      console.log('film request fails');
-                    })
-                  }
-                >
-                  X
-                </button>
+                <div className="editProfile">
+                  <button
+                    onClick={() => {
+                      updateFilmHandler(film.id).catch(() => {
+                        console.log('film request fails');
+                      });
+                    }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() =>
+                      deleteFilmHandler(film.id).catch(() => {
+                        console.log('film request fails');
+                      })
+                    }
+                  >
+                    X
+                  </button>
+                </div>
                 <br />
                 <div className="whiteLine" />
                 <br />
@@ -527,30 +537,32 @@ export default function EditFilms(props: Props) {
                   <input type="checkbox" checked={film.topFilm} disabled />
                 </label>
                 <br />
-                <button
-                  onClick={() => {
-                    setActiveFilmId(film.id);
-                    setEditFilm(film.filmTitle);
-                    setEditDirector(film.director);
-                    setEditSynopsis(film.synopsis);
-                    setEditGenre(film.genre);
-                    setEditTrailer(film.trailer);
-                    setEditYear(film.year);
-                    setEditCountry(film.country);
-                    setEditTopFilm(film.topFilm);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() =>
-                    deleteFilmHandler(film.id).catch(() => {
-                      console.log('film request fails');
-                    })
-                  }
-                >
-                  X
-                </button>
+                <div className="editProfile">
+                  <button
+                    onClick={() => {
+                      setActiveFilmId(film.id);
+                      setEditFilm(film.filmTitle);
+                      setEditDirector(film.director);
+                      setEditSynopsis(film.synopsis);
+                      setEditGenre(film.genre);
+                      setEditTrailer(film.trailer);
+                      setEditYear(film.year);
+                      setEditCountry(film.country);
+                      setEditTopFilm(film.topFilm);
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() =>
+                      deleteFilmHandler(film.id).catch(() => {
+                        console.log('film request fails');
+                      })
+                    }
+                  >
+                    X
+                  </button>
+                </div>
                 <br />
                 <div className="whiteLine" />
                 <br />

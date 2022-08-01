@@ -12,38 +12,37 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  // getting the user from query
-
+  // getting current user from query
   const userId = Number(req.query.userId);
   if (!userId || typeof userId !== 'number') {
-    return res.status(400).json({ errors: [{ message: 'No User' }] });
+    return res.status(400).json({ errors: [{ message: 'No User selected.' }] });
   }
 
-  // checking the method
+  // if method GET
   if (req.method === 'GET') {
     const friends = await getFriends(userId);
 
     if (!friends) {
       return res
         .status(400)
-        .json({ errors: [{ message: 'No session token passed' }] });
+        .json({ errors: [{ message: 'You have no friends.' }] });
     }
 
     return res.status(200).json(friends);
   }
 
-  // authentication for POST and DELETE methods
+  // authentication of concrete user for POST and DELETE methods
   const sessionToken = req.cookies.sessionToken;
 
   const session = await getSessionByValidToken(sessionToken);
 
   if (!session) {
-    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+    return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
   }
 
   const user = await getUserByValidSessionToken(sessionToken);
   if (user?.id !== Number(req.query.userId)) {
-    return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+    return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
   }
 
   //  if method POST
@@ -51,23 +50,24 @@ export default async function handler(
     if (typeof req.body.friendId !== 'number' || !req.body.friendId) {
       return res
         .status(400)
-        .json({ errors: [{ message: 'No user available' }] });
+        .json({ errors: [{ message: 'No friend available.' }] });
     }
 
     const friendship = await createFriend(userId, req.body.friendId);
     if (!friendship) {
       return res
         .status(400)
-        .json({ errors: [{ message: 'No session token passed' }] });
+        .json({ errors: [{ message: 'Something went wrong.' }] });
     }
 
     return res.status(200).json(friendship);
   }
 
+  // if method DELETE
   if (req.method === 'DELETE') {
     if (typeof req.body.friendId !== 'number' || !req.body.friendId) {
       return res.status(400).json({
-        errors: [{ message: 'Please, provide all required data' }],
+        errors: [{ message: 'No friend to delete.' }],
       });
     }
 
@@ -80,5 +80,5 @@ export default async function handler(
 
   return res
     .status(405)
-    .json({ errors: [{ message: 'Method is not allowed' }] });
+    .json({ errors: [{ message: 'Method is not allowed.' }] });
 }

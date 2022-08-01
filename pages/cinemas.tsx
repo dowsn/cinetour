@@ -48,10 +48,18 @@ const cinemasStyles = css`
     margin: 0;
   }
 
-  .englishswitch {
-    margin-bottom: 10px;
-    padding: 10px;
-    align-self: center;
+  .english {
+    margin-top: 4px;
+  }
+
+  @media only screen and (max-width: 953px) {
+    .english {
+      margin-top: -2px;
+    }
+
+    .label {
+      margin-bottom: 5px;
+    }
   }
 
   @media only screen and (max-width: 800px) {
@@ -59,6 +67,9 @@ const cinemasStyles = css`
       flex-direction: column;
       label {
         display: block;
+      }
+      .label {
+        margin-bottom: -3px;
       }
     }
   }
@@ -123,7 +134,7 @@ export default function Cinemas(props: Props) {
                     </h3>
                   </div>
                 </div>
-                <div className="flex">
+                <div className="flex second">
                   <div>#{item.genre}</div>
                   {item.englishfriendly ? <div>English Friendly</div> : ''}
                   <div>
@@ -222,8 +233,10 @@ export default function Cinemas(props: Props) {
               ))}
             </datalist>
           </div>
-          <div>
-            <label htmlFor="english">English Friendly:</label>
+          <div className="english">
+            <label htmlFor="english" className="label">
+              English Friendly:
+            </label>
             <label className="switch">
               <input
                 type="checkbox"
@@ -240,7 +253,10 @@ export default function Cinemas(props: Props) {
           {!!filteredData.length ? (
             renderData(filteredData)
           ) : (
-            <p>Nothing found</p>
+            <>
+              <br />
+              <p>Cinemas are not showing</p>
+            </>
           )}
         </div>
       </main>

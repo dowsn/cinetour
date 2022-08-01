@@ -108,7 +108,7 @@ export default function FilmId(props: Props) {
                     </h3>
                   </div>
                 </div>
-                <div className="flex">
+                <div className="flex second">
                   <div>#{item.genre}</div>
                   {item.englishfriendly ? <div>English Friendly</div> : ''}
                   <div>

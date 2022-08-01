@@ -17,15 +17,17 @@ export default async function handler(
   const programmeId = Number(req.query.programmeId);
 
   if (!programmeId) {
-    return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
+    return res.status(400).json({ errors: [{ message: 'Id is not valid.' }] });
   }
 
-  // if the method GET
+  // if method GET
   if (req.method === 'GET') {
     const programme = await getProgrammeById(programmeId);
 
     if (!programme) {
-      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'Id is not valid.' }] });
     }
 
     return res.status(200).json(programme);
@@ -51,19 +53,19 @@ export default async function handler(
     const session = await getSessionByValidToken(sessionToken);
 
     if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     // authenticating admin
     const user = await getUserByValidSessionToken(req.cookies.sessionToken);
     if (!user) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     const admin = await getAdmin(user.id);
 
     if (!admin) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     // the action
@@ -83,17 +85,17 @@ export default async function handler(
       if (!updatedProgramme) {
         return res
           .status(400)
-          .json({ errors: [{ message: 'Id is not valid' }] });
+          .json({ errors: [{ message: 'Id is not valid.' }] });
       }
 
       return res.status(200).json(updatedProgramme);
     }
     return res
       .status(400)
-      .json({ errors: [{ message: 'Cinema or film do not exist' }] });
+      .json({ errors: [{ message: 'Cinema or film do not exist.' }] });
   }
 
-  // if the method delete
+  // if method DELETE
   if (req.method === 'DELETE') {
     // authentication by session token
     const sessionToken = req.cookies.sessionToken;
@@ -101,31 +103,32 @@ export default async function handler(
     const session = await getSessionByValidToken(sessionToken);
 
     if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     // authenticating admin
     const user = await getUserByValidSessionToken(req.cookies.sessionToken);
     if (!user) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     const admin = await getAdmin(user.id);
 
     if (!admin) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     // the action
-
     const deletedProgramme = await deleteProgrammeById(programmeId);
 
     if (!programmeId) {
-      return res.status(400).json({ errors: [{ message: 'Id is not valid' }] });
+      return res
+        .status(400)
+        .json({ errors: [{ message: 'Id is not valid.' }] });
     }
 
     return res.status(200).json(deletedProgramme);
   }
 
-  return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
+  return res.status(405).json({ errors: [{ message: 'Method not allowed.' }] });
 }

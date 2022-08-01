@@ -1,5 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
+import { AdvancedImage } from '@cloudinary/react';
+import { Cloudinary } from '@cloudinary/url-gen';
 import { css } from '@emotion/react';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
@@ -38,6 +40,7 @@ const indexStyles = css`
     padding: 0;
   }
 
+  // advertisement
   .ad {
     display: flex;
     justify-content: space-between;
@@ -109,14 +112,23 @@ type Props = {
 };
 
 export default function Home(props: Props) {
+  // displaying top-film image
+  // Create a Cloudinary instance and set your cloud name.
+  const cld = new Cloudinary({
+    cloud: {
+      cloudName: 'dkiienrq4',
+    },
+  });
+  // cld.image returns a CloudinaryImage with the configuration set.
+  const myImage = cld.image(`top_image/top_image`);
+
   // showing just today
   const today = new Date(Date.now()).toString().split(' ', 3).join(' ');
 
-  // handling tours
+  // tours
   const [tourList, setTourList] = useState(props.tours);
 
   // handling joining and leaving tours
-
   async function handleJoin(tourId: number, userId: number | undefined) {
     if (!userId) {
       return;
@@ -201,7 +213,7 @@ export default function Home(props: Props) {
                 </h3>
               </div>
             </div>
-            <div className="flex">
+            <div className="flex second">
               <div>#{item.genre}</div>
               {item.englishfriendly ? <div>English Friendly</div> : ''}
               <div>
@@ -261,14 +273,7 @@ export default function Home(props: Props) {
         )}
         <section className="filmoftheweek full">
           <div>
-            <Image
-              src="/topgun.jpeg"
-              height="720px"
-              width="1920px"
-              layout="responsive"
-              alt="film of the week"
-              priority
-            />
+            <AdvancedImage cldImg={myImage} alt="film of the week" />
           </div>
           {props.filmoftheweek ? (
             <Link href={`/films/${[props.filmoftheweek.id]}`}>

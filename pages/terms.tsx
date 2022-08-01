@@ -167,7 +167,7 @@ export async function getServerSideProps() {
   const apiKey = await process.env.NEXT_APP_GOOGLE_MAPS_API_KEY;
 
   return {
-    // making data about the user available at the page in props
+    // providing api key to access google maps
     props: {
       apiKey: apiKey,
     },

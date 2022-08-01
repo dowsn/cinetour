@@ -30,7 +30,9 @@ export default async function handler(
       !req.body.genre ||
       !req.body.director ||
       !req.body.synopsis ||
+      // checking for max length of synopsis
       synopsis.length > 200 ||
+      // country is accepted in two digit format
       country.length > 2 ||
       !req.body.year ||
       !req.body.country ||
@@ -40,7 +42,7 @@ export default async function handler(
         errors: [
           {
             message:
-              'Please, provide all required data.  Check also the length. Synopsis 200 characters, state with two symbol shortcut, year in format 2022.',
+              'Please, provide all required data. Check also the length.',
           },
         ],
       });
@@ -50,7 +52,7 @@ export default async function handler(
     if (!req.body.csrfToken) {
       return res
         .status(400)
-        .json({ errors: [{ message: 'No csrf token found' }] });
+        .json({ errors: [{ message: 'No Csrf token found.' }] });
     }
 
     // 1. we get the sessionToken from req.body
@@ -63,26 +65,26 @@ export default async function handler(
     const session = await getSessionByValidToken(sessionToken);
 
     if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorized' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     // 4. validates the csrf token against the seed we have in the database
     if (!(await verifyCsrfToken(session.csrfSecret, csrfToken))) {
       return res
         .status(403)
-        .json({ errors: [{ message: 'csrf is not valid' }] });
+        .json({ errors: [{ message: 'Csrf is not valid.' }] });
     }
 
     // authenticating admin
     const user = await getUserByValidSessionToken(req.cookies.sessionToken);
     if (!user) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     const admin = await getAdmin(user.id);
 
     if (!admin) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     // action

@@ -80,10 +80,7 @@ export default async function handler(
       const passwordHash = await bcrypt.hash(req.body.newPassword, 12);
 
       // 2. update passwordhash for the user
-      const updatedUserPasword = await updateUserPasswordHash(
-        user.id,
-        passwordHash,
-      );
+      await updateUserPasswordHash(user.id, passwordHash);
 
       // creating a token
       const token = crypto.randomBytes(80).toString('base64');

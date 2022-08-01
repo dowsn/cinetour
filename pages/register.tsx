@@ -1,10 +1,13 @@
 /** @jsxImportSource @emotion/react */
 
 import { css } from '@emotion/react';
+import Axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { getUsers, User } from '../utils/database';
 import { RegisterResponseBody } from './api/register';
 
 export const errorStyles = css`
@@ -27,7 +30,15 @@ const registerStyles = css`
   }
 `;
 
-export default function Register() {
+// type Props = {
+//   newUser: string;
+// };
+
+type Props = {
+  users: User[];
+};
+
+export default function Register(props: Props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -37,6 +48,10 @@ export default function Register() {
   const [errors, setErrors] = useState<{ message: string }[]>([]);
 
   const router = useRouter();
+
+  // getting the current user id
+  const ids = props.users.map((user) => user.id);
+  const newUser = (Math.max(...ids) + 1).toString();
 
   async function registerHandler() {
     const registerResponse = await fetch('/api/register', {
@@ -57,7 +72,7 @@ export default function Register() {
     const registerResponseBody: RegisterResponseBody =
       await registerResponse.json();
 
-    // if we have error show an error message
+    // if there are errors show an error message
     if ('errors' in registerResponseBody) {
       setErrors(registerResponseBody.errors);
       return;
@@ -74,10 +89,53 @@ export default function Register() {
     ) {
       await router.push(returnTo);
     } else {
-      // redirect to main page
+      // redirecting
       await router.push(`/profile`);
     }
   }
+
+  // uploading profile image
+  // selected file
+  const [imageSelected, setImageSelected] = useState<File | undefined>(
+    undefined,
+  );
+
+  const uploadImage = async () => {
+    // user image not selected - uploading default profile image for this user
+    if (!imageSelected) {
+      const formData: any = new FormData();
+      formData.append(
+        'file',
+        'https://res.cloudinary.com/dkiienrq4/image/upload/v1659199929/cinetour/profile_image_krhvm8.png',
+      );
+
+      // how to set the folder and name to save
+      formData.append('upload_preset', 'userlist');
+
+      // using user id as profile image identifier
+      formData.append('public_id', newUser);
+      await Axios.post(
+        'https://api.cloudinary.com/v1_1/dkiienrq4/image/upload',
+        formData,
+      ).then((response: any) => {
+        console.log(response);
+      });
+      return;
+    }
+
+    const formData: any = new FormData();
+    formData.append('file', imageSelected);
+
+    // setting a folder and a name to save
+    formData.append('upload_preset', 'userlist');
+    formData.append('public_id', newUser);
+    await Axios.post(
+      'https://api.cloudinary.com/v1_1/dkiienrq4/image/upload',
+      formData,
+    ).then((response: any) => {
+      console.log(response);
+    });
+  };
 
   return (
     <div>
@@ -145,6 +203,7 @@ export default function Register() {
         <br />
         <label htmlFor="selfdescription">Self-description:</label>
         <br />
+        <br />
         <textarea
           id="selfdescription"
           value={selfDescription}
@@ -157,7 +216,40 @@ export default function Register() {
           }}
         />
         <br />
-        <button onClick={() => registerHandler()}>Register</button>
+        <br />
+        <label>
+          Profile Image (optional)
+          <br />
+          <br />
+          <div className="inputFile">
+            <input
+              type="file"
+              accept=".jpg, .png, .tiff, .jpeg"
+              onChange={(event) => {
+                setImageSelected(event.currentTarget.files?.[0]);
+              }}
+            />
+          </div>
+        </label>
+        <br />
+        <br />
+        <div className="editProfile">
+          <button
+            onClick={() => {
+              registerHandler().catch(() => {
+                console.log('Request fails');
+              });
+              uploadImage().catch(() => {
+                console.log('Request fails');
+              });
+            }}
+          >
+            Register
+          </button>
+          <Link href="/login">
+            <button>Cancel</button>
+          </Link>
+        </div>
         {errors.map((error) => (
           <div css={errorStyles} key={`error-${error.message}`}>
             {error.message}
@@ -168,7 +260,7 @@ export default function Register() {
   );
 }
 
-export function getServerSideProps(context: GetServerSidePropsContext) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   // making sure we are using https
   if (
     context.req.headers.host &&
@@ -182,7 +274,13 @@ export function getServerSideProps(context: GetServerSidePropsContext) {
       },
     };
   }
+
+  // getting a list of all users to get the last user id from them
+  const users = await getUsers();
+
   return {
-    props: {},
+    props: {
+      users,
+    },
   };
 }

@@ -16,8 +16,6 @@ exports.up = async (sql) => {
  `;
 };
 
-// still missing uploaded image path
-
 exports.down = async (sql) => {
   await sql`
     DROP TABLE films

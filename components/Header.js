@@ -110,11 +110,11 @@ const headerStyles = css`
 
   #menuToggle input {
     display: block;
-    width: 40px;
-    height: 32px;
+    width: 100px;
+    height: 70px;
     position: absolute;
-    top: -14px;
-    left: -5px;
+    top: -25px;
+    left: -20px;
 
     cursor: pointer;
 
@@ -253,6 +253,8 @@ export default function Header(props) {
   const [isMeet, setIsMeet] = useState(false);
   const [isProfile, setIsProfile] = useState(false);
   const [sandwich, setSandwich] = useState(false);
+
+  // hovering over navigation icons, changes the icon into color
 
   const onMouseEnter1 = () => setIsExplore(true);
   const onMouseLeave1 = () => setIsExplore(false);
@@ -398,6 +400,7 @@ export default function Header(props) {
           <nav role="navigation">
             <div id="menuToggle">
               <input
+                className="col-auto"
                 type="checkbox"
                 checked={sandwich}
                 onChange={(event) => setSandwich(event.currentTarget.checked)}

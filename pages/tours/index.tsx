@@ -312,7 +312,7 @@ export default function Tours(props: Props) {
           {!!filteredData.length ? (
             renderData(filteredData)
           ) : (
-            <div>Nothing to show</div>
+            <p>No planned tours at the moment</p>
           )}
         </section>
       </main>

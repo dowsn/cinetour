@@ -144,6 +144,7 @@ export default function Register(props: Props) {
         <br />
         <label htmlFor="selfdescription">Self-description:</label>
         <br />
+        <br />
         <textarea
           id="selfdescription"
           value={selfDescription}
@@ -155,11 +156,14 @@ export default function Register(props: Props) {
           }}
         />
         <br />
-        <button onClick={() => updateHandler()}>Update</button>
-        <button onClick={() => deleteHandler()}>Delete Profile</button>
-        <Link href="/profile">
-          <button>Cancel</button>
-        </Link>
+        <br />
+        <div className="editProfile">
+          <button onClick={() => updateHandler()}>Update</button>
+          <button onClick={() => deleteHandler()}>Delete Profile</button>
+          <Link href="/profile">
+            <button>Cancel</button>
+          </Link>
+        </div>
         {errors.map((error) => (
           <div css={errorStyles} key={`error-${error.message}`}>
             {error.message}

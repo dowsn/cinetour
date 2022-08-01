@@ -81,7 +81,8 @@ All content you see is manageable via number of APIs communicating with Postgres
 
 - Adding more than one tour to a screening
 - Bookmarking films of which programme user wants to follow
-- sharing photos from cinemas publicly or on your profile
+- sharing photos from cinemas publicly or on your profil
+- personal messages and messages associated with tour/film/programme
 - rating system for users and films
 - Implementing MeetUp, Facebook Events, IG, tik tok
 - Dividing tours to public and private

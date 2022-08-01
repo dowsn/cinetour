@@ -31,32 +31,31 @@ export default async function handler(
     ) {
       return res
         .status(400)
-        .json({ errors: [{ message: 'Please, provide all required data' }] });
+        .json({ errors: [{ message: 'Please, provide all required data.' }] });
     }
 
-    // authentication
+    // authentication by session token
     const sessionToken = req.cookies.sessionToken;
 
     const session = await getSessionByValidToken(sessionToken);
 
     if (!session) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     // authenticating admin
     const user = await getUserByValidSessionToken(req.cookies.sessionToken);
     if (!user) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     const admin = await getAdmin(user.id);
 
     if (!admin) {
-      return res.status(403).json({ errors: [{ message: 'Unauthorize' }] });
+      return res.status(403).json({ errors: [{ message: 'Unauthorized.' }] });
     }
 
     // the action
-
     const film = await getFilmByName(req.body.filmTitle);
     const cinema = await getCinemaByName(req.body.cinemaName);
 
@@ -76,8 +75,8 @@ export default async function handler(
 
     return res
       .status(400)
-      .json({ errors: [{ message: 'Please, provide all required data' }] });
+      .json({ errors: [{ message: 'Please, provide all required data.' }] });
   }
 
-  return res.status(405).json({ errors: [{ message: 'Method not allowed' }] });
+  return res.status(405).json({ errors: [{ message: 'Method not allowed.' }] });
 }

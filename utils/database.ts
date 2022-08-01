@@ -1,8 +1,6 @@
-import { tsConditionalType } from '@babel/types';
 import camelcaseKeys from 'camelcase-keys';
 import { config } from 'dotenv-safe';
 import postgres from 'postgres';
-import { createCsrfToken } from './auth';
 import setPostgresDefaultsOnHeroku from './setPostgresDefaultsOnHeroku';
 
 setPostgresDefaultsOnHeroku();
@@ -45,6 +43,19 @@ export type User = {
   username: string;
 };
 
+// getting all users for getting some data from the whole table
+export async function getUsers() {
+  const users = await sql<[User[]]>`
+  SELECT
+    id,
+    username
+  FROM
+    users
+    `;
+  return camelcaseKeys(users);
+}
+
+// creating a new user
 export async function createUser(username: string, passwordHash: string) {
   const [user] = await sql<[User]>`
   INSERT INTO users
@@ -59,6 +70,7 @@ export async function createUser(username: string, passwordHash: string) {
   return camelcaseKeys(user);
 }
 
+// deleting user
 export async function deleteUserById(userId: number) {
   if (!userId) return undefined;
 
@@ -72,6 +84,7 @@ export async function deleteUserById(userId: number) {
   return camelcaseKeys(user);
 }
 
+// updating data about a user
 export async function updateUser(
   userId: number,
   username: string,
@@ -258,6 +271,7 @@ export type Profile = {
   selfDescription: string;
 };
 
+// creating a profile for new user
 export async function createProfile(
   userId: number,
   firstName: string,
@@ -281,6 +295,7 @@ export async function createProfile(
   return camelcaseKeys(profile);
 }
 
+// getting a profile information
 export async function getProfile(ProfileId: number) {
   if (!ProfileId) return undefined;
   const [profile] = await sql<[Profile | undefined]>`
@@ -301,10 +316,12 @@ export async function getProfile(ProfileId: number) {
 export type Admin = {
   admin_id: number;
 };
+
+// getting an admin to check if he is logged
 export async function getAdmin(userId: number) {
   if (!userId) return undefined;
 
-  const [admin] = await sql<[Admin]>`
+  const [admin] = await sql<[Admin | undefined]>`
       SELECT
     admin_id
       FROM
@@ -316,7 +333,9 @@ export async function getAdmin(userId: number) {
   return admin && camelcaseKeys(admin);
 }
 
-//  csrf:
+//
+//  csrf - Cross-site request forgery prevention
+//
 
 export type SessionWithCSRF = Session & { csrfSecret: string };
 
@@ -347,16 +366,17 @@ export type Programme = {
   programmeId: number;
   tourId?: number | null;
   filmTitle: string;
-  filmId: number;
+  filmId?: number;
   cinemaName: string;
-  time: any;
-  genre: string;
+  time: string;
+  genre?: string;
   date: string;
   username?: string | undefined;
   hostId?: number | null;
   englishfriendly: boolean;
 };
 
+// getting all programmes - with tours, without tours and those where tours are not defined as an option
 export async function getProgrammes() {
   const programmesWithTours = await sql<[Programme[]]>`
       SELECT
@@ -407,7 +427,7 @@ export async function getProgrammes() {
 
   await deleteExpiredProgrammes();
 
-  if (!programmesWithTours.length && !programmesWithoutTours.length) {
+  if (!programmesWithoutTours.length) {
     const programmes = await sql<Programme[]>`
     SELECT
     programmes.id AS programme_id,
@@ -434,14 +454,10 @@ export async function getProgrammes() {
   return camelcaseKeys(programmes);
 }
 
-export type TourOrganizers = {
-  programme_id: number;
-  username: string;
-};
-
+// getting current programme by its id
 export async function getProgrammeById(id: number | undefined) {
   if (!id) return undefined;
-  const [programme] = await sql<[any]>`
+  const [programme] = await sql<[Programme | undefined]>`
     SELECT
       programmes.id AS programme_id,
       film_title,
@@ -460,6 +476,7 @@ export async function getProgrammeById(id: number | undefined) {
   return programme && camelcaseKeys(programme);
 }
 
+// creating a new programme
 export async function createProgramme(
   filmId: number,
   cinemaId: number,
@@ -481,6 +498,7 @@ export async function createProgramme(
   return programme && camelcaseKeys(programme);
 }
 
+// updating current programme
 export async function updateProgrammeById(
   programmeId: number,
   filmId: number,
@@ -505,6 +523,7 @@ export async function updateProgrammeById(
   return programme && camelcaseKeys(programme);
 }
 
+// deleting current programme
 export async function deleteProgrammeById(programmeId: number) {
   const [programme] = await sql`
   DELETE FROM
@@ -532,8 +551,9 @@ export type TourAttendeeSimple = {
   tourId: number;
 };
 
+// getting all attendees for current tour
 export async function getAttendees() {
-  const tour_attendees = await sql<[TourAttendee[]]>`
+  const tourAttendees = await sql<[TourAttendee[]]>`
     SELECT
     programme_id,
     username,
@@ -546,7 +566,7 @@ export async function getAttendees() {
     users.id = attendee_id AND
     tours.id = tour_id
   `;
-  return tour_attendees && camelcaseKeys(tour_attendees);
+  return camelcaseKeys(tourAttendees);
 }
 
 //
@@ -563,6 +583,7 @@ export type Cinema = {
   contact: string;
 };
 
+// getting all cinemas
 export async function getCinemas() {
   const cinemas = await sql<[Cinema[]]>`
   SELECT
@@ -571,11 +592,10 @@ export async function getCinemas() {
     cinemas
   `;
 
-  return cinemas && camelcaseKeys(cinemas);
+  return camelcaseKeys(cinemas);
 }
 
 // getting cinema id in api for creating the programme
-
 export async function getCinemaByName(cinemaName: string) {
   if (!cinemaName) {
     return undefined;
@@ -591,6 +611,7 @@ export async function getCinemaByName(cinemaName: string) {
 
   return cinema && camelcaseKeys(cinema);
 }
+
 //
 // Films
 //
@@ -607,6 +628,7 @@ export type Film = {
   country: string;
 };
 
+// getting all films
 export async function getFilms() {
   const films = await sql<[Film[]]>`
     SELECT
@@ -614,9 +636,10 @@ export async function getFilms() {
     FROM
       films
   `;
-  return films && camelcaseKeys(films);
+  return camelcaseKeys(films);
 }
 
+// getting film of the week to work with its data
 export async function getFilmOfTheWeek() {
   const [film] = await sql<[Film | undefined]>`
     SELECT
@@ -629,6 +652,7 @@ export async function getFilmOfTheWeek() {
   return film && camelcaseKeys(film);
 }
 
+// creating a new film
 export async function createFilm(
   filmTitle: string,
   genre: string,
@@ -651,6 +675,7 @@ export async function createFilm(
   return camelcaseKeys(film);
 }
 
+// getting film by id
 export async function getFilmById(id: number | undefined) {
   if (!id) return undefined;
   const [film] = await sql<[Film | undefined]>`
@@ -664,6 +689,7 @@ export async function getFilmById(id: number | undefined) {
   return film && camelcaseKeys(film);
 }
 
+// updating current film
 export async function updateFilmById(
   id: number,
   filmTitle: string,
@@ -694,6 +720,7 @@ export async function updateFilmById(
   return film && camelcaseKeys(film);
 }
 
+// deleting current film
 export async function deleteFilmById(id: number) {
   const [film] = await sql<[Film | undefined]>`
     DELETE FROM
@@ -742,6 +769,7 @@ export type Tour = {
   genre: string;
 };
 
+// getting all tours
 export async function getTours() {
   const tours = await sql<[Tour[]]>`
     SELECT
@@ -773,9 +801,10 @@ export async function getTours() {
 
   await deleteExpiredProgrammes();
 
-  return tours && camelcaseKeys(tours);
+  return camelcaseKeys(tours);
 }
 
+// creating a tour for current programme id
 export async function createTour(
   programmeId: number,
   hostId: number,
@@ -793,6 +822,7 @@ export async function createTour(
   return camelcaseKeys(tour);
 }
 
+// getting tour for current programme id
 export async function getTourByProgrammeId(programmeId: number) {
   const [tour] = await sql<[any]>`
   SELECT
@@ -809,6 +839,7 @@ export async function getTourByProgrammeId(programmeId: number) {
   return camelcaseKeys(tour);
 }
 
+// getting current tour
 export async function getTourByTourId(tourId: number) {
   const [tour] = await sql<[any]>`
   SELECT
@@ -825,6 +856,7 @@ export async function getTourByTourId(tourId: number) {
   return camelcaseKeys(tour);
 }
 
+// updating current tour's description
 export async function updateTourById(tourId: number, body: string) {
   const [tour] = await sql<[Tour | undefined]>`
     UPDATE
@@ -838,6 +870,7 @@ export async function updateTourById(tourId: number, body: string) {
   return tour && camelcaseKeys(tour);
 }
 
+// deleting current tour
 export async function deleteTourById(tourId: number) {
   const [tour] = await sql<[Tour | undefined]>`
   DELETE FROM
@@ -850,8 +883,9 @@ export async function deleteTourById(tourId: number) {
   return tour && camelcaseKeys(tour);
 }
 
+// joining current tour
 export async function joinTourbyUserId(tourId: number, userId: number) {
-  const [tour_attendee] = await sql<[TourAttendeeSimple | undefined]>`
+  const [tourAttendee] = await sql<[TourAttendeeSimple | undefined]>`
   INSERT INTO tours_attendees
     (tour_id, attendee_id)
   VALUES
@@ -860,11 +894,12 @@ export async function joinTourbyUserId(tourId: number, userId: number) {
     *
   `;
 
-  return tour_attendee && camelcaseKeys(tour_attendee);
+  return tourAttendee && camelcaseKeys(tourAttendee);
 }
 
+// leaving current tour
 export async function unjoinTourbyUserId(tourId: number, attendeeId: number) {
-  const [tour_attendee] = await sql<[TourAttendeeSimple | undefined]>`
+  const [tourAttendee] = await sql<[TourAttendeeSimple | undefined]>`
   DELETE FROM
   tours_attendees
   WHERE
@@ -873,9 +908,10 @@ export async function unjoinTourbyUserId(tourId: number, attendeeId: number) {
   RETURNING *
   `;
 
-  return tour_attendee && camelcaseKeys(tour_attendee);
+  return tourAttendee && camelcaseKeys(tourAttendee);
 }
 
+// deleting programmes that are older then today
 export async function deleteExpiredProgrammes() {
   const programmes = await sql<[Programme[]]>`
     DELETE FROM programmes
@@ -884,7 +920,7 @@ export async function deleteExpiredProgrammes() {
   RETURNING *
   `;
 
-  return programmes && programmes.map((programme) => camelcaseKeys(programme));
+  return programmes.map((programme) => camelcaseKeys(programme));
 }
 
 //
@@ -899,7 +935,7 @@ export async function getCinetourists() {
       users
     `;
 
-  return users && camelcaseKeys(users);
+  return camelcaseKeys(users);
 }
 
 export async function getCinetouristById(id: number | undefined) {
@@ -960,7 +996,7 @@ export async function getSubscriberByValidSubscription(userId: number) {
 
   await deleteExpiredSubscribers();
 
-  return subscriber && camelcaseKeys(subscriber);
+  return camelcaseKeys(subscriber);
 }
 
 export async function getSubscriberByExistingCheckoutSession(
@@ -1031,9 +1067,9 @@ friend1_id = ${userId} AND
 users.id = friend2_id
 `;
 
-  const SuperFriends = [...friends, ...friends2];
+  const superFriends = [...friends, ...friends2];
 
-  return SuperFriends && camelcaseKeys(SuperFriends);
+  return camelcaseKeys(superFriends);
 }
 
 export async function getFriendByOwnId(userId: number, friendId: number) {

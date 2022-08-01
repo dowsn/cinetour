@@ -68,10 +68,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
             sessionId,
           );
 
-          // creating a token
+          // then creating a token
           const token = crypto.randomBytes(80).toString('base64');
 
           if (!checkSession) {
+            // and a new subscriber
             createSubscriber(user.id, sessionId, token).catch(() => {
               console.log('Request fails');
             });
@@ -84,6 +85,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
         }
       }
     }
+
+    // otherwise redirecting to canceled page
     return {
       redirect: {
         destination: `/canceled`,

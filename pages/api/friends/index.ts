@@ -6,12 +6,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  // getting the user from query
-
+  // getting current user from query
   const user = req.query.userId;
 
   if (!user) {
-    return res.status(400).json({ errors: [{ message: 'No User' }] });
+    return res.status(400).json({ errors: [{ message: 'No user found.' }] });
   }
 
   const friends = await getFriends(Number(user));
@@ -19,10 +18,10 @@ export default async function handler(
   if (!friends) {
     return res
       .status(400)
-      .json({ errors: [{ message: 'No session token passed' }] });
+      .json({ errors: [{ message: 'No session token passed.' }] });
   }
 
-  // checking the method
+  // if method GET
   if (req.method === 'GET') {
     // 3. return the user
     return res.status(200).json(friends);
@@ -30,5 +29,5 @@ export default async function handler(
 
   return res
     .status(405)
-    .json({ errors: [{ message: 'Method is not allowed' }] });
+    .json({ errors: [{ message: 'Method is not allowed.' }] });
 }
