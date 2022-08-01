@@ -273,6 +273,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   );
 
   const programmesRaw = await request.json();
+  console.log(programmesRaw);
 
   // getting a better datastructure
   const programmes = programmesRaw.map((programme: Programme) =>

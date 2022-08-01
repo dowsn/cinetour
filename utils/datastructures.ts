@@ -69,9 +69,6 @@ export function getReducedTour(tour: Tour, attendees: TourAttendee[]) {
 }
 
 export function getReducedSubscriber(s: Subscriber) {
-  if (!s) {
-    return undefined;
-  }
   const reducedsubscriber = {
     subscriberId: s.subscriberId,
     expiryTimestamp: s.expiryTimestamp.toString(),

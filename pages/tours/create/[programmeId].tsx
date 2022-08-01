@@ -131,23 +131,22 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   );
 
   const programmeId = context.query.programmeId;
-
   const programme = await getProgrammeById(Number(programmeId));
 
-  const reducedProgramme = getReducedProgramme(programme);
+  // allowing to create a tour only if the user is present and if there is a programme to associate tour with
+  if (programme && user) {
+    // reducing the programme
+    const reducedProgramme = getReducedProgramme(programme);
 
-  console.log(reducedProgramme);
-
-  if (!user) {
     return {
-      redirect: {
-        destination: `/login?returnTo=/tours/create`,
-        permanent: false,
-      },
+      props: { user: user, programme: reducedProgramme },
     };
   }
 
   return {
-    props: { user: user, programme: reducedProgramme },
+    redirect: {
+      destination: `/login?returnTo=/tours/create`,
+      permanent: false,
+    },
   };
 }

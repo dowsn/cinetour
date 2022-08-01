@@ -366,10 +366,10 @@ export type Programme = {
   programmeId: number;
   tourId?: number | null;
   filmTitle: string;
-  filmId?: number;
+  filmId: number;
   cinemaName: string;
-  time: string;
-  genre?: string;
+  time: any;
+  genre: string;
   date: string;
   username?: string | undefined;
   hostId?: number | null;
@@ -404,7 +404,7 @@ export async function getProgrammes() {
       users.id = host_id
     `;
 
-  const programmesWithoutTours = await sql<Programme[]>`
+  const programmesWithoutTours = await sql<[Programme[]]>`
     SELECT
     distinct programmes.id AS programme_id,
      film_title,
@@ -427,7 +427,7 @@ export async function getProgrammes() {
 
   await deleteExpiredProgrammes();
 
-  if (!programmesWithoutTours.length) {
+  if (!programmesWithoutTours.length && !programmesWithTours.length) {
     const programmes = await sql<Programme[]>`
     SELECT
     programmes.id AS programme_id,
@@ -457,7 +457,7 @@ export async function getProgrammes() {
 // getting current programme by its id
 export async function getProgrammeById(id: number | undefined) {
   if (!id) return undefined;
-  const [programme] = await sql<[Programme | undefined]>`
+  const [programme] = await sql<[any | undefined]>`
     SELECT
       programmes.id AS programme_id,
       film_title,
