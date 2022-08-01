@@ -18,7 +18,7 @@ Cinetour is a new way how to experience and explore culture in your town.
 ### Registration and Profile
 
 - Click on the profile icon in upper right corner of the Header.
-- Register and login as a user with your real or fictional data.
+- Register and login as a user with your real or fictional data. You can also add your profile picture.
 - In you profile you can see a map of cinetour network, change your data or profile picture (WILL BE ADDED IN NEXT VERSION), see a list of my friends and tours you are hosting or attending.
 
 ### Subscription
@@ -62,7 +62,7 @@ The whole platform is fully responsive and works on various screens.
 ## Admin (cinema manager)
 
 - Admin is the only cinetourist that can manage database of films and programmes.
-- Login as admin (username: admin, password: comics)
+- Login as admin (username: admin, password: 123456)
 - Go to your profile and try to add, delete and edit films and programmes under your Admin Tools tab.
 - You can also select (only one) Film of the week which will be displayed on the homepage. After doing so, don't forget to change the Image, also under Edit Films.
   (WILL BE ADDED IN NEXT VERSION)
