@@ -36,6 +36,7 @@ const registerStyles = css`
 
 type Props = {
   users: User[];
+  refreshUserProfile: () => Promise<void>;
 };
 
 export default function Register(props: Props) {
@@ -88,9 +89,11 @@ export default function Register(props: Props) {
       /^\/[a-zA-Z0-9-?=/]*$/.test(returnTo)
     ) {
       await router.push(returnTo);
+      await props.refreshUserProfile();
     } else {
       // redirecting
       await router.push(`/profile`);
+      await props.refreshUserProfile();
     }
   }
 

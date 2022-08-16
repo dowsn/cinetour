@@ -1,5 +1,7 @@
 /** @jsxImportSource @emotion/react */
 
+import { AdvancedImage } from '@cloudinary/react';
+import { Cloudinary } from '@cloudinary/url-gen';
 import { css } from '@emotion/react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -69,6 +71,13 @@ const headerStyles = css`
 
     :hover {
       border-bottom: solid ${colors.blue} 3px;
+    }
+  }
+
+  // profile image
+  .rounded {
+    img {
+      border-radius: 20px;
     }
   }
 
@@ -265,6 +274,22 @@ export default function Header(props) {
   const onMouseEnter3 = () => setIsProfile(true);
   const onMouseLeave3 = () => setIsProfile(false);
 
+  // displaying profile picture
+  // Create a Cloudinary instance and set your cloud name.
+  const cld = new Cloudinary({
+    cloud: {
+      cloudName: 'dkiienrq4',
+    },
+  });
+
+  // cld.image returns a CloudinaryImage with the configuration set.
+  let myImage;
+  if (props.image) {
+    myImage = cld.image(`userlist/${props.image.id}`);
+  } else {
+    myImage = undefined;
+  }
+
   return (
     <header css={headerStyles} className="container-fluid align-items-center">
       <div className="header row">
@@ -371,29 +396,44 @@ export default function Header(props) {
           onMouseLeave={onMouseLeave3}
           onClick={() => setSandwich(false)}
         >
-          <Link href={props.user ? '/profile' : '/login'}>
-            {isProfile ? (
-              <div className="option profile">
-                <Image
-                  src="/nav/profile2.png"
-                  alt="explore"
+          {props.image ? (
+            <Link href="/profile">
+              <div className="option profile rounded">
+                <AdvancedImage
+                  cldImg={myImage}
+                  alt="profile"
                   layout="fixed"
                   width="32px"
                   height="32px"
                 />
               </div>
-            ) : (
-              <div className="option profile">
-                <Image
-                  src="/nav/profile1.png"
-                  alt="explore"
-                  layout="fixed"
-                  width="32px"
-                  height="32px"
-                />
-              </div>
-            )}
-          </Link>
+            </Link>
+          ) : (
+            <Link href="/login">
+              {isProfile ? (
+                <div className="option profile">
+                  <Image
+                    // this needs to change
+                    src="/nav/profile2.png"
+                    alt="login"
+                    layout="fixed"
+                    width="32px"
+                    height="32px"
+                  />
+                </div>
+              ) : (
+                <div className="option profile">
+                  <Image
+                    src="/nav/profile1.png"
+                    alt="login"
+                    layout="fixed"
+                    width="32px"
+                    height="32px"
+                  />
+                </div>
+              )}
+            </Link>
+          )}
         </button>
         <div className="filler" />
         <div>

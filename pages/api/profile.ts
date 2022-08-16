@@ -41,6 +41,8 @@ export default async function handler(
 
   // if method PUT
   if (req.method === 'PUT') {
+    // checking also for length of description
+    const selfDescription = req.body.selfDescription;
     if (
       req.body.currentPassword &&
       req.body.newPassword &&
@@ -107,13 +109,13 @@ export default async function handler(
       typeof req.body.firstName !== 'string' ||
       typeof req.body.lastName !== 'string' ||
       typeof req.body.email !== 'string' ||
-      typeof req.body.selfDescription !== 'string' ||
-      req.body.selfDescription.length > 100 ||
+      typeof selfDescription !== 'string' ||
+      selfDescription.length > 100 ||
       !req.body.username ||
       !req.body.firstName ||
       !req.body.lastName ||
       !req.body.email ||
-      !req.body.selfDescription
+      !selfDescription
     ) {
       return res.status(400).json({
         errors: [
@@ -139,7 +141,6 @@ export default async function handler(
     const firstName = request.firstName;
     const lastName = request.lastName;
     const email = request.email;
-    const selfDescription = request.selfDescription;
 
     const userTaken = await getUserByUsername(username);
 

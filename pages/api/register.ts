@@ -2,7 +2,6 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createCSRFSecret } from '../../utils/auth';
-// import { createCSRFSecret } from '../../utils/auth';
 import { createSerializedRegisterSessionTokenCookie } from '../../utils/cookies';
 import {
   createProfile,
@@ -26,6 +25,9 @@ export default async function handler(
   // check method if post method
   if (req.method === 'POST') {
     // check if the provided data is alright = provided
+
+    // checking also for length of description
+    const selfDescription = req.body.selfDescription;
     if (
       typeof req.body.username !== 'string' ||
       typeof req.body.password !== 'string' ||
@@ -33,15 +35,15 @@ export default async function handler(
       typeof req.body.lastName !== 'string' ||
       typeof req.body.email !== 'string' ||
       typeof req.body.email !== 'string' ||
-      typeof req.body.selfDescription !== 'string' ||
-      req.body.selfDescription.length > 100 ||
+      typeof selfDescription !== 'string' ||
+      selfDescription.length > 100 ||
       !req.body.username ||
       !req.body.password ||
       !req.body.firstName ||
       !req.body.lastName ||
       !req.body.email ||
       !req.body.email ||
-      !req.body.selfDescription
+      !selfDescription
     ) {
       return res.status(400).json({
         errors: [
@@ -65,7 +67,6 @@ export default async function handler(
     const firstName = user.firstName;
     const lastName = user.lastName;
     const email = user.email;
-    const selfDescription = user.selfDescription;
 
     // get the password
     const password = user.password;

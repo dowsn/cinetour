@@ -1,10 +1,31 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import { css, Global } from '@emotion/react';
 import Head from 'next/head';
+import { useCallback, useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { colors } from '../styles/constants';
 
 function MyApp({ Component, pageProps }) {
+  const [user, setUser] = useState(undefined);
+
+  const refreshUserProfile = useCallback(async () => {
+    console.log('ahoj');
+    const profileResponse = await fetch('/api/profile');
+
+    const profileResponseBody = await profileResponse.json();
+
+    if (!('errors' in profileResponseBody)) {
+      setUser(profileResponseBody.user);
+    } else {
+      profileResponseBody.errors.forEach((error) => console.log(error));
+      setUser(undefined);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshUserProfile().catch(() => console.log('fetch api failed'));
+  }, [refreshUserProfile]);
+
   return (
     <>
       <Head>
@@ -307,7 +328,7 @@ function MyApp({ Component, pageProps }) {
 
           .tours {
             color: white;
-            text-align: center;
+            text-align: D;
             margin-top: -15px;
             margin-bottom: 0;
             border-top: 3px solid white;
@@ -427,8 +448,12 @@ function MyApp({ Component, pageProps }) {
           }
         `}
       />
-      <Layout>
-        <Component {...pageProps} />
+      <Layout image={user}>
+        <Component
+          {...pageProps}
+          refreshUserProfile={refreshUserProfile}
+          image={user}
+        />
       </Layout>
     </>
   );

@@ -44,6 +44,7 @@ type Props = {
   cinemas?: Cinema[];
   tours?: ReducedTour[];
   friends?: Friend[];
+  refreshUserProfile: () => Promise<void>;
 };
 
 // options for the map
@@ -446,17 +447,31 @@ export default function UserDetails(props: Props) {
             </ul>
           </section>
         </section>
-        <div className="editProfile">
-          <Link href="/profile/edit">
-            <button>Edit Profile</button>
-          </Link>
-          <Link href="/profile/change_password">
-            <button>Change Password</button>
-          </Link>
-        </div>
-        <br />
+        {props.admin ? (
+          ''
+        ) : (
+          <>
+            <div className="editProfile">
+              <Link href="/profile/edit">
+                <button>Edit Profile</button>
+              </Link>
+              <Link href="/profile/change_password">
+                <button>Change Password</button>
+              </Link>
+            </div>
+            <br />
+          </>
+        )}
         <Link href="/logout">
-          <button>Log Out</button>
+          <button
+            onClick={() =>
+              props.refreshUserProfile().catch(() => {
+                console.log('Request fails');
+              })
+            }
+          >
+            Log Out
+          </button>
         </Link>
       </main>
     </div>

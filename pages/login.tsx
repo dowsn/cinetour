@@ -21,7 +21,11 @@ const loginStyles = css`
   }
 `;
 
-export default function Login() {
+type Props = {
+  refreshUserProfile: () => Promise<void>;
+};
+
+export default function Login(props: Props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<
@@ -61,9 +65,11 @@ export default function Login() {
       /^\/[a-zA-Z0-9-?=/]*$/.test(returnTo)
     ) {
       await router.push(returnTo);
+      await props.refreshUserProfile();
     } else {
       // redirect to user profile
       await router.push(`/profile`);
+      await props.refreshUserProfile();
     }
   }
 
