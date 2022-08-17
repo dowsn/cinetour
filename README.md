@@ -65,7 +65,7 @@ The whole platform is fully responsive and works on various screens.
 - Login as admin (username: admin, password: 123456)
 - Go to your profile and try to add, delete and edit films and programmes under your Admin Tools tab.
 - You can also select (only one) Film of the week which will be displayed on the homepage. After doing so, don't forget to change the Image, also under Edit Films.
-  (WILL BE ADDED IN NEXT VERSION)
+  (WILL BE ADDED IN NEXT VERSION SOOn)
 
 ### Security
 
