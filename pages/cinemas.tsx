@@ -88,18 +88,24 @@ export default function Cinemas(props: Props) {
   const [film, setFilm] = useState('');
   const [english, setEnglish] = useState(false);
 
-  // getting days from now
+  // getting 7 days from now
   const today = new Date(Date.now()).toString().split(' ', 3).join(' ');
-  const tomorrow = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000)
-    .toString()
-    .split(' ', 3)
-    .join(' ');
-  const day2 = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-    .toString()
-    .split(' ', 3)
-    .join(' ');
+  const days = [1, 2, 3, 4, 5, 6];
+  function tomorrow(x: number) {
+    return new Date(Date.now() + x * 24 * 60 * 60 * 1000)
+      .toString()
+      .split(' ', 3)
+      .join(' ');
+  }
 
-  const sevenDays = [today, tomorrow, day2];
+  const day2 = tomorrow(days[0]);
+  const day3 = tomorrow(days[1]);
+  const day4 = tomorrow(days[2]);
+  const day5 = tomorrow(days[3]);
+  const day6 = tomorrow(days[4]);
+  const day7 = tomorrow(days[5]);
+
+  const sevenDays = [today, day2, day3, day4, day5, day6, day7];
 
   const handleFilter = (data: any, key: any, value: any) => {
     return data.filter((item: any) => item[key] === value);

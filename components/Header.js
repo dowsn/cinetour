@@ -286,6 +286,7 @@ export default function Header(props) {
   let myImage;
   if (props.image) {
     myImage = cld.image(`userlist/${props.image.id}`);
+    console.log(myImage);
   } else {
     myImage = undefined;
   }

@@ -9,7 +9,6 @@ function MyApp({ Component, pageProps }) {
   const [user, setUser] = useState(undefined);
 
   const refreshUserProfile = useCallback(async () => {
-    console.log('ahoj');
     const profileResponse = await fetch('/api/profile');
 
     const profileResponseBody = await profileResponse.json();
@@ -21,10 +20,6 @@ function MyApp({ Component, pageProps }) {
       setUser(undefined);
     }
   }, []);
-
-  useEffect(() => {
-    refreshUserProfile().catch(() => console.log('fetch api failed'));
-  }, [refreshUserProfile]);
 
   return (
     <>

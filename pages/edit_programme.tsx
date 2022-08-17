@@ -171,9 +171,9 @@ export default function EditProgrammes(props: Props) {
           <button>Back</button>
         </Link>
         <ToastContainer
-          position="top-center"
-          autoClose={5000}
-          hideProgressBar={false}
+          position="bottom-center"
+          autoClose={800}
+          hideProgressBar
           newestOnTop={false}
           closeOnClick
           rtl={false}

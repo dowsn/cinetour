@@ -7,7 +7,7 @@ import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import YouTube, { YouTubeProps } from 'react-youtube';
 import {
   Film,
@@ -109,9 +109,15 @@ type Props = {
   user?: User;
   programmes?: ReducedProgramme[];
   filmoftheweek?: Film;
+  refreshUserProfile: () => Promise<void>;
 };
 
 export default function Home(props: Props) {
+  // updating profile image in header
+  useEffect(() => {
+    props.refreshUserProfile().catch(() => console.log('fetch api failed'));
+  }, [props]);
+
   // displaying top-film image
   // Create a Cloudinary instance and set your cloud name.
   const cld = new Cloudinary({
