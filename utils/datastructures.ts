@@ -20,7 +20,7 @@ export function getReducedProgramme(programme: Programme) {
     filmTitle: programme.filmTitle || null,
     filmId: programme.filmId || null,
     cinemaName: programme.cinemaName,
-    englishfriendly: programme.englishfriendly || null,
+    englishfriendly: programme.englishfriendly || false,
     date: new Date(programme.date).toString().split(' ', 3).join(' '),
     time: programme.time.toString().split(':', 2).join(':'),
     hostId: programme.hostId || null,

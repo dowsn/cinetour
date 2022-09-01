@@ -261,7 +261,6 @@ export default function EditProgrammes(props: Props) {
             const d: any = new Date(b.date);
             return c - d;
           })
-          .sort((a, b) => a.time.localeCompare(b.time))
           .map((programme) => {
             return programme.programmeId === activeProgrammeId ? (
               <Fragment key={`programme-id-${programme.programmeId}`}>

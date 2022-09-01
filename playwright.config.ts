@@ -19,7 +19,7 @@ const config: PlaywrightTestConfig = {
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Ignore JEST test files */
-  testIgnore: '**/util/__tests__/**',
+  testIgnore: '**/utils/__tests__/**',
   retries: process.env.CI ? 2 : 0,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? 'list' : 'html',

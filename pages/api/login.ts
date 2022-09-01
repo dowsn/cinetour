@@ -72,6 +72,7 @@ export default async function handler(
     const serializedCookie = await createSerializedRegisterSessionTokenCookie(
       session.token,
     );
+    console.log(serializedCookie);
 
     return res
       .status(200)

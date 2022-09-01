@@ -419,6 +419,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const request = await fetch(`${baseUrl}/api/tours`);
 
   const toursRaw = await request.json();
+  console.log(request);
 
   const requestProgrammes = await fetch(`${baseUrl}/api/programmes`);
   const programmesRaw = await requestProgrammes.json();
