@@ -7,7 +7,7 @@ jobs:
     # Update env variables with your own database credentials
 
     env:
-      PGHOST: $process.env.PGHOST
+      PGHOST: $PGHOST
       PGDATABASE: $PGDATABASE
       PGUSERNAME: $PGUSERNAME
       PGPASSWORD: $PGPASSWORD
