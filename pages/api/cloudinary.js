@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const body = JSON.parse(req.body) || {};
   const { paramsToSign } = body;
 

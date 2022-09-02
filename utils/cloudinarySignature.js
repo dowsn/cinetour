@@ -1,4 +1,4 @@
-export function generateSignature(callback, paramsToSign) {
+export async function generateSignature(callback, paramsToSign) {
   fetch(`/api/cloudinary`, {
     method: 'POST',
     body: JSON.stringify({

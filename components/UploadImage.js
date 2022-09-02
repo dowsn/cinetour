@@ -3,7 +3,7 @@ import { generateSignature } from '../utils/cloudinarySignature';
 
 export function ImageUpload() {
   const [isImageUploaded, setIsImageUploaded] = useState(false);
-  function handleWidgetClick() {
+  async function handleWidgetClick() {
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName: 'dkiienrq4',
