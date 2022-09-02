@@ -7,6 +7,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import { ImageUpload } from '../components/UploadImage';
 import { getUsers, User } from '../utils/database';
 import { RegisterResponseBody } from './api/register';
 
@@ -29,10 +30,6 @@ const registerStyles = css`
     align-content: center;
   }
 `;
-
-// type Props = {
-//   newUser: string;
-// };
 
 type Props = {
   users: User[];
@@ -236,6 +233,9 @@ export default function Register(props: Props) {
         </label>
         <br />
         <br />
+        <div>
+          <ImageUpload />
+        </div>
         <div className="editProfile">
           <button
             onClick={() => {

@@ -6,7 +6,7 @@ export function ImageUpload() {
   function handleWidgetClick() {
     const widget = window.cloudinary.createUploadWidget(
       {
-        cloudName: 'kennyy',
+        cloudName: 'dkiienrq4',
         uploadSignature: generateSignature,
         apiKey: process.env.CLOUDINARY_API_KEY,
         resourceType: 'image',
@@ -14,6 +14,7 @@ export function ImageUpload() {
       (error, result) => {
         if (!error && result && result.event === 'success') {
           console.log('Done! Here is the image info: ', result.info);
+          console.log(result);
           setIsImageUploaded(true);
         } else if (error) {
           console.log(error);
