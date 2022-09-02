@@ -6,10 +6,10 @@ jobs:
     runs-on: ubuntu-latest # or macos-latest, windows-latest
     # Update env variables with your own database credentials
     env:
-      PGHOST: process.env.PGHOST
-      PGDATABASE: process.env.PGDATABASE
-      PGUSERNAME: process.env.PGUSERNAME
-      PGPASSWORD: process.env.PGPASSWORD
+      PGHOST: localhost
+      PGDATABASE: cinetour
+      PGUSERNAME: cinetour
+      PGPASSWORD: cinetour
 
     steps:
       - name: Start preinstalled PostgreSQL on Ubuntu

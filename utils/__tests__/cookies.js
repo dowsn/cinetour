@@ -1,6 +1,6 @@
 import { createSerializedRegisterSessionTokenCookie } from '../cookies';
 
-const maxAge = 60 * 60 * 22;
+const maxAge = 60 * 60 * 24;
 let expiry = new Date(Date.now() + maxAge * 1000).toString().split('+');
 expiry = expiry[0].split(' ');
 const copy = [...expiry];
