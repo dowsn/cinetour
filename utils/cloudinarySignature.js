@@ -8,6 +8,8 @@ export function generateSignature(callback, paramsToSign) {
     .then((r) => r.json())
     .then(({ signature }) => {
       callback(signature);
+    })
+    .catch(() => {
+      console.log('Request fails');
     });
-    .catch()
 }
