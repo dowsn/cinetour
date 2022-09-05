@@ -6,7 +6,7 @@ import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ImageUpload } from '../components/UploadImage';
 import { getUsers, User } from '../utils/database';
 import { RegisterResponseBody } from './api/register';
@@ -44,6 +44,64 @@ export default function Register(props: Props) {
   const [email, setEmail] = useState('');
   const [selfDescription, setSelfDescription] = useState('');
   const [errors, setErrors] = useState<{ message: string }[]>([]);
+
+  // async function getSignature() {
+  //   const response = await fetch('/api/sign');
+  //   const data = await response.json();
+  //   const { signature, timestamp } = data;
+  //   return { signature, timestamp };
+  // }
+
+  // const [uploadedFiles, setUploadedFiles] = useState([]);
+  // const [loading, setLoading] = useState(false);
+
+  // const onDrop = useCallback((acceptedFiles: any) => {
+  //   const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
+  //   acceptedFiles.forEach(async (acceptedFile: any) => {
+  //     setLoading(true);
+  //     const { signature, timestamp } = await getSignature();
+  //     const formData = new FormData();
+  //     formData.append('file', acceptedFile);
+  //     formData.append('signature', signature);
+  //     formData.append('timestamp', timestamp);
+  //     formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_KEY);
+
+  //     const response = await fetch(url, {
+  //       method: 'post',
+  //       body: formData,
+  //     });
+  //     const data = await response.json();
+
+  //     setUploadedFiles((old) => [...old, data]);
+  //     setLoading(false);
+  //   });
+  // }, []);
+
+  // const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  //   onDrop,
+  //   accepts: 'image/*',
+  //   multiple: false,
+  // });
+
+  // // Remove itens from uploadFiles State and DELETE file from CLOUDINARY
+  // async function handleRemoveFiles(public_id) {
+  //   // Here will put all arrays again in uploadFile State where the public_id is different from parameter id.
+  //   const newUploadedFiles = uploadedFiles.filter(
+  //     (item) => item.public_id !== public_id,
+  //   );
+  //   // Update STATE with new list
+  //   setUploadedFiles(newUploadedFiles);
+  //   // DESTROY FILE in Cloudinary
+  //   const response = await fetch(`/api/destroy/${public_id}`, {
+  //     method: 'post',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       Accept: 'application/json',
+  //     },
+  //   });
+  //   const data = await response.json();
+  //   console.log(data);
+  // }
 
   const router = useRouter();
 
