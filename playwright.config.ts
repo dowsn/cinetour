@@ -1,4 +1,7 @@
 import { devices, type PlaywrightTestConfig } from '@playwright/test';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const config: PlaywrightTestConfig = {
   webServer: {
@@ -6,6 +9,11 @@ const config: PlaywrightTestConfig = {
     port: 3000,
     timeout: 10 * 1000,
     reuseExistingServer: !process.env.CI,
+  },
+  use: {
+    BASE_URL: process.env.BASE_URL,
+    NEXT_APP_GOOGLE_MAPS_API_KEY: process.env.NEXT_APP_GOOGLE_MAPS_API_KEY,
+    STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
   },
   expect: {
     /**
