@@ -6,7 +6,8 @@ import { GetServerSidePropsContext } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
+// import { useCallback, useState } from 'react';
 import { ImageUpload } from '../components/UploadImage';
 import { getUsers, User } from '../utils/database';
 import { RegisterResponseBody } from './api/register';
@@ -46,25 +47,25 @@ export default function Register(props: Props) {
   const [errors, setErrors] = useState<{ message: string }[]>([]);
 
   // async function getSignature() {
-  //   const response = await fetch('/api/sign');
+  //   const response = await fetch('/api/cloudinary');
   //   const data = await response.json();
-  //   const { signature, timestamp } = data;
-  //   return { signature, timestamp };
+  //   const { sign, timestamp } = data;
+  //   return { sign, timestamp };
   // }
 
   // const [uploadedFiles, setUploadedFiles] = useState([]);
   // const [loading, setLoading] = useState(false);
 
   // const onDrop = useCallback((acceptedFiles: any) => {
-  //   const url = `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`;
+  //   const url = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/upload`;
   //   acceptedFiles.forEach(async (acceptedFile: any) => {
   //     setLoading(true);
-  //     const { signature, timestamp } = await getSignature();
+  //     const { sign, timestamp } = await getSignature();
   //     const formData = new FormData();
   //     formData.append('file', acceptedFile);
-  //     formData.append('signature', signature);
+  //     formData.append('signature', sign);
   //     formData.append('timestamp', timestamp);
-  //     formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_KEY);
+  //     formData.append('api_key', process.env.CLOUDINARY_API_KEY);
 
   //     const response = await fetch(url, {
   //       method: 'post',
@@ -72,7 +73,7 @@ export default function Register(props: Props) {
   //     });
   //     const data = await response.json();
 
-  //     setUploadedFiles((old) => [...old, data]);
+  //     setUploadedFiles((old: any) => [...old, data]);
   //     setLoading(false);
   //   });
   // }, []);

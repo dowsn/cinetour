@@ -1,21 +1,17 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-export default async function handler(req, res) {
-  const body = JSON.parse(req.body) || {};
-  const { paramsToSign } = body;
+export default function signature(req, res) {
+  // Get the timestamp in seconds
+  const timestamp = Math.round(new Date().getTime() / 1000);
 
-  console.log(paramsToSign);
+  // Get the signature using the Node.js SDK method api_sign_request
+  const sign = cloudinary.utils.api_sign_request(
+    {
+      timestamp: timestamp,
+    },
+    process.env.CLOUDINARY_SECRET,
+  );
 
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-  try {
-    const signature = cloudinary.utils.api_sign_request(
-      paramsToSign,
-      apiSecret,
-    );
-    res.json({ signature });
-  } catch (error) {
-    console.log(error);
-    res.send(error);
-  }
+  res.statusCode = 200;
+  res.json({ sign, timestamp });
 }
