@@ -7,10 +7,10 @@ jobs:
     # Update env variables with your own database credentials
 
     env:
-      PGHOST: ${{secrets.PGHOST}}
-      PGDATABASE: ${{secrets.PGDATABASE}}
-      PGUSERNAME: ${{secrets.PGUSERNAME}}
-      PGPASSWORD: ${{secrets.PGPASSWORD}}
+      PGHOST: localhost
+      PGDATABASE: cinetour
+      PGUSERNAME: cinetour
+      PGPASSWORD: cinetour
       BASE_URL: ${{secrets.BASE_URL}}
 
     steps:
