@@ -17,7 +17,7 @@ jobs:
       MAILCHIMP_API_KEY: ${{secrets.MAILCHIMP_API_KEY}}
       CLOUDINARY_API_KEY: ${{secrets.CLOUDINARY_API_KEY}}
       CLOUDINARY_API_SECRET: ${{secrets.CLOUDINARY_API_SECRET}}
-      CLOUDINARY_CLOUDNAME: ${{CLOUDINARY_CLOUDNAME}}
+      CLOUDINARY_CLOUDNAME: ${{secrets.CLOUDINARY_CLOUDNAME}}
 
     steps:
       - name: Start preinstalled PostgreSQL on Ubuntu
