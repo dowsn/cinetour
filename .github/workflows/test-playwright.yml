@@ -4,14 +4,20 @@ on: push
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest # or macos-latest, windows-latest
-    # Update env variables with your own database credentials
-
     env:
-      PGHOST: localhost
-      PGDATABASE: cinetour
-      PGUSERNAME: cinetour
-      PGPASSWORD: cinetour
-      BASE_URL: ${{secrets.BASE_URL}}
+      PGHOST: ${{secrets.PGHOST}}
+      PGDATABASE: ${{secrets.PGDATABASE}}
+      PGUSERNAME: ${{secrets.PGUSERNAME}}
+      PGPASSWORD: ${{secrets.PGPASSWORD}}
+      BASE_ULR: ${{secrets.BASE_ULR}}
+      NEXT_APP_GOOGLE_MAPS_API_KEY: ${{secrets.NEXT_APP_GOOGLE_MAPS_API_KEY}}
+      STRIPE_PUBLISHABLE_KEY: ${{secrets.STRIPE_PUBLISHABLE_KEY}}
+      STRIPE_SECRET_KEY: ${{secrets.STRIPE_SECRET_KEY}}
+      MAILCHIMP_LIST_ID: ${{secrets.MAILCHIMP_LIST_ID}}
+      MAILCHIMP_API_KEY: ${{secrets.MAILCHIMP_API_KEY}}
+      CLOUDINARY_API_KEY: ${{secrets.CLOUDINARY_API_KEY}}
+      CLOUDINARY_API_SECRET: ${{secrets.CLOUDINARY_API_SECRET}}
+      CLOUDINARY_CLOUDNAME: ${{CLOUDINARY_CLOUDNAME}}
 
     steps:
       - name: Start preinstalled PostgreSQL on Ubuntu
@@ -20,12 +26,12 @@ jobs:
           pg_isready
       - name: Create database user
         run: |
-          sudo -u postgres psql --command="CREATE USER cinetour PASSWORD 'cinetour'" --command="\du"
+          sudo -u postgres psql --command="CREATE USER $PGUSERNAME PASSWORD '$PGPASSWORD'" --command="\du"
       - name: Create database and allow user
         run: |
-          sudo -u postgres createdb --owner=cinetour cinetour
+          sudo -u postgres createdb --owner=$PGDATABASE $PGUSERNAME
       - uses: actions/checkout@v2
-      # Use the official setup-node action (sets up Node.js):
+        # Use the official setup-node action (sets up Node.js):
       # https://github.com/actions/setup-node
       - name: Use Node.js
         uses: actions/setup-node@v2
@@ -45,5 +51,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: playwright-screenshots-videos
+          name: my-artifact
+          # path: test-results/tests-navigate-navigation-test-chromium/
           path: test-results/
