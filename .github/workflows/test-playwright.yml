@@ -9,7 +9,7 @@ jobs:
       PGDATABASE: ${{secrets.PGDATABASE}}
       PGUSERNAME: ${{secrets.PGUSERNAME}}
       PGPASSWORD: ${{secrets.PGPASSWORD}}
-      BASE_ULR: ${{secrets.BASE_URL}}
+      BASE_ULR: http://localhost:3000
       NEXT_APP_GOOGLE_MAPS_API_KEY: ${{secrets.NEXT_APP_GOOGLE_MAPS_API_KEY}}
       STRIPE_PUBLISHABLE_KEY: ${{secrets.STRIPE_PUBLISHABLE_KEY}}
       STRIPE_SECRET_KEY: ${{secrets.STRIPE_SECRET_KEY}}
